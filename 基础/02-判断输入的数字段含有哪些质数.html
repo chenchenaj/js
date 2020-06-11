@@ -1,0 +1,49 @@
+<!-- 判断输入的数字段含有哪些质数 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+      function fn(n) {
+      var flag = true
+      for (var i = 2; i <= n - 1; i++) {
+        if (n % i === 0) {
+          flag = false
+          break
+        }
+      }
+
+      // 在这里的时候，如果 flag 是 true，证明是质数
+      // 在这里的时候，如果 flag 是 false，证明不是质数
+      // 我把你传递进来这个数字是不是质数这个结果给到函数外面
+      return flag
+    }
+
+    // 如果 res 是 true，那么证明我传递进去的哪个数字是质数
+    // 如果 res 是 false，那么证明我传递进去的哪个数字不是质数
+    var res = fn(100)
+
+    console.log(res)
+
+    function fun(a, b) {
+      for (var i = a; i <= b; i++) {
+        // i 就是 100 ~ 200 的每一个数字
+
+        // 随着循环这个 fn 函数执行了 100 次
+        var res = fn(i)
+
+        // 通过对 res 的判断，就能知道 i 是不是质数
+        if (res) {
+          console.log(i + '是质数')
+        }
+      }
+    }
+    fun(100, 200)  
+  </script>
+</body>
+</html>

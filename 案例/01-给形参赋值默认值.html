@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  方式一：
+  <script>
+    function fn(x) {
+      //=>“给形参赋值默认值”：验证传递的参数值,如果没有传递实参,让其默认值为零
+      if (typeof x === 'undefined') {
+        x = 0;
+      }
+    }
+    fn(false);
+  </script>
+  方式二：
+  <script>
+    function fn(x) {
+      //=>“给形参赋值默认值”：验证传递的参数值,如果没有传递实参,让其默认值为零
+
+      x = x || 0;//=>如果X没传递值,X=undefined =>x=undefined||0 =>这种赋值的方式没有上面IF判断严谨（IF这种是没传值才会赋值默认值，||这种是不传值或者传递的值是假，都让它等于零）
+    }
+    fn(false);
+  </script>
+</body>
+
+</html>
