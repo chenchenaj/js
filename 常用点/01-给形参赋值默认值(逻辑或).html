@@ -28,6 +28,16 @@
     }
     fn(false);
   </script>
+  方式三：ES6语法，直接在定义的时候就赋值
+  <script>
+    function fn(x = 0) {
+      //=>如果X没有传递值,默认值是零,一旦传递值,不管传递的是啥,都是按照传递的值处理的
+      console.log(x);
+    }
+    fn();//=>0
+    fn(null);//=>null
+    fn(undefined);//=>0 传递undefined，浏览器也是按照没有传递值处理的
+  </script>
 </body>
 
 </html>
