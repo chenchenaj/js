@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  marked
+  GitHub：https://github.com/markedjs/marked
+  安装：npm install marked --save
+
+
+  markdown-it
+  参考网址: https://markdown-it.github.io/
+  GitHub：https://github.com/markdown-it/markdown-it
+  安装：npm install markdown-it --save
+
+  参考如果配置：https://github.com/markdown-it/markdown-it#simple
+  import MarkdownIt from 'markdown-it',
+  const  md = new MarkdownIt();
+  <!-- 在保存之前转化 -->
+  this.article = md.render(result);
+  <!-- 转化出来的是html内容，需要配合v-html渲染 -->
+  <p v-html="article"></p>
+
+  <!-- 使得HTML语法高亮, 需要配合highlight.js插件 -->
+  npm install highlight.js
+
+  引入：
+  import hljs from 'highlight.js'
+  import 'highlight.js/styles/atom-one-dark.css'
+  const  md = new MarkdownIt({
+    highlight: function (str, lang) {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          return '<pre class="hljs"><code>' +
+                hljs.highlight(lang, str, true).value +
+                '</code></pre>';
+        } catch (__) {}
+      }
+
+      return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+    }
+  })
+
+  使用：
+  this.body = md.render(this.body)
+</body>
+</html>

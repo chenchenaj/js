@@ -66,3 +66,17 @@ const mutations ={
     state.token = ''
   },
 }
+
+
+
+使用捕获的方法
+const actions = {
+  async getComment(){
+    try {
+      const result = await reqGetComment(this.$route.params.aid)
+      this.comments = result.comments
+    } catch (error) {
+      console.log(error)
+    }
+  },
+}

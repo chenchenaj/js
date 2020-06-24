@@ -1,0 +1,21 @@
+{
+  "list":[
+    { "id": 1, "name": "Chicken Wing", "category": "Food", "qty": 3, "price": 10, "checked": true },
+    { "id": 2, "name": "Pizza", "category": "Food", "qty": 5, "price": 50, "checked": true },
+    { "id": 3, "name": "Hamburger", "category": "Food", "qty": 2, "price": 12, "checked": true },
+    { "id": 4, "name": "gfd", "category": "Drink", "qty": 1, "price": 5, "checked": true },
+    { "id": 5, "name": "gfdg", "category": "Drink", "qty": 1, "price": 15, "checked": true },
+    { "id": 6, "name": "uyj", "category": "Snack", "qty": 8, "price": 8, "checked": true },
+    { "id": 7, "name": "ki", "category": "Food", "qty": 3, "price": 10, "checked": true },
+    { "id": 8, "name": "hgu", "category": "Food", "qty": 5, "price": 50, "checked": true },
+    { "id": 9, "name": "yus", "category": "Food", "qty": 2, "price": 12, "checked": true },
+    { "id": 10, "name": "fdsf", "category": "Drink", "qty": 1, "price": 5, "checked": true },
+    { "id": 11, "name": "eee", "category": "Drink", "qty": 1, "price": 15, "checked": true },
+    { "id": 12, "name": "bv", "category": "Snack", "qty": 8, "price": 8, "checked": true },
+    { "id": 13, "name": "re", "category": "Food", "qty": 3, "price": 10, "checked": true },
+    { "id": 14, "name": "fe", "category": "Food", "qty": 5, "price": 50, "checked": true },
+    { "id": 15, "name": "hty", "category": "Food", "qty": 2, "price": 12, "checked": true }
+    
+  ],
+  "total": 15
+}

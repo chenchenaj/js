@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .box{
+      width: 500px;
+      height: 300px;
+      background-color: pink;
+      position: relative;
+      margin: 100px auto;
+      overflow: hidden;
+    }
+    .left{
+      position: absolute;
+      top: 0;
+      background-color: skyblue;
+      /* width: 30%; */
+      height: 100%;
+    }
+    .bar{
+      position: absolute;
+      height: 100%;
+      width: 10px;
+      background-color: teal;
+      z-index: 2;
+      user-select: none;
+    }
+    .right{
+      position: absolute;
+      top: 0;
+      /* left: 30%; */
+      right: 0;
+      bottom: 0;
+      background-color: yellow;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="box" ref="wrapper">
+      <div class="left" :style="{width: lwidth}" @click="handelChange">zuo</div>
+      <div class="bar" :style="{left: bar_width}" @mousedown="handelMousedown" ref="bar"  @touchstart="handelTouch"></div>
+      <div class="right" :style="{left: lwidth}">you</div>
+    </div>
+  </div>
+  
+  <script src="http://vuejs.org/js/vue.js"></script>
+  <script>
+    var vm=new Vue({
+      el:'#app',
+      data:{
+        left_width: 0.5,
+        // 记录鼠标按下还是抬起
+        isMousemouse: false,
+        //鼠标距离bar容器左侧的距离
+        initWidth: 0 
+      },
+      methods:{
+        handelChange(){
+          this.left_width -= 0.05
+          console.log(this.$refs.bar.offsetWidth / 2);
+          
+        },
+        handelMousedown(event){
+          this.isMousemouse = true
+
+          this.initWidth = event.pageX - event.srcElement.getBoundingClientRect().left
+          // console.log(this.initWidth);
+          
+          // 移动的时候给document绑定事件，在容器外也能移动
+          document.addEventListener('mousemove',this.handelMousemove)
+          // 在框外停下鼠标不能移动，也给document绑定事件
+          document.addEventListener('mouseup',this.handelMouseup)
+        },
+        handelMousemove(event){
+          if(this.isMousemouse){
+            // event.pageX:鼠标指针相对于该网页的水平位置；getBoundingClientRect().left: 容器距离页面左侧距离
+            // MBoffset: 鼠标距离盒子左侧的位置
+            // initWidth：鼠标距离bar容器左侧的距离
+            let MBoffsetPrec = (event.pageX - this.$refs.wrapper.getBoundingClientRect().left - this.initWidth + this.$refs.bar.offsetWidth / 2)/this.$refs.wrapper.getBoundingClientRect().width
+
+            const min = (this.$refs.bar.offsetWidth / 2) /this.$refs.wrapper.getBoundingClientRect().width
+            const max = (this.$refs.wrapper.getBoundingClientRect().width - (this.$refs.bar.offsetWidth / 2)) / this.$refs.wrapper.getBoundingClientRect().width
+
+            if(MBoffsetPrec <  min){
+              MBoffsetPrec = min
+              return this.left_width = MBoffsetPrec
+
+            }else if(MBoffsetPrec > max){
+              return MBoffsetPrec = max
+            }
+            this.left_width = MBoffsetPrec
+          }else{
+            return
+          }
+        },
+        handelMouseup(){
+          this.isMousemouse = false
+        },
+        handelTouch(e){
+          console.log('fjdkslfl')
+        }
+      },
+      computed: {
+        lwidth(){
+          return (this.left_width * 100) + '%'
+        },
+        bar_width(){
+          // 5 是bar的一半宽度
+          return `calc(${this.left_width *100 }% - 5px)`
+        }
+      },
+    })
+  </script>
+</body>
+</html>

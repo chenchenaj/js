@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .box {
+      width: 300px;
+      height: 300px;
+      margin: 100px auto;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    a {
+      float: right;
+    }
+
+    .tbox {
+      margin: 10px 0;
+    }
+
+    .tbox::after {
+      border-bottom: 1px dotted #ccc;
+    }
+
+    li {
+      border-bottom: 1px dotted #ccc;
+      margin-top: 10px;
+    }
+
+    .bbox {
+      margin-top: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <input type="text" placeholder="请输入历史记录">
+    <button class="search">搜索</button>
+    <div class="tbox"><a class="del_all" href="javascript:;">批量删除历史记录</a></div>
+    <ul class="bbox">
+
+    </ul>
+  </div>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    $(function () {
+      // 1.使用json数据存储搜索历史记录
+      // 2. 预设一个key historyList（string）格式
+      // 3. 数据格式列表 存的是json格式的数组
+
+      /*1. 默认根据历史记录渲染历史列表*/
+      var historyListJson = sessionStorage.getItem('historyList') || '[]';
+      /*将json转换成数组格式的数据*/
+      var historyListArr = JSON.parse(historyListJson);
+
+      /*遍历数组找到对应数据*/
+      var render = function () {
+        // 需要渲染的数据
+        var html = '';
+        //$.each(function(i,item))
+        // for   for in
+        // i：索引 item：索引对应的值
+        // foreach 遍历函数 只能数组才能调用 回调函数（索引对应的值，索引）
+        historyListArr.forEach(function (item, i) {
+          html += '<li><span>' + item + '</span><a data-index="' + i + '" href="javascript:;">删除</a></li>'
+        });
+        /*如果historyListJson内容为空，获取不到数据*/
+        html = (html.length < 1) ? '没有搜索的记录' : html;
+        /*渲染到界面中*/
+        $('ul').html(html);
+      };
+      render();
+
+      //2. 点击搜索的时候更新历史记录渲染列表
+      $('button').on('click', function () {
+        var key = $.trim($('input').val());
+        //console.log(key);
+        // 如果输入框内容为空，结束程序
+        if (!key) {
+          alert('请输入搜索关键字');
+          return false;
+        }
+        // 如果内容不为空，追加一条历史(但是只追加到historyListArr，并没有追加到historyList
+        if (historyListArr.includes(key)) {
+          console.log('已有历史记录,不添加')
+        } else {
+          historyListArr.unshift(key);
+          // 保存起来，追加到historyList(json格式），不能直接存入数组，需要转换为json格式的字符串
+          sessionStorage.setItem('historyList', JSON.stringify(historyListArr));
+        }
+        // 渲染到界面
+        render();
+        // 操作完成后清空输入框的内容
+        $('input').val('');
+      });
+
+      // 3. 点击删除的时候删除对应的历史记录渲染列表（与存储的索引有关系）
+      $('ul').on('click', 'a', function () {
+        var index = $(this).data("index");
+        // 根据索引找到要删除的数据,找到index那一条，删除一个
+        historyListArr.splice(index, 1);
+        // 保存数据
+        sessionStorage.setItem('historyList', JSON.stringify(historyListArr));
+        // 渲染到界面
+        render();
+      });
+
+      // 4. 点击清空的时候清空历史记录渲染列表
+      $('.del_all').on('click', function () {
+        // 清空
+        historyListArr = [];
+        sessionStorage.setItem('historyList', '[]');
+        /*sessionStorage.removeItem('historyList');*/
+        // 渲染到界面
+        render();
+      })
+    })
+  </script>
+</body>
+
+</html>
