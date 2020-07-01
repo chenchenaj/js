@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  就近原则：如果自己和父亲都有同样的方法，优先使用自己的方法
+  <script>
+    let yy = {
+      show() {
+        console.log('自己的方法')
+      }
+    }
+
+    console.log(yy)
+
+    yy.__proto__.show = function () {
+      console.log('原型的方法')
+    }
+
+    yy.show()
+  </script>
+</body>
+
+</html>

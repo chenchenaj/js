@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    let yy = { name: "uu" }
+    console.log(yy)
+    console.log(yy.hasOwnProperty("name")) //true
+
+    // 字面量创建的对象没有原型
+    let xx = Object.create(null, {
+      name: {
+        value: 'yx'
+      }
+    })
+    console.log(xx)
+    console.log(xx.hasOwnProperty("name")) //报错，自己没有这个方法，也没有原型
+  </script>
+</body>
+
+</html>
