@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // 执行顺序：keydown -- keypress -- keyup
+    document.addEventListener('keydown', function () {
+      console.log('键盘按下keydown')
+    })
+    document.addEventListener('keyup', function () {
+      console.log('键盘松开')
+    })
+
+    // keypress 不能识别功能键
+    document.addEventListener('keypress', function () {
+      console.log('键盘按下keypress')
+    })
+  </script>
+
+  <script>
+    // keydown 和 keyup 不区分大小写
+    // keypress 区分大小写
+    document.addEventListener('keydown', function (e) {
+      console.log(e.keyCode) // 键盘事件对象
+    })
+  </script>
+</body>
+
+</html>

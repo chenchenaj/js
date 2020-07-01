@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <label>请输入内容<input type="text" focus></label>
+
+  <script text="按下s键会自动聚焦">
+    document.addEventListener('keyup', function (e) {
+      if (e.keyCode === 83) {
+        document.querySelector('input').focus()
+      }
+    })
+  </script>
+</body>
+
+</html>
