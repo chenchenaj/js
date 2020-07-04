@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    <pre>
+      将数据从[
+      { vue: 7616.1, wechat: 4065, ES6: 5388.5, Redis: 4797, React: 3635.8 },
+      { vue: 878, wechat: 7606, ES6: 6970.64, Redis: 7554, React: 7694.03 }
+      ]
+      变成
+      [
+      {
+        name: "vue",
+        data: [7616.1, 878]
+      },
+      {
+        name: "wechat",
+        data: [4065, 7606]
+      }
+      ]
+    </pre>
+  </div>
+
+  <script src="http://vuejs.org/js/vue.js"></script>
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        list: [
+          { vue: 7616.1, wechat: 4065, ES6: 5388.5, Redis: 4797, React: 3635.8 },
+          { vue: 878, wechat: 7606, ES6: 6970.64, Redis: 7554, React: 7694.03 },
+          { vue: 7183, wechat: 6013, ES6: 244, Redis: 4732.9, React: 4716 },
+          { vue: 2943.6, wechat: 608, ES6: 1414.8, Redis: 7692, React: 5100.4 },
+          { vue: 773.3, wechat: 7616.14, ES6: 4293, Redis: 2861.92, React: 2260.8 },
+          { vue: 5188.4, wechat: 866.77, ES6: 7152.8, Redis: 6307.4, React: 5297.1 },
+          { vue: 7360.46, wechat: 1381.2, ES6: 3390.7, Redis: 6171.8, React: 1042.5 }
+        ],
+        changeList: []
+      },
+      methods: {
+        // 取出每个对象中所有key相等的值
+        changeData() {
+          // 获取对象所有的key
+          const keyArr = Object.keys(this.list[0])
+
+          // 处理key的所有value
+          keyArr.forEach(key => {
+            const dataObj = {
+              name: key,
+              data: this.list.map(item => item[key])
+            }
+
+            this.changeList.push(dataObj)
+          })
+          console.log(this.changeList)
+        }
+      },
+      created() {
+        this.changeData()
+      },
+    })
+  </script>
+</body>
+
+</html>
