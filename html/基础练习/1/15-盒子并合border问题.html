@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    ul {
+      list-style: none;
+    }
+
+    li {
+      position: relative;
+      float: left;
+      width: 200px;
+      height: 300px;
+      border: 1px solid #000;
+      margin-left: -1px;
+    }
+
+    /* 方式一：如果li没有相对定位则可开启相对定位 */
+    /* li:hover {
+      position: relative;
+      border-color: tomato;
+    } */
+
+    li:hover {
+      z-index: 1;
+      border-color: tomato;
+    }
+  </style>
+</head>
+
+<body>
+  <ul>
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+    <li>4</li>
+    <li>5</li>
+  </ul>
+</body>
+
+</html>

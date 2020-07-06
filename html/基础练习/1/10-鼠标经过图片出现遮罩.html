@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .box {
+      width: 200px;
+      height: 136px;
+      margin: 100px auto;
+      position: relative;
+    }
+
+    .box:hover .mask {
+      display: block;
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .mask {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, .6) url(./06-学成在线/images/btn.png) no-repeat center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <img src="./06-学成在线/images/pic.jpg" alt="">
+
+    <div class="mask"></div>
+  </div>
+</body>
+
+</html>

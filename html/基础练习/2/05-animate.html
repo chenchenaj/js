@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    .box1 {
+      width: 500px;
+      height: 500px;
+      background-color: silver;
+      overflow: hidden;
+    }
+
+    .box2 {
+      width: 100px;
+      height: 100px;
+      background-color: #bfa;
+      animation: test 2s 2 1s alternate;
+    }
+
+    .box1:hover div {
+      animation-play-state: paused;
+    }
+
+    @keyframes test {
+      from {
+        margin-left: 0;
+        background-color: orange;
+      }
+
+      to {
+        background-color: red;
+        margin-left: 400px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box1">
+    <div class="box2"></div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>降水量</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/echarts/4.8.0/echarts.min.js"></script>
+</head>
+
+<body>
+  <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+  <div id="main" style="width: 600px;height:400px; margin: 100px auto;"></div>
+  <script>
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+
+    // 指定图表的配置项和数据
+    var option = {
+      title: {
+        text: '某地区气温',
+        textStyle: {
+          color: '#000',
+        },
+      },
+      tooltip: {
+        trigger: 'axis'
+      },
+      legend: {
+        data: ['北京', '上海'],
+      },
+      dataZoom: [ // 区域缩放
+        {
+          show: true,
+          realtime: true,
+          // start: 65, // 数据开始缩放区域
+          // end: 85 // 数据结束缩放区域【不写默认为100%】
+        },
+      ],
+      toolbox: { // 右侧纵向工具栏
+        show: true,
+        orient: 'vertical',
+        left: 'right',
+        top: 'center',
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none'
+          },
+          mark: { show: true },
+          dataView: { show: true, readOnly: false },
+          magicType: { show: true, type: ['line', 'bar', 'stack', 'tiled'] },
+          restore: { show: true },
+          saveAsImage: { show: true }
+        }
+      },
+      xAxis: {
+        boundaryGap: true, // 折现两端会留空，如果设置为false则会紧靠不会留空
+        // axisLine: { onZero: false },
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [{
+        name: '北京',
+        data: function () {
+          let list = []
+          for (let i = 1; i < 8; i++) {
+            list.push(Math.round(Math.random() * 30))
+          }
+          return list
+        }(),
+        type: 'line'
+      },
+      {
+        name: '上海',
+        type: 'line',
+        data: function () {
+          let list = []
+          for (let i = 1; i < 8; i++) {
+            list.push(Math.round(Math.random() * 30))
+          }
+          return list
+        }(),
+      }]
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+  </script>
+</body>
+
+</html>
