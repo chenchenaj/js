@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .box {
+      text-align: center;
+    }
+
+    a {
+      display: inline-block;
+      width: 36px;
+      height: 36px;
+      line-height: 36px;
+      border: 1px solid #000;
+      text-decoration: none;
+      color: #000;
+    }
+
+    .prev,
+    .next {
+      width: 85px;
+    }
+
+    .current,
+    .elp {
+      border: none;
+    }
+
+    input {
+      width: 36px;
+      height: 32px;
+      outline: none;
+      padding: 1px 5px;
+    }
+
+    button {
+      width: 50px;
+      height: 38px;
+      background-color: #fff;
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <a href="javascript:;" class="prev">&lt;&lt;上一页</a>
+    <a href="javascript:;">1</a>
+    <a href="javascript:;" class="current">2</a>
+    <a href="javascript:;">3</a>
+    <a href="javascript:;" class="elp">...</a>
+    <a href="javascript:;">5</a>
+    <a href="javascript:;" class="next">下一页&gt;&gt;</a>
+    到第几
+    <input type="text">
+    页
+    <button>确定</button>
+  </div>
+</body>
+
+</html>

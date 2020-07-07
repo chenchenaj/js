@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .box {
+      width: 200px;
+      height: 28px;
+      line-height: 28px;
+      border: 1px solid #000;
+    }
+
+    .now {
+      position: relative;
+      display: inline-block;
+      width: 100px;
+      background-color: red;
+      color: #fff;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    i {
+      position: absolute;
+      top: 0;
+      right: 0;
+      content: "";
+      display: block;
+      width: 0;
+      height: 0;
+      border-color: transparent #fff transparent transparent;
+      border-style: solid;
+      border-width: 28px 12px 0 0;
+    }
+
+    .old {
+      color: #ccc;
+      font-size: 14px;
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <span class="now">
+      ￥1234
+      <i></i>
+    </span>
+    <span class="old">￥5678</span>
+  </div>
+</body>
+
+</html>

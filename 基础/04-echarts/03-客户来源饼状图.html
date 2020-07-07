@@ -38,6 +38,9 @@
           type: 'pie',
           radius: '55%', // 半径。支持绝对值 px 和 百分比，百分比计算比: min(width, height) / 2 * 75%, 传数组实现环形图，【内半径，外半径】
           center: ['50%', '60%'], // 【圆心坐标，支持绝对值 px 和 百分比，百分比计算比: min(width, height) * 50%
+          label: {
+            formatter: '{b} : ({d}%)'
+          },
           data: [
             { value: 335, name: '直接访问' },
             { value: 310, name: '邮件营销' },
