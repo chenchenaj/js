@@ -1,0 +1,95 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+ul {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  color: #333;
+}
+.clearfix::before {
+  content: '';
+  display: table;
+  clear: both;
+}
+.main {
+  position: relative;
+  height: 451px;
+  margin-top: 50px;
+}
+.main .nav-menu {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 264px;
+  height: 451px;
+  z-index: 9;
+  padding: 26px 0;
+  box-sizing: border-box;
+  background-color: #55585a7a;
+}
+.main .nav-menu .menu-wrap .menu-item {
+  height: 50px;
+  line-height: 50px;
+}
+.main .nav-menu .menu-wrap .menu-item:hover {
+  background-color: tomato;
+}
+.main .nav-menu .menu-wrap .menu-item:hover .children {
+  display: block;
+}
+.main .nav-menu .menu-wrap .menu-item > a {
+  font-size: 16px;
+  color: #fff;
+  padding-left: 30px;
+  display: block;
+  position: relative;
+}
+.main .nav-menu .menu-wrap .menu-item > a::after {
+  position: absolute;
+  right: 30px;
+  top: 0;
+  content: '>';
+}
+.main .nav-menu .menu-wrap .menu-item .children {
+  position: absolute;
+  top: 0;
+  left: 264px;
+  display: none;
+  width: 962px;
+  height: 451px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+.main .nav-menu .menu-wrap .menu-item .children ul {
+  display: flex;
+  justify-content: space-between;
+  height: 75px;
+}
+.main .nav-menu .menu-wrap .menu-item .children ul li {
+  height: 75px;
+  line-height: 75px;
+  flex: 1;
+  padding-left: 23px;
+}
+.main .nav-menu .menu-wrap .menu-item .children ul a {
+  color: #000;
+  font-size: 14px;
+}
+.main .nav-menu .menu-wrap .menu-item .children ul img {
+  width: 42px;
+  height: 35px;
+  vertical-align: middle;
+  margin-right: 15px;
+}
+.swiper-container {
+  position: relative;
+}
+.swiper-container .swiper-button-prev {
+  position: absolute;
+  left: 266px;
+}
+/*# sourceMappingURL=./index.css.map */

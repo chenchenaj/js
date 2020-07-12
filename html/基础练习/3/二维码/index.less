@@ -1,0 +1,74 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+ul {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  color: #333;
+}
+.clearfix::before {
+  content: '';
+  display: table;
+  clear: both;
+}
+.nav {
+  width: 800px;
+  height: 60px;
+  margin: 0 auto;
+  background-color: #eee;
+  line-height: 60px;
+  ul {
+    float: left;
+    li {
+      float: left;
+      &.drop {
+        // 下拉需要开启相对定位
+        position: relative;
+        a {
+          display: block;
+          padding: 0 20px;
+        }
+        &:hover {
+          // 三角形
+          &::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            margin-left: -8px;
+            border-width: 0 8px 8px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #fff;
+          }
+          // 改变颜色和背景色
+          a {
+            color: #fff;
+            background-color: tomato;
+          }
+          // 改变盒子高度，实现动画
+          .dropbox {
+            height: 200px;
+            transition: height 0.5s;
+          }
+        }
+        // 盒子需要开启绝对定位定位到导航栏下方，通过设置height为0，transition通过监听height的高度实现动画
+        .dropbox {
+          position: absolute;
+          top: 60px;
+          left: 0;
+          width: 200px;
+          transform: translateX(-25%);
+          height: 0;
+          background-color: #fff;
+          box-shadow: 0 1px 5px #aaa;
+          transition: height 0.5s;
+        }
+      }
+    }
+  }
+}

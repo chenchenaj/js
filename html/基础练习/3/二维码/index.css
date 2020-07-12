@@ -1,0 +1,68 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+ul {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  color: #333;
+}
+.clearfix::before {
+  content: '';
+  display: table;
+  clear: both;
+}
+.nav {
+  width: 800px;
+  height: 60px;
+  margin: 0 auto;
+  background-color: #eee;
+  line-height: 60px;
+}
+.nav ul {
+  float: left;
+}
+.nav ul li {
+  float: left;
+}
+.nav ul li.drop {
+  position: relative;
+}
+.nav ul li.drop a {
+  display: block;
+  padding: 0 20px;
+}
+.nav ul li.drop:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin-left: -8px;
+  border-width: 0 8px 8px;
+  border-style: solid;
+  border-color: rgba(0, 0, 0, 0) rgba(0, 0, 0, 0) #fff;
+}
+.nav ul li.drop:hover a {
+  color: #fff;
+  background-color: tomato;
+}
+.nav ul li.drop:hover .dropbox {
+  height: 200px;
+  transition: height 0.5s;
+}
+.nav ul li.drop .dropbox {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 200px;
+  transform: translateX(-25%);
+  height: 0;
+  background-color: #fff;
+  box-shadow: 0 1px 5px #aaa;
+  transition: height 0.5s;
+}
+/*# sourceMappingURL=./index.css.map */
