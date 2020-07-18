@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <div>
+    <!-- 学习于：https://www.bilibili.com/video/BV1vT4y137So -->
+  </div>
+  <script>
+    let comment = [
+      { comment_id: 1, user_id: 43, comment_date: "04-23", comment_content: "蜡笔小新很好看!", parent_id: null },
+      { comment_id: 2, user_id: 19, comment_date: "04-24", comment_content: "还不错哦!很好看", parent_id: null },
+      { comment_id: 3, user_id: 17, comment_date: "04-25", comment_content: "我也感觉蜡笔小新很好看", parent_id: "1" },
+      { comment_id: 4, user_id: 14, comment_date: "04-26", comment_content: "我感觉机器猫更好看一点", parent_id: "3" },
+      { comment_id: 5, user_id: 13, comment_date: "04-27", comment_content: "好看,已三连!", parent_id: null },
+      { comment_id: 6, user_id: 21, comment_date: "04-26", comment_content: "你是机器猫的粉丝吗", parent_id: "4" },
+      { comment_id: 7, user_id: 14, comment_date: "04-27", comment_content: "是的,我是机器猫的粉丝", parent_id: "6" },
+      { comment_id: 8, user_id: 23, comment_date: "04-27", comment_content: "我更喜欢白嫖!", parent_id: "5" },
+      { comment_id: 9, user_id: 25, comment_date: "04-28", comment_content: "你个白嫖怪", parent_id: "8" }
+    ]
+
+    // 方式一： for循环方式生成子评论
+    let list = []
+    for (let i = 0; i < comment.length; i++) {
+      // 一级评论
+      if (comment[i].parent_id == null) {
+        list.push(comment[i])
+
+        // 二级评论
+        for (let j = 0; j < comment.length; j++) {
+          if (comment[i].comment_id == comment[j].parent_id) {
+            comment[i].children = [comment[j]]
+
+            // 三级评论
+            for (let k = 0; k < comment.length; k++) {
+              if (comment[j].comment_id == comment[k].parent_id) {
+                comment[j].children = [comment[k]]
+              }
+            }
+          }
+        }
+      }
+    }
+    console.log(list)
+
+    // 方式二： 递归方式生成子评论
+    function fn(temp) {
+      let list = []
+      for (let i = 0; i < comment.length; i++) {
+        if (comment[i].parent_id == temp) {
+          list.push(comment[i]) // 筛选后生成的父级评论
+          comment[i].children = fn(comment[i].comment_id)
+        }
+      }
+      return list
+    }
+    const res = fn(null)
+    console.log(res)
+  </script>
+</body>
+
+</html>

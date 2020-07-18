@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app">
+    {{newArr}}
+    <!-- {{categorysArr}} -->
+  </div>
+  <script src="http://vuejs.org/js/vue.js"></script>
+  <script>
+    var vm = new Vue({
+      el: '#app',
+      data: {
+        list: [
+          {
+            "id": 20,
+            "title": "甜品饮品",
+          },
+          {
+            "id": 10,
+            "title": "商超便利",
+          },
+          {
+            "id": 15,
+            "title": "美食",
+          },
+          {
+            "id": 40,
+            "title": "甜品",
+          },
+          {
+            "id": 50,
+            "title": "便利",
+          },
+          {
+            "id": 65,
+            "title": "饮品",
+          },
+          {
+            "id": 70,
+            "title": "商超",
+          },
+          {
+            "id": 80,
+            "title": "鲜花",
+          },
+          {
+            "id": 90,
+            "title": "蛋糕",
+          },
+          {
+            "id": 33,
+            "title": "寿司",
+          },
+          {
+            "id": 11,
+            "title": "定食",
+          },
+          {
+            "id": 36,
+            "title": "泡菜",
+          },
+          {
+            "id": 78,
+            "title": "烤肉",
+          },
+          {
+            "id": 26,
+            "title": "日韩",
+          },
+          {
+            "id": 36,
+            "title": "料理",
+          },
+        ],
+      },
+      computed: {
+        // 方式一：
+        newArr() {
+          return [this.list.slice(0, 8), this.list.slice(8, this.list.length)]
+        },
+        // 方式二
+        categorysArr() {
+          // 取出相关的数据
+          const bigArr = []
+          let smallArr = []
+          const { list } = this
+          // 计算产生结果
+          list.forEach(c => {
+            // 将小数组放入大数组(同一个小数组只能被保存一次)
+            if (smallArr.length === 0) {
+              bigArr.push(smallArr)
+            }
+
+            // 将分类对象放入小数组(小数组的长度最大为8)
+            smallArr.push(c)
+            // 如果满了, 重新准备一个新的小数组
+            if (smallArr.length === 8) {
+              smallArr = []
+            }
+          })
+
+          // 返回结果
+          return bigArr
+        }
+      },
+    })
+  </script>
+</body>
+
+</html>

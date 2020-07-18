@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    p.active {
+      color: red;
+    }
+  </style>
+</head>
+<!-- https://www.bilibili.com/video/BV1ye411p7w3?p=48 -->
+
+<body>
+  <div id="app">
+    <audio src="./asset/1.mp3" controls ref="audio"></audio>
+    <div v-for="(value, key, index) in lrcObj" :key="key" style="text-align: center;">
+      <!-- 显示时：currentTime 大于当前的key， 小于下一个key ==> 设计一个key数组 -->
+      <p :class="currentTime >= currentKeys[index] &&  currentTime < currentKeys[index + 1] ? 'active' : ''">{{value}}
+      </p>
+    </div>
+  </div>
+  <script src="http://vuejs.org/js/vue.min.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        lrc: {
+          "version": 1,
+          "lyric": "[by:葫芦-小-金刚]\n[00:00.000] 作曲 : 郑秋枫\n[00:01.000] 作词 : 瞿琮\n[00:07.754] 百灵鸟从蓝天飞过\n[00:25.848] 我爱你中国\n[00:44.110]\n[01:09.562] 我爱你中国\n[01:16.698] 我爱你中国\n[01:23.330] 我爱你春天蓬勃的秧苗\n[01:29.878] 我爱你秋日金黄的硕果\n[01:36.927] 我爱你青松气质\n[01:43.418] 我爱你红梅品格\n[01:50.103] 我爱你家乡的甜蔗\n[01:54.920] 好像乳汁滋润着我的心窝\n[02:04.858] 我爱你中国\n[02:12.027] 我爱你中国\n[02:19.002] 我要把最美的歌儿献给你\n[02:25.517] 我的母亲我的祖国\n[02:34.071]\n[02:46.141] 我爱你中国\n[02:52.828] 我爱你中国\n[02:59.436] 我爱你碧波滚滚的南海\n[03:05.749] 我爱你白雪飘飘的北国\n[03:13.225] 我爱你森林无边\n[03:19.760] 我爱你群山巍峨\n[03:26.110] 我爱你淙淙的小河\n[03:31.159] 荡着清波从我的梦中流过\n[03:41.374] 我爱你中国\n[03:48.376] 我爱你中国\n[03:55.123] 我要把美好的青春献给你\n[04:01.591] 我的母亲我的祖国\n[04:09.380] 啊~~~\n[04:22.596] 我要把美好的青春献给你\n[04:29.422] 我的母亲我的祖国\n"
+        },
+        lrcObj: {},
+        currentTime: 0,  // 当前播放的时间
+        duration: 0,   // 总时长
+        currentKeys: []
+      },
+      mounted() {
+        this.formateLrc()
+      },
+      methods: {
+        // 将歌词格式化为数组对象[{1:"jfkd"},{34:"jfklds"}]
+        formateLrc() {
+          // 去除所有的空格,"[00:12.570]难以忘记初次见你"
+          const arr = this.lrc.lyric.split("\n")
+          // 分开数字和歌词的正则表达
+          const reg = /\[\d*:\d*(\.|:)\d*]/g
+          let obj = {}
+          for (let i = 0; i < arr.length; i++) {
+            // 歌词时间
+            const time = arr[i].match(reg)
+            // 歌词文本
+            const text = arr[i].replace(time, "")
+
+            // 含有所有时间的字符串
+            if (time) {
+              // 将时分秒转成数字格式
+              const min = Number(time[0].match(/\[\d*/i).toString().slice(1)) //"[00" => 00
+              const second = Number(time[0].match(/:\d*/i).toString().slice(1)) //":34" =>34
+              const currentTime = min * 60 + second
+              obj[currentTime] = text
+              this.currentKeys.push(currentTime)
+            }
+          }
+          this.lrcObj = obj
+
+          this.$nextTick(() => {
+            this.addEventAudio()
+          })
+        },
+
+        // 监听播放器的事件
+        addEventAudio() {
+          // 1. 歌曲当前播放的时间
+          this.$refs.audio.addEventListener('timeupdate', () => {
+            this.currentTime = this.$refs.audio.currentTime
+          })
+          // 2. 歌曲的总时长
+          this.$refs.audio.addEventListener('canplay', () => {
+            this.duration = this.$refs.audio.duration
+          })
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>
