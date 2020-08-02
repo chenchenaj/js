@@ -1,3 +1,5 @@
+// 参考地址：https://gitee.com/rzi2016/iloveSakuraForever/blob/master/src/components/layout/01.header.vue
+// https://developer.mozilla.org/zh-CN/docs/Web/API/Element/requestFullScreen
 <template>
   <div>
     <button @click="getFullScreen">全屏切换</button>
