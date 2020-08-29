@@ -2183,6 +2183,20 @@ btn.classList.add('active')
 btn.classList.remove('active')
 ```
 
+
+
+###### 案例
+
+需求1：创建一个div标签，并设置边框，背景色，文本及字体颜色，添加到页面中
+
+![1597537287300](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597537287300.png)
+
+需求2：获取页面中所有的p标签并设置边框，背景色，文本及字体颜色
+
+需求3：创建三个div标签，标签的内容是div-0-1-2，并设置边框，背景色，文本及字体颜色
+
+![1597537298422](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597537298422.png)![1597537313640](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597537313640.png)
+
 ##### 获取节点
 
 不兼容IE浏览器：
@@ -2343,6 +2357,94 @@ oBox.removeAttribute('myColor'); //=>删除
 基于setAttribute设置的自定义属性值都是字符串
 
 
+
+#### 封装操作元素的样式
+
+##### 全局封装的函数
+
+这里的是全局变量，会不安全，建议使用局部变量
+
+![1597536243141](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597536243141.png)
+
+![1597536255593](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597536255593.png)
+
+
+
+##### 局部变量封装的函数
+
+![1597536491872](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597536491872.png)
+
+进一步完善封装【将获取属性的函数都抽取到getElements】下
+
+![1597536622728](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597536622728.png)
+
+
+
+
+
+## 面向对象
+
+### 三大特点
+
+#### 封装
+
+##### 字面量创建
+
+缺点：代码冗余，引出工厂函数
+
+##### 工厂函数创建【就是将内置的构造函数放在函数里面】
+
+缺点：通过instanceof找不到父级，引出构造函数
+
+##### 构造函数
+
+构造函数有默认的返回值return this返回当前对象
+
+可以修改返回值
+
+1)如果修改值类型，修改无效【返回还是当前的实例对象】
+
+2)如果修改的是引用类型，修改有效【返回引用类型的值】
+
+缺点：如果在构造函数中添加方法，那么每初始化一个实例就会开辟一块空间，引出原型
+
+##### 回调函数
+
+函数作为参数使用
+
+##### 高阶函数
+
+函数的返回值是另外的函数 
+
+
+
+原型
+
+为了节约空间一般将属性放在构造函数里面，将方法放在原型上
+
+经典三句话：
+
+1.每一个构造函数都有一个prototype属性，指向他自己的原型对象
+
+2.每一个实例化对象对象都有一个__proto__属性，指向他所属类的对象
+
+3.每一个原型对象都有一个constructor属性，指向构造函数本身
+
+
+
+获取原型对象的方法：
+
+构造函数.prototype
+
+实例化对象._ _ proto_ _
+
+
+
+
+
+#### 继承
+
+#### 多态
 
 ## 同步异步
 
