@@ -304,6 +304,31 @@ data () {
 
 ### 表格
 
+#### 形成自动高度
+
+```
+<el-table ref="multipleTable" :height="operaHeight" style="width: 100%" ></el-table>
+
+data(){
+	return {
+		operaHeight: 0,
+	}
+}
+
+getScollerHeight() {
+  setTimeout(() => {
+    let clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+//60 头部， 32 面包屑， 41 第一层页签， 40 第二层页签， 50 列表标题，
+    this.operaHeight = clientHeight - 60 - 32 - 41 - 50 - 20 - 48;   //48操作列操作栏
+  }, 100)
+},
+mounted(){
+	this.getScollerHeight()
+}
+```
+
+
+
 #### 绑定数据源:data
 
 ​	可嵌套很多模板，但是prop的值需要对应:data中的某一个值；label指定标题
@@ -484,6 +509,8 @@ formatter (row, column, cellValue, index) {
 
 监听关闭事件`close`，在该事件里面设置重置内容
 
+点击遮罩不关闭弹窗：`:close-on-click-modal="false"`
+
 ```
 <el-dialog :visible.sync="dialogVisible" @close="cancelSubmit">
 </el-dialog>
@@ -491,6 +518,27 @@ cancelSubmit(){
   this.$refs.user_form.resetFields()
 },
 ```
+
+
+
+### drawer抽屉
+
+Drawer 的内容是懒渲染的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。因此，如果需要执行 DOM 操作，或通过 `ref` 获取相应组件，请在 `open` 事件回调中进行。
+
+| 参数                  | 说明                                                         | 类型                                 | 可选值 | 默认值 |
+| :-------------------- | :----------------------------------------------------------- | :----------------------------------- | :----- | :----- |
+| append-to-body        | Drawer 自身是否插入至 body 元素上。嵌套的 Drawer 必须指定该属性并赋值为 true | boolean                              | —      | false  |
+| before-close          | 关闭前的回调，会暂停 Drawer 的关闭                           | function(done)，done 用于关闭 Drawer | —      | —      |
+| close-on-press-escape | 是否可以通过按下 ESC 关闭 Drawer                             | boolean                              | —      | true   |
+| custom-class          | Drawer 的自定义类名                                          | string                               | —      | —      |
+| destroy-on-close      | 控制是否在关闭 Drawer 之后将子元素全部销毁                   | boolean                              | -      | false  |
+| modal                 | 是否需要遮罩层                                               | boolean                              | —      | true   |
+| modal-append-to-body  | 遮罩层是否插入至 body 元素上，若为 false，则遮罩层会插入至 Drawer 的父元素上 | boolean                              | —      | true   |
+| show-close            | 是否显示关闭按钮                                             | boolean                              | —      | true   |
+| size                  | Drawer 窗体的大小, 当使用 `number` 类型时, 以像素为单位, 当使用 `string` 类型时, 请传入 'x%', 否则便会以 `number` 类型解释 | number / string                      | -      | '30%'  |
+| title                 | Drawer 的标题，也可通过具名 slot （见下表）传入              | string                               | —      | —      |
+| wrapperClosable       | 点击遮罩层是否可以关闭 Drawer                                | boolean                              | -      | true   |
+| withHeader            | 控制是否显示 header 栏, 默认为 true, 当此项为 false 时, title attribute 和 title slot 均不生效 | boolean                              | -      | true   |
 
 
 
@@ -968,3 +1016,189 @@ handlePreview(file) {
 (6)list-type：文件列表的类型
 
 (7)name:上传的文件字段名【后台提供，默认是file】
+
+
+
+### 滚动条scrollbar
+
+```vue
+<el-scrollbar :style="{height: tableHeight + 'px'}" :native="false">
+	需要嵌套形成滚动的内容
+</el-scrollbar>
+
+<script>
+data(){
+    return{
+      tableHeight: 400,
+	}
+}
+/**
+* 动态计算页面table高度
+*/
+getScollerHeight() {
+    setTimeout(() => {
+       let clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+      //60 头部， 32 面包屑， 41 第一层页签， 40 第二层页签， 50 列表标题， 20 父组件外边距, 16 外边距
+       this.tableHeight = clientHeight - 60 - 32 - 41 - 50 - 20 -16;
+     }, 100)
+ },
+
+mounted(){
+	this.getScollerHeight()
+}
+</script>
+```
+
+
+
+### transfer实现上下左右穿梭
+
+```vue
+<template>
+  <div>
+    <el-dialog title="编辑列信息" :visible.sync="transferVisible" width="50%" :before-close="handleClose">
+      <div class="obpm-title">
+        <div class="bar d-inline-block float-right">
+          <el-button type="primary" size="small">保存</el-button>
+          <el-button type="danger" plain size="small">取消</el-button>
+        </div>
+      </div>
+      <div class="obpm-main mt-3">
+        <div class="dialog-content">
+          <div class="content-header">
+            <span>表单：</span>
+            <el-select v-model="selectValue" size="small">
+              <el-option v-for="item in formOptions" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+            </el-select>
+          </div>
+          <el-transfer
+            :data="leftData"
+            :titles="['字段', '列']"
+            v-model="rightData"
+            :format="{
+              noChecked: '${total}',
+              hasChecked: '${checked}/${total}',
+            }"
+            target-order="push"
+            @right-check-change="chooseRightBox"
+          >
+            <el-button @click="handleUp" slot="right-footer" size="mini">上移</el-button>
+            <el-button @click="handleDown" slot="right-footer" size="mini">下移</el-button>
+          </el-transfer>
+        </div>
+      </div>
+    </el-dialog>
+  </div>
+</template>
+<script>
+export default {
+  data() {
+    return {
+      selectValue: "", // 被选中的值
+      formOptions: [
+        {
+          value: "选项1",
+          label: "黄金糕",
+        },
+        {
+          value: "选项2",
+          label: "双皮奶",
+        },
+        {
+          value: "选项3",
+          label: "蚵仔煎",
+        },
+        {
+          value: "选项4",
+          label: "龙须面",
+        },
+        {
+          value: "选项5",
+          label: "北京烤鸭",
+        },
+      ],
+      leftData: [
+        {
+          key: "aa",
+          label: "备选1",
+        },
+        {
+          key: "bb",
+          label: "备选2",
+        },
+        {
+          key: "cc",
+          label: "备选3",
+        },
+      ],
+      rightData: ["aa", "bb"], // 右侧被选中的值
+      rightSelectItem: [], // 右侧复选框选中项,值为leftData的key
+      rightSelectIndex: "", // 右侧列表被选中项的下标值
+    };
+  },
+  methods: {
+    // 右侧选中的复选框
+    chooseRightBox(value) {
+      this.rightSelectItem = value;
+      console.log(value);
+    },
+    // 弹框关闭的回调
+    handleClose() {
+      this.$emit("closeTransferDialog");
+    },
+    // 右侧复选框上移
+    handleUp() {
+      if (this.rightSelectItem.length == 1) {
+        this.rightData.find((val, indexs) => {
+          if (val == this.rightSelectItem) {
+            this.rightSelectIndex = indexs; // 数组项的下标就是我当前选中项的下标
+          }
+        });
+        if (this.rightSelectIndex == 0) {
+          return this.$message("没有上移的空间了");
+        }
+        // 上移-改变的数组（项和下标同时改变）
+        let changeItem = JSON.parse(JSON.stringify(this.rightData[this.rightSelectIndex - 1]));
+        console.log(changeItem);
+        this.rightData.splice(this.rightSelectIndex - 1, 1);
+        this.rightData.splice(this.rightSelectIndex, 0, changeItem);
+        this.rightSelectIndex = this.rightSelectIndex - 1;
+      } else {
+        return this.$message.error("只能选择一条数据进行上下移动");
+      }
+    },
+    // 右侧复选框下移
+    handleDown() {
+      if (this.rightSelectItem.length == 1) {
+        this.rightData.find((val, indexs) => {
+          if (val == this.rightSelectItem) {
+            this.rightSelectIndex = indexs;
+          }
+        });
+        if (this.rightSelectIndex == this.rightData.length - 1) {
+          // 这里是length-1,因为下标值从0开始
+          return this.$message("没有下移的空间了");
+        }
+        let changeItem = JSON.parse(JSON.stringify(this.rightData[this.rightSelectIndex]));
+        this.rightData.splice(this.rightSelectIndex, 1);
+        this.rightData.splice(this.rightSelectIndex + 1, 0, changeItem);
+        this.rightSelectIndex = this.rightSelectIndex + 1;
+      } else {
+        return this.$message.error("只能选择一条数据进行上下移动");
+      }
+    },
+  },
+  props: {
+    transferVisible: Boolean,
+  },
+};
+</script>
+<style lang="scss" scoped>
+.content-header {
+  margin: 10px 0;
+}
+</style>
+```
+
+
+
