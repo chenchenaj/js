@@ -1,4 +1,165 @@
-# JSON 对象
+## 数组
+
+### map
+
+遍历数组返回一个新的数组，返回加工后的值
+
+### forEach
+
+遍历数组
+
+### includes
+
+用来判断一个数组是否包含一个指定的值，根据情况，如果包含则返回 true，否则返回false
+
+```js
+const pets = ['cat', 'dog', 'bat'];
+
+console.log(pets.includes('cat')); // true
+```
+
+
+
+### reduce
+
+### find
+
+返回数组中满足提供的测试函数的第一个元素的值，否则返回 [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)
+
+```js
+const array1 = [5, 12, 8, 130, 44];
+const found = array1.find(element => element > 10);
+
+console.log(found); // 12
+```
+
+
+
+### findIndex
+
+返回数组中满足提供的测试函数的第一个元素的**索引**，若没有找到对应元素则返回-1
+
+```js
+const array1 = [5, 12, 8, 130, 44];
+const isLargeNumber = (element) => element > 13;
+
+console.log(array1.findIndex(isLargeNumber)); // 3
+```
+
+
+
+
+
+### some
+
+测试数组中是不是至少有1个元素通过了被提供的函数测试，它返回一个**布尔值**
+
+```
+[12, 5, 8, 1, 4].some(x => x > 10); // true
+```
+
+
+
+### every
+
+测试一个数组内的所有元素是否都能通过某个指定函数的测试，它返回一个**布尔值**
+
+```
+[12, 5, 8, 130, 44].every(x => x >= 10); // false
+
+let isCopy = this.selectTreeNodeArr.every(item => item.hasChild == true)
+```
+
+
+
+### filter
+
+遍历过滤出一个新的子数组，返回条件为true的值
+
+```js
+var arr = [1,3,4,5,6,8]
+var newArr = arr.filter((item) => item > 3)
+console.log(newArr) // [4,5,6,8], 返回条件为true的新数组
+console.log(arr) // [1,3,4,5,6,8]
+```
+
+
+
+### indexOf
+
+得到值在数组中的第一个下标
+
+### lastIndexOf
+
+得到值在数组中的最后一个下标
+
+
+
+### 伪数组转数组
+
+Array.from(伪数组)：将伪数组对象或可遍历对象转为数组
+
+
+
+## bind/call/apply
+
+Function.prototype.bind(obj)：将函数内的this绑定为obj，并将函数返回
+
+区别：call和apply都是立即调用函数，bind需要手动将函数返回
+
+```js
+var obj = {
+    name: 'yx'
+}
+
+function fun(msg){
+    console.log(this, msg)
+}
+
+fun(11) // window，11
+fun.call(obj, 11) // obj,11
+fun.apply(obj, [11]) // obj,11
+fun.bind(obj, 11)() // obj,11
+
+setTimeOut(function() {
+    console.log(this)
+}.bind(obj), 1000) // 直接在函数中通过bind修改this执行
+```
+
+
+
+## 三点运算符
+
+注：三点运算符可以遍历数组，但是不能遍历对象
+
+### rest可变参数
+
+```
+function fun(a, ...value){
+	console.log(arguments) // 原型是对象，伪数组，不能使用数组的方法
+	console.log(value) // 原型是数组，可以使用数组的方法
+}
+
+fun(1,2,3,4)
+```
+
+
+
+### 扩展运算符
+
+```js
+var arr =[1,3]
+var arr2 = [5,6,7]
+var newArr = [1, ...arr2, 6]
+```
+
+
+
+
+
+
+
+## JSON 对象
 
 1. 本质： JSON 字符串，字符串
 2. 原生 js 对象/数组 VS JSON 对象/数组
@@ -9,9 +170,9 @@
 
 4. JSON.stringify
 
-# Object 方法
+## Object 方法
 
-## Object.create
+### Object.create
 
 - 可以创建新的对象，该对象默认是空对象
 - 可以为该对象添加新的属性
@@ -29,7 +190,7 @@
   }); // 可以指定原型对象，指定的同时会生成一个新的空对象
 ```
 
-## Object.defineProperty || Object.defineProperties
+### Object.defineProperty || Object.defineProperties
 
 - 为指定的对象添加新的属性
 - getter setter 存取器属性
@@ -75,7 +236,7 @@
 3. 函数体: 语句或者表达式的条数 ---> {} 能否省略
 4. {} 当{}省略的时候，会自动 return 当前语句或者是表达式的结果
 
-## 箭头函数特点:
+### 箭头函数特点
 
 1. 简洁
 2. 箭头函数的 this:
@@ -108,7 +269,7 @@
         await 异步操作;
         await 异步操作；
       }
-
+    
     ```
 
 3. 通常和 promise 配合使用，
@@ -146,7 +307,7 @@
     -  当父类原型上的方法不能满足子类实例的需求的时候
     -  在子类中定义自己的方法供当前子类的实例用
 
-## 深度克隆：
+## 深度克隆
 
 1. 理解：
    - 克隆： 将源数据中的数据拷贝给目标数据中
@@ -191,7 +352,7 @@
        }
    ```
 
-​
+
 
 ## Set 容器
 
@@ -209,7 +370,7 @@
         arr2.push(item)
       }
     }
-
+    
     console.log(arr2);
     console.log('------ 利用ES6的set去重-------');
     function uniqArr(target) {
@@ -223,4 +384,4 @@
     console.log('------ 精简ES6set去重-------');
     let uniqArr2 = target => [...new Set(target)];
 
-​
+

@@ -1,6 +1,11 @@
 
 # Canvas 画布
+[参考地址](https://www.aicoder.com/news/5c129496f8afa06e6df8892e/news.html)
+
+[参考地址](https://www.aicoder.com/news/5c1295abf8afa06e6df8892f/news.html)
+
 课件地址： http://learn.fuming.site/front-end/Canvas/
+
 ```
 应用场景：
 1. 把canvas当做动态背景图
