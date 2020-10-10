@@ -1019,7 +1019,26 @@ handlePreview(file) {
 
 
 
-### 滚动条scrollbar
+### [滚动条scrollbar](https://blog.csdn.net/zhouweihua138/article/details/80077311)
+
+`scrollbar`组件暴露了 `native`, `wrapStyle`, `wrapClass`, `viewClass`, `viewStyle`, `noresize`, `tag` 这7个 props属性
+
+```
+props: {
+    native: Boolean,  // 是否使用本地，设为true则不会启用element-ui自定义的滚动条
+    wrapStyle: {},  // 包裹层自定义样式
+    wrapClass: {},  // 包裹层自定义样式类
+    viewClass: {},  // 可滚动部分自定义样式类
+    viewStyle: {},  // 可滚动部分自定义样式
+    noresize: Boolean, // 如果 container 尺寸不会发生变化，最好设置它可以优化性能
+    tag: {  // 生成的标签类型，默认使用 `div`标签包裹
+      type: String,
+      default: 'div'
+    }
+}
+```
+
+
 
 ```vue
 <el-scrollbar :style="{height: tableHeight + 'px'}" :native="false">
@@ -1052,6 +1071,8 @@ mounted(){
 
 
 ### transfer实现上下左右穿梭
+
+![image.png](https://pic.gksec.com/2020/10/09/bdebd075640f2/image.png)
 
 ```vue
 <template>
