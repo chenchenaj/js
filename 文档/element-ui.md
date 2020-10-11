@@ -1019,26 +1019,7 @@ handlePreview(file) {
 
 
 
-### [滚动条scrollbar](https://blog.csdn.net/zhouweihua138/article/details/80077311)
-
-`scrollbar`组件暴露了 `native`, `wrapStyle`, `wrapClass`, `viewClass`, `viewStyle`, `noresize`, `tag` 这7个 props属性
-
-```
-props: {
-    native: Boolean,  // 是否使用本地，设为true则不会启用element-ui自定义的滚动条
-    wrapStyle: {},  // 包裹层自定义样式
-    wrapClass: {},  // 包裹层自定义样式类
-    viewClass: {},  // 可滚动部分自定义样式类
-    viewStyle: {},  // 可滚动部分自定义样式
-    noresize: Boolean, // 如果 container 尺寸不会发生变化，最好设置它可以优化性能
-    tag: {  // 生成的标签类型，默认使用 `div`标签包裹
-      type: String,
-      default: 'div'
-    }
-}
-```
-
-
+### 滚动条scrollbar
 
 ```vue
 <el-scrollbar :style="{height: tableHeight + 'px'}" :native="false">
@@ -1071,8 +1052,6 @@ mounted(){
 
 
 ### transfer实现上下左右穿梭
-
-![image.png](https://pic.gksec.com/2020/10/09/bdebd075640f2/image.png)
 
 ```vue
 <template>
@@ -1222,4 +1201,23 @@ export default {
 ```
 
 
+
+### DateTimePicker 日期时间选择器
+
+| 参数         | 说明                 | 类型   | 可选值                                                       | 默认值              |
+| :----------- | :------------------- | :----- | :----------------------------------------------------------- | :------------------ |
+| format       | 显示在输入框中的格式 | string | 见[日期格式](https://element.eleme.cn/#/zh-CN/component/date-picker#ri-qi-ge-shi) | yyyy-MM-dd HH:mm:ss |
+| value-format | 绑定值的格式         | string | 见[日期格式](https://element.eleme.cn/#/zh-CN/component/date-picker#ri-qi-ge-shi) | yyyy-MM-dd HH:mm:ss |
+
+```
+<el-date-picker
+  v-model="value1"
+  type="datetimerange"
+  range-separator="至"
+  start-placeholder="开始日期"
+  end-placeholder="结束日期"
+  value-format="yyyy-MM-dd" // 双向绑定的值
+  >
+</el-date-picker>
+```
 
