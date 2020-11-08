@@ -78,9 +78,13 @@ setup() {
 
 `setup()` 函数是 vue3 中，专门为组件提供的新属性。它为我们使用 vue3 的 `Composition API` 新特性提供了统一的入口。
 
+
+
 ### 执行时机
 
 **setup** 函数会在 **beforeCreate** 之后、**created** 之前执行
+
+
 
 ### 接收 props 数据
 
@@ -99,6 +103,8 @@ setup() {
        console.log(props.p1)
    }
    ```
+
+
 
 ### context
 
@@ -135,6 +141,8 @@ import { reactive } from '@vue/composition-api'
 // 创建响应式数据对象，得到的 state 类似于 vue 2.x 中 data() 返回的响应式对象
 const state = reactive({ count: 0 })
 ```
+
+
 
 ### 定义响应式数据供 template 使用
 
@@ -186,6 +194,8 @@ count.value++
 console.log(count.value) // 输出 1
 ```
 
+
+
 ### 在 template 中访问 ref 创建的响应式数据
 
 1. 在 `setup()` 中创建响应式数据：
@@ -210,6 +220,8 @@ console.log(count.value) // 输出 1
      <p>{{count}} --- {{name}}</p>
    </template>
    ```
+
+
 
 ### 在 reactive 对象中访问 ref 创建的响应式数据
 
@@ -245,3 +257,298 @@ console.log(state.c1) // 输出 10
 console.log(c2.value) // 输出 10
 console.log(c1.value) // 输出 0
 ```
+
+
+
+## computed
+
+### 返回一个不允许修改的计算属性
+
+```vue
+<template>
+  <div>
+    <p>computed的使用</p>
+    <input v-model="age" />
+    <p>{{nextAge}}</p>
+  </div>
+</template>
+<script>
+import { ref, computed } from 'vue'
+export default {
+  setup () {
+    const age = ref(18)
+
+    // 传入一个函数 computed 返回一个不允许修改的计算属性
+    const nextAge = computed(() => {
+      return parseInt(age.value) + 1
+    })
+
+    return {
+      age, nextAge
+    }
+  }
+}
+</script>
+```
+
+
+
+### 创建一个可以修改的计算属性
+
+```vue
+<template>
+  <div>
+    <p>computed的使用</p>
+    <input v-model="age" />
+    <input v-model="nextAge2" />
+  </div>
+</template>
+
+<script>
+import { ref, computed } from 'vue'
+export default {
+  setup () {
+    const age = ref(18)
+
+    // 传入一个对象，包括get和set，可以创建一个可以修改的计算属性
+    const nextAge2 = computed({
+      get () {
+        return parseInt(age.value) + 2
+      },
+
+      set () {
+        age.value = age.value - 2
+      }
+    })
+
+    return {
+      age, nextAge2
+    }
+  }
+}
+</script>
+```
+
+
+
+
+
+## watch
+
+接收三个参数：
+
+参数一：监视的数据源 可以是ref 或则是 一个函数
+
+参数二：回调函数 (oldValue, value) => {}
+
+参数三：额外的配置
+
+### 监听ref
+
+```vue
+<template>
+  <div>
+    <p>watch的使用</p>
+    {{money}}
+    <button @click="money ++">修改money</button>
+    {{car.brand}}
+    <button @click="car.brand = '奔驰'">修改brand</button>
+    {{msg}}
+    <button @click="msg = 'vue'">修改msg</button>
+  </div>
+</template>
+
+<script>
+import { reactive, watch, toRefs, ref } from 'vue'
+export default {
+  setup () {
+    const state = reactive({
+      money: 100,
+      car: {
+        brand: '宝马'
+      }
+    })
+
+    const msg = ref('hello')
+
+
+    // 监听ref的复杂类型
+    watch(msg, (value) => {
+      console.log('数据发生了改变' + value)
+    })
+
+    return {
+      ...toRefs(state),
+      msg
+    }
+  }
+}
+</script>
+```
+
+
+
+### 监听reactive
+
+```vue
+<template>
+  <div>
+    <p>watch的使用</p>
+    {{money}}
+    <button @click="money ++">修改money</button>
+    {{car.brand}}
+    <button @click="car.brand = '奔驰'">修改brand</button>
+    {{msg}}
+    <button @click="msg = 'vue'">修改msg</button>
+  </div>
+</template>
+
+<script>
+import { reactive, watch, toRefs, ref } from 'vue'
+export default {
+  setup () {
+    const state = reactive({
+      money: 100,
+      car: {
+        brand: '宝马'
+      }
+    })
+
+    const msg = ref('hello')
+
+    // 监听reactive的简单类型
+    watch(() => state.money, (value, oldValue) => {
+      console.log('数据发生了改变' + value)
+    })
+
+    // 监听reactive的复杂类型
+    watch(() => state.car, (value, oldValue) => {
+      console.log('数据发生了改变' + value)
+    }, {
+      deep: true
+    })
+
+
+    // 监听reactive的多个值
+    watch([() => state.money, () => state.car], ([money, car],[oldMoney, oldCar]) => {
+      console.log('数据发生了改变' + money, car)
+    }, {
+      deep: true
+    })
+
+    return {
+      ...toRefs(state),
+      msg
+    }
+  }
+}
+</script>
+```
+
+
+
+### 监听整个state
+
+```vue
+<template>
+  <div>
+    <p>watch的使用</p>
+    {{money}}
+    <button @click="money ++">修改money</button>
+    {{car.brand}}
+    <button @click="car.brand = '奔驰'">修改brand</button>
+    {{msg}}
+    <button @click="msg = 'vue'">修改msg</button>
+  </div>
+</template>
+
+<script>
+import { reactive, watch, toRefs, ref } from 'vue'
+export default {
+  setup () {
+    const state = reactive({
+      money: 100,
+      car: {
+        brand: '宝马'
+      }
+    })
+    const msg = ref('hello')
+
+    // 监听整个reactive对象
+    watch(state, (value) => {
+      console.log('数据发生了改变' + value)
+    }, {
+      deep: true
+    })
+
+    return {
+      ...toRefs(state),
+      msg
+    }
+  }
+}
+</script>
+```
+
+
+
+
+
+
+
+## 配置文件
+
+### `main.js`文件
+
+```js
+import { createApp } from 'vue';
+import App from './App.vue'
+import router from './router'
+import store from './store'
+
+createApp(App).use(router).use(store).mount('#app')
+```
+
+
+
+### `router.js`文件
+
+```js
+import { createRouter, createWebHistory } from 'vue-router';
+
+const routes = [
+  {
+    path: '/',
+    name: 'DayPage',
+    component: () => import('../views/DayPage.vue')
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes
+})
+
+export default router
+
+```
+
+
+
+### `store.js`文件
+
+```js
+import Vuex from 'vuex'
+
+export default Vuex.createStore({
+  state: {
+  },
+  mutations: {
+  },
+  actions: {
+  },
+  modules: {
+  }
+});
+```
+
