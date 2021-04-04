@@ -1,3 +1,139 @@
+## 直接创建vue3项目
+
+```
+vue create my-project
+```
+
+选择自定义创建项目，根据自己的需要来创建项目的内容
+
+- Please pick a preset - 选择 Manually select features
+- Check the features needed for your project - 选择上 TypeScript ，特别注意点空格是选择，点回车是下一步
+- Choose a version of Vue.js that you want to start the project with - 选择 3.x (Preview)
+- Use class-style component syntax - 直接回车
+- Use Babel alongside TypeScript - 直接回车
+- Pick a linter / formatter config - 直接回车
+- Use history mode for router? - 直接回车
+- Pick a linter / formatter config - 直接回车
+- Pick additional lint features - 直接回车
+- Where do you prefer placing config for Babel, ESLint, etc.? - 直接回车
+- Save this as a preset for future projects? - 直接回车
+
+### **ref**
+
+- 作用: 定义一个数据的响应式(**一般用来定义一个基本类型的响应式数据**)
+- 语法: const xxx = ref(initValue):
+  - 创建一个包含响应式数据的引用(reference)对象
+  - **js中操作数据: xxx.value**
+  - 模板中操作数据: 不需要.value
+  - ref对象的类型是Ref，reactive对象的类型是Proxy
+
+```vue
+<template>
+  <h2>{{count}}</h2>
+  <hr>
+  <button @click="update">更新</button>
+</template>
+
+<script>
+import {
+  ref
+} from 'vue'
+export default {
+  /* 使用vue3的composition API */
+  setup () {
+    // 定义响应式数据 ref对象
+    const count = ref(1)
+    console.log(count)
+    // 更新响应式数据的函数
+    function update () {
+      // alert('update')
+      count.value = count.value + 1
+    }
+
+    // 需要将数据和方法都暴露出去
+    return {
+      count,
+      update
+    }
+  }
+}
+</script>
+```
+
+### **reactive**
+
+- 作用: 定义**多个数据的响应式**
+- const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
+- 响应式转换是“深层的”：会影响对象内部所有嵌套的属性
+- 内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
+- 注意：如果当前对象没有被reactive包裹直接在update中写obj.name='xx'是不会发生改变的，要响应式数据才会发生改变；
+- 被reactive包裹的属于代理对象，没有被包裹的属于目标对象，**增删改操作都需要使用代理对象**
+
+```vue
+<template>
+  <h2>name: {{state.name}}</h2>
+  <h2>age: {{state.age}}</h2>
+  <h2>wife: {{state.wife}}</h2>
+  <hr>
+  <button @click="update">更新</button>
+</template>
+
+<script>
+/* 
+reactive: 
+    作用: 定义多个数据的响应式
+    const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
+    响应式转换是“深层的”：会影响对象内部所有嵌套的属性
+    内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
+*/
+import {
+  reactive,
+} from 'vue'
+export default {
+  setup () {
+    /* 
+    定义响应式数据对象
+    */
+    const state = reactive({
+      name: 'tom',
+      age: 25,
+      wife: {
+        name: 'marry',
+        age: 22
+      },
+    })
+    console.log(state, state.wife)
+
+    const update = () => {
+      state.name += '--'
+      state.age += 1
+      state.wife.name += '++'
+      state.wife.age += 2
+    }
+    
+    // =======================================================
+    const obj = { // 此时的obj属于目标对象
+      name: 'tom',
+      age: 25,
+      wife: {
+        name: 'marry',
+        age: 22
+      },
+    }
+    const user = reactive(obj) // 此时user属于代理对象
+    // ========================================================
+
+    return {
+      state,
+      update,
+    }
+  }
+}
+</script>
+```
+
+
+
 
 
 ## vue2.x项目转换成3.x的方式
@@ -38,7 +174,6 @@ import VueCompositionApi from '@vue/composition-api'
 
 Vue.use(VueCompositionApi)
 ```
-
 
 
 ## 总结
@@ -82,7 +217,7 @@ setup() {
 
 ### 执行时机
 
-**setup** 函数会在 **beforeCreate** 之后、**created** 之前执行
+**setup** 函数会在 **beforeCreate** 之后、**created** 之前执行，**只执行一次**
 
 
 
@@ -129,7 +264,7 @@ const MyComponent = {
 
 ## reactive
 
-`reactive()` 函数接收一个普通对象，返回一个响应式的数据对象。
+`reactive()` 函数接收一个普通对象，返回一个响应式的数据对象(定义多个数据的响应式)。
 
 ### 基本语法
 
@@ -178,20 +313,22 @@ const state = reactive({ count: 0 })
 
 ###  基本语法
 
-`ref()` 函数用来根据给定的值创建一个**响应式**的**数据对象**，`ref()` 函数调用的返回值是一个对象，这个对象上只包含一个 `.value` 属性：
+`ref()` 函数用来根据给定的值创建一个**响应式**的**数据对象**(基本类型的数据)，`ref()` 函数调用的返回值是一个对象，这个对象上只包含一个 `.value` 属性：
 
 ```js
 import { ref } from '@vue/composition-api'
 
-// 创建响应式数据对象 count，初始值为 0
-const count = ref(0)
+setup(){
+    // 创建响应式数据对象 count，初始值为 0
+    const count = ref(0)
 
-// 如果要访问 ref() 创建出来的响应式数据对象的值，必须通过 .value 属性才可以
-console.log(count.value) // 输出 0
-// 让 count 的值 +1
-count.value++
-// 再次打印 count 的值
-console.log(count.value) // 输出 1
+    // 如果要访问 ref() 创建出来的响应式数据对象的值，必须通过 .value 属性才可以
+    console.log(count.value) // 输出 0
+    // 让 count 的值 +1
+    count.value++
+    // 再次打印 count 的值
+    console.log(count.value) // 输出 1
+}
 ```
 
 
