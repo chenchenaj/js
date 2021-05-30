@@ -8,7 +8,7 @@
 
 【用户名和密码绑定到表单上】
 
-1. 先为el绑定:model="form"属性进行绑定form数据对象
+1. **先为el绑定:model="form"属性进行绑定form数据对象**
 
   ```vue
   <el-form class="content" :model="LoginFormRef"></el-form>

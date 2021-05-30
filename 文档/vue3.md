@@ -1,6 +1,135 @@
+## 直接创建 vue3 项目
 
+```
+vue create my-project
+```
 
-## vue2.x项目转换成3.x的方式
+选择自定义创建项目，根据自己的需要来创建项目的内容
+
+- Please pick a preset - 选择 Manually select features
+- Check the features needed for your project - 选择上 TypeScript ，特别注意点空格是选择，点回车是下一步
+- Choose a version of Vue.js that you want to start the project with - 选择 3.x (Preview)
+- Use class-style component syntax - 直接回车
+- Use Babel alongside TypeScript - 直接回车
+- Pick a linter / formatter config - 直接回车
+- Use history mode for router? - 直接回车
+- Pick a linter / formatter config - 直接回车
+- Pick additional lint features - 直接回车
+- Where do you prefer placing config for Babel, ESLint, etc.? - 直接回车
+- Save this as a preset for future projects? - 直接回车
+
+### **ref**
+
+- 作用: 定义一个数据的响应式(**一般用来定义一个基本类型的响应式数据**)
+- 语法: const xxx = ref(initValue):
+  - 创建一个包含响应式数据的引用(reference)对象
+  - **js 中操作数据: xxx.value**
+  - 模板中操作数据: 不需要.value
+  - ref 对象的类型是 Ref，reactive 对象的类型是 Proxy
+
+```vue
+<template>
+  <h2>{{ count }}</h2>
+  <hr />
+  <button @click="update">更新</button>
+</template>
+
+<script>
+import { ref } from 'vue'
+export default {
+  /* 使用vue3的composition API */
+  setup() {
+    // 定义响应式数据 ref对象
+    const count = ref(1)
+    console.log(count)
+    // 更新响应式数据的函数
+    function update() {
+      // alert('update')
+      count.value = count.value + 1
+    }
+
+    // 需要将数据和方法都暴露出去
+    return {
+      count,
+      update,
+    }
+  },
+}
+</script>
+```
+
+### **reactive**
+
+- 作用: 定义**多个数据的响应式**
+- const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
+- 响应式转换是“深层的”：会影响对象内部所有嵌套的属性
+- 内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
+- 注意：如果当前对象没有被 reactive 包裹直接在 update 中写 obj.name='xx'是不会发生改变的，要响应式数据才会发生改变；
+- 被 reactive 包裹的属于代理对象，没有被包裹的属于目标对象，**增删改操作都需要使用代理对象**
+
+```vue
+<template>
+  <h2>name: {{ state.name }}</h2>
+  <h2>age: {{ state.age }}</h2>
+  <h2>wife: {{ state.wife }}</h2>
+  <hr />
+  <button @click="update">更新</button>
+</template>
+
+<script>
+/* 
+reactive: 
+    作用: 定义多个数据的响应式
+    const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
+    响应式转换是“深层的”：会影响对象内部所有嵌套的属性
+    内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
+*/
+import { reactive } from 'vue'
+export default {
+  setup() {
+    /* 
+    定义响应式数据对象
+    */
+    const state = reactive({
+      name: 'tom',
+      age: 25,
+      wife: {
+        name: 'marry',
+        age: 22,
+      },
+    })
+    console.log(state, state.wife)
+
+    const update = () => {
+      state.name += '--'
+      state.age += 1
+      state.wife.name += '++'
+      state.wife.age += 2
+    }
+
+    // =======================================================
+    const obj = {
+      // 此时的obj属于目标对象
+      name: 'tom',
+      age: 25,
+      wife: {
+        name: 'marry',
+        age: 22,
+      },
+    }
+    const user = reactive(obj) // 此时user属于代理对象
+    // ========================================================
+
+    return {
+      state,
+      update,
+    }
+  },
+}
+</script>
+```
+
+## vue2.x 项目转换成 3.x 的方式
 
 ### 安装 vue-cli3
 
@@ -30,7 +159,7 @@ yarn add @vue/composition-api
 
 在使用任何 `@vue/composition-api` 提供的能力前，必须先通过 `Vue.use()` 进行安装
 
-在main.js文件中添加以下代码
+在 main.js 文件中添加以下代码
 
 ```js
 import Vue from 'vue'
@@ -39,13 +168,11 @@ import VueCompositionApi from '@vue/composition-api'
 Vue.use(VueCompositionApi)
 ```
 
-
-
 ## 总结
 
-直接在setup中用方法修改state的值是页面不会发生改变，因为reactive不是响应式数据，需要通过`toRefs`包裹
+直接在 setup 中用方法修改 state 的值是页面不会发生改变，因为 reactive 不是响应式数据，需要通过`toRefs`包裹
 
-使用ref则需要通过`.value`来修改值
+使用 ref 则需要通过`.value`来修改值
 
 ```
 setup() {
@@ -70,23 +197,13 @@ setup() {
   },
 ```
 
-
-
-
-
 ## setup
 
 `setup()` 函数是 vue3 中，专门为组件提供的新属性。它为我们使用 vue3 的 `Composition API` 新特性提供了统一的入口。
 
-
-
 ### 执行时机
 
-**setup** 函数会在 **beforeCreate** 之前就执行了，而且只执行一次。
-
-推断：setup在执行的时候，当前的组件还没有创建出来，也就意味着：组件实例对象this根本不能用
-
-
+**setup** 函数会在 **beforeCreate** 之后、**created** 之前执行，**只执行一次**
 
 ### 接收 props 数据
 
@@ -106,8 +223,6 @@ setup() {
    }
    ```
 
-
-
 ### context
 
 `setup` 函数的第二个形参是一个**上下文对象**，这个上下文对象中包含了一些有用的属性，这些属性在 `vue 2.x` 中需要通过 `this` 才能访问到，在 `vue 3.x` 中，它们的访问方式如下：
@@ -121,17 +236,15 @@ const MyComponent = {
     context.root
     context.emit
     context.refs
-  }
+  },
 }
 ```
 
 > 注意：在 `setup()` 函数中无法访问到 `this`
 
-
-
 ## reactive
 
-`reactive()` 函数接收一个普通对象，返回一个响应式的数据对象。
+`reactive()` 函数接收一个普通对象，返回一个响应式的数据对象(定义多个数据的响应式)。
 
 ### 基本语法
 
@@ -144,8 +257,6 @@ import { reactive } from '@vue/composition-api'
 const state = reactive({ count: 0 })
 ```
 
-
-
 ### 定义响应式数据供 template 使用
 
 1. 按需导入 `reactive` 函数：
@@ -157,14 +268,14 @@ const state = reactive({ count: 0 })
 2. 在 `setup()` 函数中调用 `reactive()` 函数，创建响应式数据对象：
 
    ```js
-   export default{
-       setup() {
-        	// 创建响应式数据对象
-       	const state = reactive({count: 0})
-   
-        	// setup 函数中将响应式数据对象 return 出去，供 template 使用
-       	return state
-   	}
+   export default {
+     setup() {
+       // 创建响应式数据对象
+       const state = reactive({ count: 0 })
+
+       // setup 函数中将响应式数据对象 return 出去，供 template 使用
+       return state
+     },
    }
    ```
 
@@ -174,29 +285,27 @@ const state = reactive({ count: 0 })
    <p>当前的 count 值为：{{count}}</p>
    ```
 
-
-
 ## ref
 
-###  基本语法
+### 基本语法
 
-`ref()` 函数用来根据给定的值创建一个**响应式**的**数据对象**，`ref()` 函数调用的返回值是一个对象，这个对象上只包含一个 `.value` 属性：
+`ref()` 函数用来根据给定的值创建一个**响应式**的**数据对象**(基本类型的数据)，`ref()` 函数调用的返回值是一个对象，这个对象上只包含一个 `.value` 属性：
 
 ```js
 import { ref } from '@vue/composition-api'
 
-// 创建响应式数据对象 count，初始值为 0
-const count = ref(0)
+setup(){
+    // 创建响应式数据对象 count，初始值为 0
+    const count = ref(0)
 
-// 如果要访问 ref() 创建出来的响应式数据对象的值，必须通过 .value 属性才可以
-console.log(count.value) // 输出 0
-// 让 count 的值 +1
-count.value++
-// 再次打印 count 的值
-console.log(count.value) // 输出 1
+    // 如果要访问 ref() 创建出来的响应式数据对象的值，必须通过 .value 属性才可以
+    console.log(count.value) // 输出 0
+    // 让 count 的值 +1
+    count.value++
+    // 再次打印 count 的值
+    console.log(count.value) // 输出 1
+}
 ```
-
-
 
 ### 在 template 中访问 ref 创建的响应式数据
 
@@ -204,10 +313,10 @@ console.log(count.value) // 输出 1
 
    ```js
    import { ref } from '@vue/composition-api'
-   
+
    setup() {
        const count = ref(0)
-   
+
         return {
             count,
             name: ref('zs')
@@ -223,8 +332,6 @@ console.log(count.value) // 输出 1
    </template>
    ```
 
-
-
 ### 在 reactive 对象中访问 ref 创建的响应式数据
 
 当把 `ref()` 创建出来的响应式数据对象，挂载到 `reactive()` 上时，会自动把响应式数据对象**展开为原始的值**，不需通过 `.value` 就可以直接被访问，例如：
@@ -232,7 +339,7 @@ console.log(count.value) // 输出 1
 ```js
 const count = ref(0)
 const state = reactive({
-  count
+  count,
 })
 
 console.log(state.count) // 输出 0
@@ -246,7 +353,7 @@ console.log(count) // 输出 1
 // 创建 ref 并挂载到 reactive 中
 const c1 = ref(0)
 const state = reactive({
-  c1
+  c1,
 })
 
 // 再次创建 ref，命名为 c2
@@ -260,8 +367,6 @@ console.log(c2.value) // 输出 10
 console.log(c1.value) // 输出 0
 ```
 
-
-
 ## computed
 
 ### 返回一个不允许修改的计算属性
@@ -271,13 +376,13 @@ console.log(c1.value) // 输出 0
   <div>
     <p>computed的使用</p>
     <input v-model="age" />
-    <p>{{nextAge}}</p>
+    <p>{{ nextAge }}</p>
   </div>
 </template>
 <script>
 import { ref, computed } from 'vue'
 export default {
-  setup () {
+  setup() {
     const age = ref(18)
 
     // 传入一个函数 computed 返回一个不允许修改的计算属性
@@ -286,14 +391,13 @@ export default {
     })
 
     return {
-      age, nextAge
+      age,
+      nextAge,
     }
-  }
+  },
 }
 </script>
 ```
-
-
 
 ### 创建一个可以修改的计算属性
 
@@ -309,53 +413,50 @@ export default {
 <script>
 import { ref, computed } from 'vue'
 export default {
-  setup () {
+  setup() {
     const age = ref(18)
 
     // 传入一个对象，包括get和set，可以创建一个可以修改的计算属性
     const nextAge2 = computed({
-      get () {
+      get() {
         return parseInt(age.value) + 2
       },
 
-      set () {
+      set() {
         age.value = age.value - 2
-      }
+      },
     })
 
     return {
-      age, nextAge2
+      age,
+      nextAge2,
     }
-  }
+  },
 }
 </script>
 ```
-
-
-
-
 
 ## watch
 
 接收三个参数：
 
-参数一：监视的数据源 可以是ref 或则是 一个函数
+参数一：监视的数据源 可以是 ref 或则是 一个函数
 
 参数二：回调函数 (oldValue, value) => {}
 
 参数三：额外的配置
 
-### 监听ref
+### 监听 ref
 
 ```vue
 <template>
   <div>
     <p>watch的使用</p>
-    {{money}}
-    <button @click="money ++">修改money</button>
-    {{car.brand}}
+    {{ money }}
+    <button @click="money++">修改money</button>
+    {{ car.brand }}
     <button @click="car.brand = '奔驰'">修改brand</button>
-    {{msg}}
+    {{ msg }}
     <button @click="msg = 'vue'">修改msg</button>
   </div>
 </template>
@@ -363,16 +464,15 @@ export default {
 <script>
 import { reactive, watch, toRefs, ref } from 'vue'
 export default {
-  setup () {
+  setup() {
     const state = reactive({
       money: 100,
       car: {
-        brand: '宝马'
-      }
+        brand: '宝马',
+      },
     })
 
     const msg = ref('hello')
-
 
     // 监听ref的复杂类型
     watch(msg, (value) => {
@@ -381,26 +481,24 @@ export default {
 
     return {
       ...toRefs(state),
-      msg
+      msg,
     }
-  }
+  },
 }
 </script>
 ```
 
-
-
-### 监听reactive
+### 监听 reactive
 
 ```vue
 <template>
   <div>
     <p>watch的使用</p>
-    {{money}}
-    <button @click="money ++">修改money</button>
-    {{car.brand}}
+    {{ money }}
+    <button @click="money++">修改money</button>
+    {{ car.brand }}
     <button @click="car.brand = '奔驰'">修改brand</button>
-    {{msg}}
+    {{ msg }}
     <button @click="msg = 'vue'">修改msg</button>
   </div>
 </template>
@@ -408,58 +506,66 @@ export default {
 <script>
 import { reactive, watch, toRefs, ref } from 'vue'
 export default {
-  setup () {
+  setup() {
     const state = reactive({
       money: 100,
       car: {
-        brand: '宝马'
-      }
+        brand: '宝马',
+      },
     })
 
     const msg = ref('hello')
 
     // 监听reactive的简单类型
-    watch(() => state.money, (value, oldValue) => {
-      console.log('数据发生了改变' + value)
-    })
+    watch(
+      () => state.money,
+      (value, oldValue) => {
+        console.log('数据发生了改变' + value)
+      }
+    )
 
     // 监听reactive的复杂类型
-    watch(() => state.car, (value, oldValue) => {
-      console.log('数据发生了改变' + value)
-    }, {
-      deep: true
-    })
-
+    watch(
+      () => state.car,
+      (value, oldValue) => {
+        console.log('数据发生了改变' + value)
+      },
+      {
+        deep: true,
+      }
+    )
 
     // 监听reactive的多个值
-    watch([() => state.money, () => state.car], ([money, car],[oldMoney, oldCar]) => {
-      console.log('数据发生了改变' + money, car)
-    }, {
-      deep: true
-    })
+    watch(
+      [() => state.money, () => state.car],
+      ([money, car], [oldMoney, oldCar]) => {
+        console.log('数据发生了改变' + money, car)
+      },
+      {
+        deep: true,
+      }
+    )
 
     return {
       ...toRefs(state),
-      msg
+      msg,
     }
-  }
+  },
 }
 </script>
 ```
 
-
-
-### 监听整个state
+### 监听整个 state
 
 ```vue
 <template>
   <div>
     <p>watch的使用</p>
-    {{money}}
-    <button @click="money ++">修改money</button>
-    {{car.brand}}
+    {{ money }}
+    <button @click="money++">修改money</button>
+    {{ car.brand }}
     <button @click="car.brand = '奔驰'">修改brand</button>
-    {{msg}}
+    {{ msg }}
     <button @click="msg = 'vue'">修改msg</button>
   </div>
 </template>
@@ -467,43 +573,41 @@ export default {
 <script>
 import { reactive, watch, toRefs, ref } from 'vue'
 export default {
-  setup () {
+  setup() {
     const state = reactive({
       money: 100,
       car: {
-        brand: '宝马'
-      }
+        brand: '宝马',
+      },
     })
     const msg = ref('hello')
 
     // 监听整个reactive对象
-    watch(state, (value) => {
-      console.log('数据发生了改变' + value)
-    }, {
-      deep: true
-    })
+    watch(
+      state,
+      (value) => {
+        console.log('数据发生了改变' + value)
+      },
+      {
+        deep: true,
+      }
+    )
 
     return {
       ...toRefs(state),
-      msg
+      msg,
     }
-  }
+  },
 }
 </script>
 ```
-
-
-
-
-
-
 
 ## 配置文件
 
 ### `main.js`文件
 
 ```js
-import { createApp } from 'vue';
+import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -511,31 +615,26 @@ import store from './store'
 createApp(App).use(router).use(store).mount('#app')
 ```
 
-
-
 ### `router.js`文件
 
 ```js
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
   {
     path: '/',
     name: 'DayPage',
-    component: () => import('../views/DayPage.vue')
-  }
+    component: () => import('../views/DayPage.vue'),
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
+  routes,
 })
 
 export default router
-
 ```
-
-
 
 ### `store.js`文件
 
@@ -543,14 +642,9 @@ export default router
 import Vuex from 'vuex'
 
 export default Vuex.createStore({
-  state: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
-  modules: {
-  }
-});
+  state: {},
+  mutations: {},
+  actions: {},
+  modules: {},
+})
 ```
-
