@@ -1,5 +1,5 @@
 
-# Canvas 画布
+# [Canvas 画布](https://www.runoob.com/jsref/dom-obj-canvas.html)
 [参考地址](https://www.aicoder.com/news/5c129496f8afa06e6df8892e/news.html)
 
 [参考地址](https://www.aicoder.com/news/5c1295abf8afa06e6df8892f/news.html)
@@ -202,3 +202,9 @@ ctx.restore()  // 绘图上一次保存的环境
 在变换之前，先 save()
 变换之后，（一系列绘制） restore()
 ```
+
+
+
+
+
+getContext() 方法可返回一个对象，该对象提供了用于在画布上绘图的方法和属性

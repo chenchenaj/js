@@ -82,7 +82,9 @@ setup() {
 
 ### 执行时机
 
-**setup** 函数会在 **beforeCreate** 之后、**created** 之前执行
+**setup** 函数会在 **beforeCreate** 之前就执行了，而且只执行一次。
+
+推断：setup在执行的时候，当前的组件还没有创建出来，也就意味着：组件实例对象this根本不能用
 
 
 

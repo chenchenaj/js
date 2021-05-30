@@ -727,6 +727,19 @@ export default{
 
 
 
+## 下载excel二进制数据流返回原页面
+
+```js
+exportUser: function (callback) {
+     let url=`下载的地址路径`
+     window.open(url)
+     callback();
+ },
+     
+==========使用=============
+this.$api.exportUser(() => {this.$message.success('导出成功')});
+```
+
 
 
 
