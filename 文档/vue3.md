@@ -1,4 +1,6 @@
-## 直接创建 vue3 项目
+#  创建 vue3 项目
+
+## 1) 使用 vue-cli 创建
 
 ```
 vue create my-project
@@ -18,120 +20,29 @@ vue create my-project
 - Where do you prefer placing config for Babel, ESLint, etc.? - 直接回车
 - Save this as a preset for future projects? - 直接回车
 
-### **ref**
 
-- 作用: 定义一个数据的响应式(**一般用来定义一个基本类型的响应式数据**)
-- 语法: const xxx = ref(initValue):
-  - 创建一个包含响应式数据的引用(reference)对象
-  - **js 中操作数据: xxx.value**
-  - 模板中操作数据: 不需要.value
-  - ref 对象的类型是 Ref，reactive 对象的类型是 Proxy
 
-```vue
-<template>
-  <h2>{{ count }}</h2>
-  <hr />
-  <button @click="update">更新</button>
-</template>
+## 2)使用 vite 创建
 
-<script>
-import { ref } from 'vue'
-export default {
-  /* 使用vue3的composition API */
-  setup() {
-    // 定义响应式数据 ref对象
-    const count = ref(1)
-    console.log(count)
-    // 更新响应式数据的函数
-    function update() {
-      // alert('update')
-      count.value = count.value + 1
-    }
+- 文档: https://v3.cn.vuejs.org/guide/installation.html
+- vite 是一个由原生 ESM 驱动的 Web 开发构建工具。在开发环境下基于浏览器原生 ES imports 开发，
+- 它做到了***本地快速开发启动***, 在生产环境下基于 Rollup 打包。
+  - 快速的冷启动，不需要等待打包操作；
+  - 即时的热模块更新，替换性能和模块数量的解耦让更新飞起；
+  - 真正的按需编译，不再等待整个应用编译完成，这是一个巨大的改变。
 
-    // 需要将数据和方法都暴露出去
-    return {
-      count,
-      update,
-    }
-  },
-}
-</script>
+```bash
+npm init vite-app <project-name>
+cd <project-name>
+npm install
+npm run dev
 ```
 
-### **reactive**
 
-- 作用: 定义**多个数据的响应式**
-- const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
-- 响应式转换是“深层的”：会影响对象内部所有嵌套的属性
-- 内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
-- 注意：如果当前对象没有被 reactive 包裹直接在 update 中写 obj.name='xx'是不会发生改变的，要响应式数据才会发生改变；
-- 被 reactive 包裹的属于代理对象，没有被包裹的属于目标对象，**增删改操作都需要使用代理对象**
 
-```vue
-<template>
-  <h2>name: {{ state.name }}</h2>
-  <h2>age: {{ state.age }}</h2>
-  <h2>wife: {{ state.wife }}</h2>
-  <hr />
-  <button @click="update">更新</button>
-</template>
+# vue2.x 项目转换成 3.x 的方式
 
-<script>
-/* 
-reactive: 
-    作用: 定义多个数据的响应式
-    const proxy = reactive(obj): 接收一个普通对象然后返回该普通对象的响应式代理器对象
-    响应式转换是“深层的”：会影响对象内部所有嵌套的属性
-    内部基于 ES6 的 Proxy 实现，通过代理对象操作源对象内部数据都是响应式的
-*/
-import { reactive } from 'vue'
-export default {
-  setup() {
-    /* 
-    定义响应式数据对象
-    */
-    const state = reactive({
-      name: 'tom',
-      age: 25,
-      wife: {
-        name: 'marry',
-        age: 22,
-      },
-    })
-    console.log(state, state.wife)
-
-    const update = () => {
-      state.name += '--'
-      state.age += 1
-      state.wife.name += '++'
-      state.wife.age += 2
-    }
-
-    // =======================================================
-    const obj = {
-      // 此时的obj属于目标对象
-      name: 'tom',
-      age: 25,
-      wife: {
-        name: 'marry',
-        age: 22,
-      },
-    }
-    const user = reactive(obj) // 此时user属于代理对象
-    // ========================================================
-
-    return {
-      state,
-      update,
-    }
-  },
-}
-</script>
-```
-
-## vue2.x 项目转换成 3.x 的方式
-
-### 安装 vue-cli3
+## 安装 vue-cli3
 
 ```bash
 npm install -g @vue/cli
@@ -139,7 +50,7 @@ npm install -g @vue/cli
 yarn global add @vue/cli
 ```
 
-### 创建项目
+## 创建项目
 
 ```bash
 vue create my-project
@@ -147,7 +58,7 @@ vue create my-project
 vue ui
 ```
 
-### 在项目中安装 `composition-api` 体验 vue3 新特性
+## 在项目中安装 `composition-api` 体验 vue3 新特性
 
 ```bash
 npm install @vue/composition-api --save
@@ -155,7 +66,7 @@ npm install @vue/composition-api --save
 yarn add @vue/composition-api
 ```
 
-### 通过 `Vue.use()` 进行安装
+## 通过 `Vue.use()` 进行安装
 
 在使用任何 `@vue/composition-api` 提供的能力前，必须先通过 `Vue.use()` 进行安装
 
@@ -168,7 +79,9 @@ import VueCompositionApi from '@vue/composition-api'
 Vue.use(VueCompositionApi)
 ```
 
-## 总结
+
+
+# 总 结
 
 直接在 setup 中用方法修改 state 的值是页面不会发生改变，因为 reactive 不是响应式数据，需要通过`toRefs`包裹
 
@@ -292,7 +205,8 @@ const state = reactive({ count: 0 })
 `ref()` 函数用来根据给定的值创建一个**响应式**的**数据对象**(基本类型的数据)，`ref()` 函数调用的返回值是一个对象，这个对象上只包含一个 `.value` 属性：
 
 ```js
-import { ref } from '@vue/composition-api'
+import { ref } from '@vue/composition-api' // vue2升级写法
+import { ref } from 'vue' // vue3写法
 
 setup(){
     // 创建响应式数据对象 count，初始值为 0
@@ -312,11 +226,12 @@ setup(){
 1. 在 `setup()` 中创建响应式数据：
 
    ```js
-   import { ref } from '@vue/composition-api'
-
+   import { ref } from '@vue/composition-api' // vue2升级写法
+   import { ref } from 'vue' // vue3写法
+   
    setup() {
        const count = ref(0)
-
+   
         return {
             count,
             name: ref('zs')
@@ -369,7 +284,7 @@ console.log(c1.value) // 输出 0
 
 ## computed
 
-### 返回一个不允许修改的计算属性
+### 不允许修改的计算属性(传入回调函数)
 
 ```vue
 <template>
@@ -385,7 +300,7 @@ export default {
   setup() {
     const age = ref(18)
 
-    // 传入一个函数 computed 返回一个不允许修改的计算属性
+    // 传入一个函数 computed 返回一个不允许修改的计算属性(即get属性)
     const nextAge = computed(() => {
       return parseInt(age.value) + 1
     })
@@ -399,7 +314,7 @@ export default {
 </script>
 ```
 
-### 创建一个可以修改的计算属性
+### 可修改的计算属性(传入对象)
 
 ```vue
 <template>
@@ -437,6 +352,9 @@ export default {
 ```
 
 ## watch
+
+- 默认初始时不执行回调, 但可以通过配置immediate为true, 来指定初始时立即执行第一次
+- 通过配置deep为true, 来指定深度监视
 
 接收三个参数：
 
@@ -602,7 +520,182 @@ export default {
 </script>
 ```
 
-## 配置文件
+
+
+## watchEffect
+
+- 不用直接指定要监视的数据, 回调函数中使用的哪些响应式数据就监视哪些响应式数据
+- **默认初始时就会执行第一次**
+- 监视数据发生变化时回调
+
+
+
+## 生命周期
+
+使用vue3的生命周期需要在组件中引入
+
+```js
+import {onBeforeMount, onMounted,...} from 'vue'
+```
+
+
+
+### 与 2.x 版本生命周期相对应的组合式 API
+
+- `beforeCreate` -> 使用 `setup()`
+- `created` -> 使用 `setup()`
+- `beforeMount` -> `onBeforeMount`
+- `mounted` -> `onMounted`
+- `beforeUpdate` -> `onBeforeUpdate`
+- `updated` -> `onUpdated`
+- `beforeDestroy` -> `onBeforeUnmount`
+- `destroyed` -> **`onUnmounted`**
+- `errorCaptured` -> `onErrorCaptured`
+
+
+
+### 新增的钩子函数
+
+组合式 API 还提供了以下调试钩子函数：
+
+- onRenderTracked
+- onRenderTriggered
+
+
+
+### toRefs
+
+**把一个响应式对象转换成普通对象，该普通对象的每个 property 都是一个 ref**
+
+应用: 当从合成函数返回响应式对象时，toRefs 非常有用，这样消费组件就可以在不丢失响应式的情况下对返回的对象进行分解使用
+
+问题: reactive 对象取出的所有属性值都是非响应式的
+
+解决: 利用 toRefs 可以将一个响应式 reactive 对象的所有原始属性转换为响应式的 ref 属性
+
+```vue
+<template>
+  <h2>App</h2>
+  <h3>foo: {{foo}}</h3>
+  <h3>bar: {{bar}}</h3>
+  <h3>foo2: {{foo2}}</h3>
+  <h3>bar2: {{bar2}}</h3>
+</template>
+
+<script lang="ts">
+import { reactive, toRefs } from 'vue'
+export default {
+  setup () {
+
+    const state = reactive({
+      foo: 'a',
+      bar: 'b',
+    })
+
+    const stateAsRefs = toRefs(state)
+
+    setTimeout(() => {
+      state.foo += '++'
+      state.bar += '++'
+    }, 2000);
+
+    const {foo2, bar2} = useReatureX()
+
+    return {
+      // ...state,
+      ...stateAsRefs,
+      foo2, 
+      bar2
+    }
+  },
+}
+
+function useReatureX() {
+  const state = reactive({
+    foo2: 'a',
+    bar2: 'b',
+  })
+
+  setTimeout(() => {
+    state.foo2 += '++'
+    state.bar2 += '++'
+  }, 2000);
+
+  return toRefs(state)
+}
+
+</script>
+```
+
+
+
+## ref获取元素
+
+利用ref函数获取组件中的标签元素
+
+功能需求: 让输入框自动获取焦点
+
+```vue
+<template>
+  <input type="text" ref="inputRef">
+</template>
+
+<script lang="ts">
+import { onMounted, ref } from 'vue'
+export default {
+  setup() {
+    const inputRef = ref<HTMLElement|null>(null)
+
+    onMounted(() => {
+      inputRef.value && inputRef.value.focus()
+    })
+
+    return {
+      inputRef
+    }
+  },
+}
+</script>
+```
+
+
+
+## shallowReactive 与 shallowRef
+
+- shallowReactive : 只能处理了对象内第一层的基本类型数据，第一层数据的复杂类型数据无法处理
+- shallowRef: 只处理了value的响应式, 不进行对象的reactive处理
+- reactive: 深度劫持(深度响应式)
+- ref: 深度劫持(深度响应式)
+
+
+
+## readonly 与 shallowReadonly
+
+- readonly:
+  - 深度只读数据
+  - 获取一个对象 (响应式或纯对象) 或 ref 并返回原始代理的只读代理。
+  - 只读代理是深层的：访问的任何嵌套 property 也是只读的。
+- shallowReadonly
+  - 浅只读数据
+  - 创建一个代理，使其自身的 property 为只读，但不执行嵌套对象的深度只读转换
+
+
+
+## toRaw 与 markRaw
+
+- toRaw
+  - 把代理对象变成了普通对象，数据变化，界面不发生变化
+  - 返回由 `reactive` 或 `readonly` 方法转换成响应式代理的普通对象。
+  - 这是一个还原方法，可用于临时读取，访问不会被代理/跟踪，写入时也不会触发界面更新。
+- markRaw
+  - 标记一个对象，使其永远不会转换为代理。返回对象本身
+  - 应用场景:
+    - 有些值不应被设置为响应式的，例如复杂的第三方类实例或 Vue 组件对象。
+    - 当渲染具有不可变数据源的大列表时，跳过代理转换可以提高性能。
+
+
+
+## 配置文件解析
 
 ### `main.js`文件
 
@@ -648,3 +741,26 @@ export default Vuex.createStore({
   modules: {},
 })
 ```
+
+### `.vue`文件
+
+```vue
+<template>
+  <!-- Vue2中的html模板必须要有一对根标签，Vue3组件的html模板中够可以没有根标签 -->
+  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+</template>
+
+<script lang="ts">
+// defineComponent函数，目的是定义一个组件，内部可以传入一个配置对象
+import { defineComponent } from 'vue';
+import HelloWorld from '@/components/HelloWorld.vue';
+// 暴露出去一个定义好的组件
+export default defineComponent({
+  name: 'Home',
+  components: {
+    HelloWorld,
+  },
+});
+</script>
+```
+
