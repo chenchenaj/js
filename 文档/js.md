@@ -64,16 +64,6 @@ console.log(isNaN(Infinity)) // true
 console.log(isNaN(NaN)) // false
 ```
 
-![1591354090989](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591354090989.png)![1591353637740](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591353637740.png)
-
-![1591354083668](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591354083668.png)
-
-![1591355211181](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591355211181.png)![1591372387435](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591372387435.png)![1591408102828](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591408102828.png)![1591408420547](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591408420547.png)
-
-![](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591347776495.png)![1591348242846](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591348242846.png)![1591426652509](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591426652509.png)![1591409756990](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591409756990.png)
-
-![1591583912723](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591583912723.png)
-
 tofixed(2): 保留小数位，结果是字符串
 
 ### String数据类型
@@ -100,27 +90,15 @@ func.toString()
 
 
 
-![1591365406376](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591365406376.png)
-
-![1591364702884](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591364702884.png)
-
-
-
 ### Boolean数据类型
-
-![1591370780352](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591370780352.png)![1591368085201](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591368085201.png)
 
 规则：只有`0/NaN/null/undefined/空字符串`最后是false，其余的都是true
 
-### 练习题
 
-![1591430346322](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591430346322.png)![1591430668347](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591430668347.png)![1591430939346](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591430939346.png)![1591431031795](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591431031795.png)![1591431243081](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591431243081.png)![1591431499682](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591431499682.png)
 
 ### == 和 === 区别
 
 ==：将字符串转为数字
-
-![1591408646805](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591408646805.png)![1591502045102](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591502045102.png)![1591408769293](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591408769293.png)![1591422206788](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591422206788.png)![1591502357822](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591502357822.png)
 
 ### undefined与null
 
@@ -147,8 +125,6 @@ x > 0 ? (x++， console.log（x)): null
 
 switch case：每一种case情况都是基于 === 进行比较的（严格比较，需保证数据类型都一致）
 
-![1591422960970](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591422960970.png)
-
 ### break、continue和return
 
 break：强制结束整个循环（循环体中一旦遇到break，整个循环都结束，break下面代码不再执行，步长累计也不再执行）
@@ -156,10 +132,6 @@ break：强制结束整个循环（循环体中一旦遇到break，整个循环�
 continue：结束本轮循环，下一轮继续（循环体中一旦遇到continue，本轮循环结束，continue下面代码不再执行，但是步长会累计执行）
 
 `注：break和continue只能在循环中使用，用于结束循环；return只能在函数中使用，用于返回信息并告知函数体下面代码`
-
-![1591425833106](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591425833106.png)
-
-![1591424894443](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591424894443.png)![1591425233115](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591425233115.png)![1591584810068](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591584810068.png)![1591456670325](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591456670325.png)
 
 
 
@@ -200,12 +172,6 @@ fn();//=>0
 fn(null);//=>null
 fn(undefined);//=>0 传递undefined，浏览器也是按照没有传递值处理的
 ```
-
-
-
-### 总结
-
-![1591446628770](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591446628770.png)![1591446863759](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591446863759.png)
 
 ## 数组
 
@@ -252,7 +218,7 @@ console.log(arr1); // 不要直接给 数组名赋值 否则里面的数组元�
 
 低耦合，高内聚
 
-![1591494567520](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591494567520.png)
+
 
 ### 概念
 
@@ -301,7 +267,7 @@ function 函数名(形参1, 形参2...) {} // 在声明函数的小括号里面�
 
 有function先跳过，待调用函数的时候再回去函数中执行
 
-![1591247736831](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591247736831.png)
+
 
 
 
@@ -324,7 +290,7 @@ getSum(1, 2, 3);
 getSum(1); // NaN
 ```
 
-![1591496289349](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591496289349.png)
+
 
 ### 函数的返回值return
 
@@ -350,7 +316,7 @@ console.log(result);
 console.log(getResult());
 ```
 
-![1591497815590](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591497815590.png)![1591498210863](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591498210863.png)
+
 
 #### return
 
@@ -448,7 +414,7 @@ const res2 = getRandomMax(12, 9, -1, 6)
 console.log(res1, res2)
 ```
 
-![1591497448010](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591497448010.png)
+
 
 ### 函数相互调用
 
@@ -888,7 +854,7 @@ console.log(Object.keys(obj)) // =>['a']
 
 对象中的属性名不能重复，而且数字和字符串如果相同算同一个属性，例：obj[0]=obj['0']
 
-![1591372109649](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591372109649.png)
+
 
 ### new关键字
 
@@ -910,7 +876,7 @@ console.log(Object.keys(obj)) // =>['a']
 
 遍历循环对象时，会优先按照从小到大的机制遍历数字属性的
 
-![1591425677005](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591425677005.png)
+
 
 ```js
 var obj = {
@@ -926,7 +892,7 @@ for (var k in obj) {
 
 ### 总结
 
-![1591448003170](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591448003170.png)
+
 
 ## 内置对象
 
@@ -1080,37 +1046,23 @@ console.log(Array.isArray(arr));
 
 push()：push完毕之后，返回的结果是**新数组的长度 **，原数组也会发生变化
 
-![1591508683924](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591508683924.png)
-
 unshift()：unshift完毕之后，返回的结果是**新数组的长度** ，原数组也会发生变化
-
-![1591508816058](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591508816058.png)
 
 pop()：pop完毕之后，返回的结果是**删除的那个元素**  ，原数组也会发生变化
 
-![1591508759693](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591508759693.png)
-
 shift()：shift完毕之后，返回的结果是**删除的那个元素**  ，原数组也会发生变化
 
-![1591508849835](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591508849835.png)
+splice()：现增删改，会影响原数组
 
-splice()：实现增删改，会影响原数组
 
-![1591509397383](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591509397383.png)![1591509404739](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591509404739.png)
 
 #### 排序
 
 reverse()：翻转数组
 
-![1591513149023](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591513149023.png)
-
 sort()：数组排序(冒泡排序)
 
 return 	A-B：升序排列		B - A：降序排列		A.length - B.length：按长度排列
-
-![1591513962155](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591513962155.png)
-
-![1591513608164](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591513608164.png)
 
 #### 验证是否包含某一项
 
@@ -1131,7 +1083,7 @@ var arr = [1, 2, 3];
 console.log(arr.toString()); // 1,2,3
 ```
 
-![1591510848907](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591510848907.png)
+
 
 join()
 
@@ -1140,29 +1092,21 @@ var arr1 = ['green', 'blue', 'pink'];
 console.log(arr1.join()); // green,blue,pink
 ```
 
-![1591511241092](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591511241092.png)
+
 
 #### 拼接
 
 concat()：返回新数组
 
-![1591510700883](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591510700883.png)
-
 #### 截取
 
 slice()：返回被截取的新数组
-
-![1591510415079](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591510415079.png)
 
 #### 数组迭代
 
 forEach
 
-![1591515072719](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591515072719.png)
-
 map
-
-![1591514581252](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591514581252.png)
 
 #### 数组去重
 
@@ -1196,11 +1140,9 @@ var arr = [1,1,'true','true',true,true,15,15,false,false, undefined,undefined, n
     //[1, "true", 15, false, undefined, NaN, NaN, "NaN", "a", {…}, {…}]     //NaN和{}没有去重，两个null直接消失了
 ```
 
-![1591523068915](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591523068915.png)
-
 ### String
 
-![1591536052658](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591536052658.png)
+
 
 #### 字符返回位置
 
@@ -1237,7 +1179,7 @@ var str = 'andy';
 console.log(str.charAt(3)); // y
 ```
 
-![1591527097156](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591527097156.png)
+
 
 !> 思考：`打印出字符串中所有的字符`
 
@@ -1272,7 +1214,7 @@ substring(start,end) 返回从start位置开始到end位置的子串（不包含
 
 slice(start,end)：返回从start位置开始到end位置的子串（不包含end）,支持负数索引
 
-![1591534744148](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591534744148.png)
+
 
 ##### 替换
 
@@ -1282,7 +1224,7 @@ replace('被替换的字符', '替换为的字符')，只会替换第一个字�
 
 split('分隔符')
 
-![1591535682178](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591535682178.png)
+
 
 ##### 转大写
 
@@ -1300,7 +1242,7 @@ lastIndexOf()
 
 includes()
 
-![1591535076932](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591535076932.png)
+
 
 ##### 练习题
 
@@ -1310,33 +1252,25 @@ includes()
 
 方式一
 
-![1591540569400](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591540569400.png)
+方式二
 
-方式二![1591540563712](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591540563712.png)
+
 
 ###### 格式化URL参数
 
 将参数转换为对象
 
-![1591545464363](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591545464363.png)
-
 初版本:传递的地址必须函数 ? 和 #,否则会报错
 
-![1591542136411](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591542136411.png)
-
 终版:完善 ? 和 # 不存在的情况也能正常运行
-
-![1591545296563](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591545296563.png)
 
 
 
 元素中的URL解析
 
-![1591546241811](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591546241811.png)
-
 原型链封装的解析URL
 
-![1591546479331](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591546479331.png)
+
 
 ## 数据类型
 
@@ -1391,51 +1325,9 @@ typeof "string" => "string"
 
 ![](https://img-blog.csdnimg.cn/20190401214757884.png)
 
-案例
-
-![1591343101735](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591343101735.png)![1591343927913](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591343927913.png)
-
-案例1![1591346034637](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591346034637.png)
-
-案例2
-
-![1591346479623](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591346479623.png)
-
-案例3
-
-![1591346790413](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591346790413.png)
-
-### 练习题
-
-案例1：
-
-b++: b = 1 相当于创建了一个新的值
-
-![1591409330950](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591409330950.png)
-
-案例2
-
-![1591410161902](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591410161902.png)
-
-案例3
-
-console.log(a.x) = "undefined", 因为这个是获取值而不是新建或者修改值
-
-![1591410855496](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591410855496.png)
-
-
-
-案例4
-
-![1591583384695](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591583384695.png)
-
-案例5
-
-![1591436661212](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591436661212.png)![1591436841366](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591436841366.png)
-
 ### 总结
 
-![1591447963733](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591447963733.png)
+
 
 
 
@@ -1483,7 +1375,7 @@ console.log(sum(12, 23, '34', 'AA'));
 
 解析存储
 
-![1591609148463](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591609148463.png)
+
 
 
 
@@ -1637,7 +1529,7 @@ if ('a' in window) {
 console.log(a);//=>100
 ```
 
-![1591752928800](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591752928800.png)
+
 
 ### 重名问题
 
@@ -1909,7 +1801,7 @@ VM176:6 23
 VM176:14 10
 ```
 
-![1591680660041](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591680660041.png)
+
 
 ### 执行上下文
 
@@ -1952,17 +1844,13 @@ fn(ary);
 console.log(ary); //[100, 23]
 ```
 
-![1591627883603](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591627883603.png)![1591666496834](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591666496834.png)
+
 
 案例二：严格模式下和不严格模式下arguments取值的不同
 
-![1591666198160](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591666198160.png)![1591666291471](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591666291471.png)
-
-
-
 案例三
 
-![1591755394482](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591755394482.png)
+
 
 ## 闭包
 
@@ -2013,8 +1901,6 @@ function func(){
 }  
 func()
 ```
-
-![1591684936982](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591684936982.png)
 
 
 
@@ -2189,13 +2075,11 @@ btn.classList.remove('active')
 
 需求1：创建一个div标签，并设置边框，背景色，文本及字体颜色，添加到页面中
 
-![1597537287300](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597537287300.png)
-
 需求2：获取页面中所有的p标签并设置边框，背景色，文本及字体颜色
 
 需求3：创建三个div标签，标签的内容是div-0-1-2，并设置边框，背景色，文本及字体颜色
 
-![1597537298422](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597537298422.png)![1597537313640](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597537313640.png)
+
 
 ##### 获取节点
 
@@ -2364,19 +2248,11 @@ oBox.removeAttribute('myColor'); //=>删除
 
 这里的是全局变量，会不安全，建议使用局部变量
 
-![1597536243141](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597536243141.png)
-
-![1597536255593](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597536255593.png)
-
 
 
 ##### 局部变量封装的函数
 
-![1597536491872](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597536491872.png)
-
 进一步完善封装【将获取属性的函数都抽取到getElements】下
-
-![1597536622728](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1597536622728.png)
 
 
 
@@ -2448,24 +2324,6 @@ oBox.removeAttribute('myColor'); //=>删除
 
 ## 同步异步
 
-![1591793831943](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591793831943.png)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ### BOM
@@ -2482,5 +2340,3 @@ mouseout：移出事件
 mouseenter：移入事
 mouseleave：移出事件
 contextmenu：右键事件
-
-![1591793858745](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591793858745.png)

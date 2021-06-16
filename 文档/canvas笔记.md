@@ -308,3 +308,433 @@ drawDiamondBorder(x,y, width = 150, height = 70){
 #### 6.4 全景移动
 
 注:如果是水平移动，canvas 宽度要与图片宽度一样；垂直移动，canvas 高度要与图片高度一样
+
+
+
+# 项目实战
+
+## 节点重排
+
+<img src="../image/rearrangement.gif">
+
+- 在canvas初始化的时候要监听键盘按下Ctrl与键盘抬起的事件(如果不行就换成document监听)
+
+```js
+jbInit(e) {
+    this.canvas.onkeydown = (e) => {
+      this.handleKeyDown(e);
+    };
+    this.canvas.onkeyup = (e) => {
+      this.handleKeyUp(e);
+    };
+}
+
+/**
+   * yx 键盘按下
+   */
+  handleKeyDown(e) {
+    switch (e.keyCode) {
+      case 17:
+        this.ctrlDown = true;
+        // 如果是第一个就加上，如果不是第一个就只执行下面的函数
+        if(this.selectArr.length == 0){
+          this.selectArr.push(this.ctrlEle)
+        }
+        break;
+      default:
+        break;
+    }
+  }
+
+  /**
+   * yx 键盘抬起
+   */
+  handleKeyUp(e) {
+    switch (e.keyCode) {
+      case 17:
+        this.ctrlDown = false;
+        break;
+      default:
+        break;
+    }
+  }
+```
+
+
+
+- 在鼠标抬起时要是否有按下Ctrl键，如果按下就将节点放到数组中(如果已经在数组中就移除不在就添加)
+
+```js
+mouseup(e){
+    if (this.ctrlDown) {/*如果按下了ctrl*/
+        const flag = this.isInZoom(this._selected)
+        if(!flag){ // 如果不在数组中那么就添加到选中的数据
+          this.selectArr.push(this._selected)
+        }else{ // 如果在原来的数据那么就从原来的数组中移除
+          this.selectArr = this._removeElementFromArray(this.selectArr, this._selected)
+        }
+        console.log('如果点中元素不在selected里，就添加，否则从selected里删除，并清空当前元素')
+      } else {/*如果没有按下ctrl，直接清空selected，保留当前元素*/
+        this.selectArr = [];
+        console.log('没有按下ctrl，直接清空selected')
+      }
+}
+
+/**
+   * yx 选中的数组中有无当前的元素
+   */
+  isInZoom(em) {
+    if (em) {
+      // 在
+      for (let i = 0; i < this.selectArr.length; i++) {
+        if (Object.is(em.id, this.selectArr[i].id))
+          return true;
+      }
+      return false
+    } else {
+      return false;
+    }
+  }
+
+// 从数组中移除元素
+_removeElementFromArray(array, element) {
+    for (let i = 0; i < array.length; i++) {
+      let em = array[i];
+      if (em.id != null && em.id == element.id) {
+        return [...array.slice(0, i), ...array.slice(i + 1)];
+      }
+    }
+  }
+```
+
+- 如果选中的元素多于两个就可以实现排列
+- 给按钮绑定事件，点击时触发不同的函数
+
+```js
+/**
+   * yx 元素垂直居中
+   */
+  alignVerticalCenter(){
+    if(this.selectArr.length < 2){
+      alert('请按下Ctrl并至少选择两个元素')
+    }else{ // 获取被选中元素的最大x值和最小x值，y值不变，x取两者的中间值
+      const maxX =  Math.max.apply(Math,this.selectArr.map(item => { return item.x }))
+      const minX =  Math.min.apply(Math,this.selectArr.map(item => { return item.x }))
+      const maxW = Math.max.apply(Math,this.selectArr.map(item => { return item.width }))
+      const minW = Math.min.apply(Math,this.selectArr.map(item => { return item.width }))
+      const averageValue = (maxX + minX) / 2;
+      const averageWidth = (maxW - minW) / 2
+      this.abscissaChange(averageValue, maxW, averageWidth)
+    }
+  }
+  /**
+   * yx 左对齐
+   */
+  alignLeft(){
+    if(this.selectArr.length < 2){
+      alert('请按下Ctrl并至少选择两个元素')
+    }else{ // 获取被选中元素的最小x值，y值不变
+      const minX =  Math.min.apply(Math,this.selectArr.map(item => { return item.x }))
+      this.abscissaChange(minX)
+    }
+  }
+  /**
+   * yx 右对齐
+   */
+  alignRight(){
+    if(this.selectArr.length < 2){
+      alert('请按下Ctrl并至少选择两个元素')
+    }else{ // 获取被选中元素的最小x值，y值不变
+      const maxX =  Math.max.apply(Math,this.selectArr.map(item => { return item.x }))
+      const maxW = Math.max.apply(Math,this.selectArr.map(item => { return item.width }))
+      const minW= Math.min.apply(Math,this.selectArr.map(item => { return item.width }))
+      const averageWidth = maxW - minW
+      this.abscissaChange(maxX, maxW, averageWidth)
+    }
+  }
+  /**
+   * yx 元素水平居中
+   */
+  alignHorizontalCenter(){
+    if(this.selectArr.length < 2){
+      alert('请按下Ctrl并至少选择两个元素')
+    }else{ // 获取被选中元素的最大x值和最小x值，y值不变，x取两者的中间值
+      const maxX =  Math.max.apply(Math,this.selectArr.map(item => { return item.y }))
+      const minX =  Math.min.apply(Math,this.selectArr.map(item => { return item.y }))
+      const maxH = Math.max.apply(Math,this.selectArr.map(item => { return item.height }))
+      const minH = Math.min.apply(Math,this.selectArr.map(item => { return item.height }))
+      const averageValue = (maxX + minX) / 2;
+      const averageHeight = (maxH - minH) / 2
+      this.ordinateChange(averageValue, maxH, averageHeight)
+    }
+  }
+  /**
+   * yx 元素顶部对齐
+   */
+  alignTop(){
+    if(this.selectArr.length < 2){
+      alert('请按下Ctrl并至少选择两个元素')
+    }else{ // 获取被选中元素的最大x值和最小x值，y值不变，x取两者的中间值
+      const minX =  Math.min.apply(Math,this.selectArr.map(item => { return item.y }))
+      this.ordinateChange(minX)
+    }
+  }
+  /**
+   * yx 元素底部对齐
+   */
+  alignBottom(){
+    if(this.selectArr.length < 2){
+      alert('请按下Ctrl并至少选择两个元素')
+    }else{ // 获取被选中元素的最大x值和最小x值，y值不变，x取两者的中间值
+      const maxX =  Math.max.apply(Math,this.selectArr.map(item => { return item.y }))
+      const maxH = Math.max.apply(Math,this.selectArr.map(item => { return item.height }))
+      const minH = Math.min.apply(Math,this.selectArr.map(item => { return item.height }))
+      const averageHeight = maxH - minH
+      this.ordinateChange(maxX, maxH, averageHeight)
+    }
+  }
+
+  /**
+   * yx 原元素的横坐标修改(在selectArr中找到elems的所有节点)
+   * @param {横坐标} cx 
+   */
+  abscissaChange(cx, maxX, width=0){
+    for(let i = 0; i < this.selectArr.length; i++){
+      for(let j = 0; j < this._elems.length; j++){
+        if(Object.is(this.selectArr[i], this._elems[j])){
+          if(maxX && maxX > this.selectArr[i].width){
+            this._elems[j].x = cx+width;
+            break;
+          }else{
+            this._elems[j].x = cx
+            break;
+          }
+        }
+      }
+    }
+    this.repaint()
+  }
+
+  /**
+   * yx 原元素纵坐标的修改
+   * @param {纵坐标} cy 
+   */
+  ordinateChange(cy, maxH, height=0){
+    for(let i = 0; i < this.selectArr.length; i++){
+      for(let j = 0; j < this._elems.length; j++){
+        if(Object.is(this.selectArr[i], this._elems[j])){
+          if(maxH && maxH > this.selectArr[i].height){
+            this._elems[j].y = cy+height;
+            break;
+          }else{
+            this._elems[j].y = cy;
+            break;
+          }
+        }
+      }
+    }
+    this.repaint()
+  }
+```
+
+
+
+## 节点对齐时辅助线
+
+<img src="../image/auxiliaryLine.gif">
+
+- 新建一个辅助线的类AuxiliaryLine
+
+```js
+class AuxiliaryLine {
+	static instance = null;
+	
+	static getInstance() {
+		if(!AuxiliaryLine.instance || !(AuxiliaryLine.instance instanceof AuxiliaryLine)) {
+			AuxiliaryLine.instance = new AuxiliaryLine();
+		}
+
+		return AuxiliaryLine.instance;	
+	}
+	
+	constructor() {
+		this.points = null;
+		this.color = AuxiliaryLine.DEF_COLOR;
+	}
+	
+	paint(g) {
+		g.save();
+		g.setLineWidth(1);
+		g.setColor(this.color);
+		
+		if(this.points) {
+			if(this.points.abscissa) {
+				g.drawLine(this.points.abscissa.beginPoint.x, this.points.abscissa.beginPoint.y, 
+				this.points.abscissa.endPoint.x, this.points.abscissa.endPoint.y);
+			}
+
+			if(this.points.ordinate) {
+				g.drawLine(this.points.ordinate.beginPoint.x, this.points.ordinate.beginPoint.y, 
+				this.points.ordinate.endPoint.x, this.points.ordinate.endPoint.y);
+			}	
+		}
+		
+		g.restore();
+	}
+	
+	getProp(prop) {
+		return this[prop];
+	}
+	
+	setProps(newProps) {
+		Object.assign(this, newProps);
+	}
+}
+
+AuxiliaryLine.DEF_COLOR = '#9AFF9A';
+
+export default AuxiliaryLine;
+```
+
+- 在绘制元素的同时添加辅助线绘制的方法
+
+```js
+paint(){
+    // 画元素
+
+    this._elems.forEach((elem) => {
+      if (elem instanceof PaintElement) {
+        //console.log(elem)
+        elem.paint(og);
+      }
+    });
+
+    //绘制辅助线
+		if(AuxiliaryLine.getInstance().getProp('points')) {
+			AuxiliaryLine.getInstance().paint(og);
+		}
+  }
+```
+
+在元素拖动坐标出现重合的时候出现辅助线
+
+```js
+mouseDrag(e){
+    // yx 画辅助线
+      const auxiliaryLinePoints = AuxiliaryLine.getInstance().getProp('points');
+      const movedX = Math.abs(this._selected.getProp('x') - x); //this._selected选中元素
+			const movedY = Math.abs(this._selected.getProp('y') - y);
+      if(auxiliaryLinePoints && auxiliaryLinePoints.abscissa && !auxiliaryLinePoints.ordinate && movedX < 3) {
+        this._selected.setProps({y: y});
+      } else if(auxiliaryLinePoints && !auxiliaryLinePoints.abscissa && auxiliaryLinePoints.ordinate && movedY < 3) {	
+        this._selected.setProps({x: x});
+      } else if(auxiliaryLinePoints && auxiliaryLinePoints.abscissa && auxiliaryLinePoints.ordinate && (movedY < 3 && movedX < 3)) {
+        return false;
+      } else {
+        // this._selected.setProps({x: x, y: y});
+      }
+      
+      const points = this.getDrawAuxiliaryLinePoint(this._selected);
+        
+      if(points) {
+        AuxiliaryLine.getInstance().setProps({points: points});
+      } else {
+        AuxiliaryLine.getInstance().setProps({points: null});
+      }
+}
+
+
+/**
+     * yx获取绘画辅助线的点
+     * @target 当前画布中被选中的元素，以此元素的顶点作为基准寻找画辅助线的点
+     * @return 绘画辅助线的点，找不到时为空
+     */
+	getDrawAuxiliaryLinePoint(target) {
+		let point = {};
+		
+		if(!target) {
+			return false;
+		}
+		
+      for(let i = 0, len = this._elems.length; i < len; i++) {
+				if(!(this._elems[i] instanceof Relation)){
+          const result = this._elems[i].getElementConnectionPoint(this._elems, target);
+				
+          if(result && result.abscissa && !point.abscissa) {
+            point.abscissa = result.abscissa;
+          }
+              
+          if(result && result.ordinate && !point.ordinate) {
+            point.ordinate = result.ordinate;
+          }
+
+          if(point.abscissa && point.ordinate) {
+            return point;
+          }
+        }			
+      }
+		
+		if(!point.abscissa && !point.ordinate) {
+			return null;
+		} else {
+			return point;
+		}
+	}
+```
+
+在鼠标抬起事件中清空辅助线
+
+```js
+mouseUp(e) {
+    // yx 清空辅助线
+    AuxiliaryLine.getInstance().setProps({points: null});
+}
+```
+
+
+
+## 放大缩小画布
+
+使用scale来实现
+
+```js
+
+bigCanvas() {
+    let scalePreNum1 = 1 / this.scalePreNum;
+    this.canvas.getContext("2d").scale(scalePreNum1, scalePreNum1);
+    let scaleNum = this.diagram.getScaleNum("big");
+    console.log(scaleNum + "big");
+
+    this.canvas.getContext("2d").scale(scaleNum, scaleNum);
+    this.diagram.repaint();
+    this.scalePreNum = scaleNum;
+  }
+
+ smallCanvas() {
+    let scalePreNum1 = 1 / this.scalePreNum;
+    this.canvas.getContext("2d").scale(scalePreNum1, scalePreNum1);
+    let scaleNum = this.diagram.getScaleNum("small");
+    console.log(scaleNum + "small");
+
+    this.canvas.getContext("2d").scale(scaleNum, scaleNum);
+    this.diagram.repaint();
+    this.scalePreNum = scaleNum;
+  }
+
+
+
+定义的值 scaleStep = 0.2;
+getScaleNum(option) {
+    if (option == "big") {
+      this.scaleNum += this.scaleStep;
+    } else {
+      if ((this.scaleNum).toFixed(1) == 0.2) {
+        alert('已缩放到最小值')
+      } else {
+        this.scaleNum -= this.scaleStep;
+      }
+    }
+    return (this.scaleNum).toFixed(1);
+  }
+```
+

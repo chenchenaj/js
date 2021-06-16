@@ -662,6 +662,8 @@ export default {
 
 ## shallowReactive 与 shallowRef
 
+下面这几个都需要在使用的时候引入到不同的页面
+
 - shallowReactive : 只能处理了对象内第一层的基本类型数据，第一层数据的复杂类型数据无法处理
 - shallowRef: 只处理了value的响应式, 不进行对象的reactive处理
 - reactive: 深度劫持(深度响应式)
@@ -678,6 +680,45 @@ export default {
 - shallowReadonly
   - 浅只读数据
   - 创建一个代理，使其自身的 property 为只读，但不执行嵌套对象的深度只读转换
+
+```js
+<template>
+  <h2>App</h2>
+  <h3>{{state}}</h3>
+  <button @click="update">更新</button>
+</template>
+
+<script lang="ts">
+import { reactive, readonly, shallowReadonly } from 'vue'
+export default {
+  setup () {
+
+    const state = reactive({
+      a: 1,
+      b: {
+        c: 2
+      }
+    })
+
+    // const rState1 = readonly(state)
+    const rState2 = shallowReadonly(state)
+
+    const update = () => {
+      // rState1.a++ // error
+      // rState1.b.c++ // error
+
+      // rState2.a++ // error
+      rState2.b.c++
+    }
+    
+    return {
+      state,
+      update
+    }
+  }
+}
+</script>
+```
 
 
 
