@@ -249,8 +249,6 @@ data () {
 
 3. 菜单栏改造为路由链接，开启该项的`router`，同时`el-menu-item`中的`index`值为对应的路径
 
-![1593080412558](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593080412558.png)
-
 4. tab菜单栏都会对应一个子路由
 
 5. 刷新还是保持菜单栏高亮和不收缩状态`default-active`
@@ -425,8 +423,6 @@ formatter (row, column, cellValue, index) {
 
 
 
-
-
 #### 加载中loading
 
 
@@ -484,8 +480,6 @@ formatter (row, column, cellValue, index) {
 
 
 ### input
-
-![1593100072275](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593100072275.png)
 
 使用`clearable`来删除输入框的内容
 
@@ -546,8 +540,6 @@ Drawer 的内容是懒渲染的，即在第一次被打开之前，传入的默�
 
 需要使用页面栅格系统的布局
 
-![1593161427414](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593161427414.png)
-
 一级权限使用一个col
 
 二级和三级权限使用一个col，col里面还套row和col
@@ -590,8 +582,6 @@ handelDel(item, id){
 
 
 ### Tree
-
-![1593168472531](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593168472531.png)
 
 ```
 <el-tree :data="treeList" :props="treeProps" show-checkbox default-expand-all :default-checked-keys="defaultSelectKey" node-key="id"></el-tree>
@@ -646,8 +636,6 @@ treeProps: {
     label: "authName",
   },
 ```
-
-
 
 3. 选中CheckBox时需要默认选中的是该项的id值，使用`node-key`值
 
@@ -728,7 +716,7 @@ async handelSubmitAuth() {
 },
 ```
 
-
+8.**highlight-current**: 是否高亮当前选中节点
 
 ### select
 
@@ -752,8 +740,6 @@ v-model="value"：已选中的id值【点击内容的时候就会有值】
 
 
 ### 级联选择器Cascader
-
-![1593412893336](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593412893336.png)
 
 
 
@@ -814,8 +800,6 @@ item.attrs = item.attr_vals ? item.attr_vals.split(' ') : []
 
 为每一行数据提供一个tags
 
-![1593431533354](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593431533354.png)
-
 原因：共用同一个值【inputVisible，inputValue】
 
 解决办法
@@ -831,8 +815,6 @@ res.data.map(item => {
 ```
 
 2. 显示
-
-![1593432879860](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593432879860.png)
 
 
 
@@ -871,10 +853,6 @@ data() {
 
 最外层是form表单，里面才是tabs
 
-![1593490935728](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593490935728.png)
-
-![1593490899794](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593490899794.png)
-
 
 
 ```
@@ -903,7 +881,7 @@ data() {
 
 写完action后，点击上传图片，看控制台的上传事件
 
-![1593493247801](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593493247801.png)
+
 
 在全局已经有配置axios发送请求的时候携带token，但是这里还是提示无效的token，证明上传图片没有使用axios发送请求，是使用ajax上传的，需要配置请求头`headers`
 
@@ -912,8 +890,6 @@ data() {
     Authorization: window.sessionStorage.getItem('token')
   },
 ```
-
-![1593495735690](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593495735690.png)
 
 
 
@@ -925,21 +901,21 @@ data() {
 
 response返回的数据
 
-![1593496305134](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593496305134.png)
+
 
 file返回的数据
 
-![1593496362766](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593496362766.png)
+
 
 fileList返回的数据
 
-![1593496409565](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593496409565.png)
+
 
 在上传成功之后将路径添加到对应的内容中
 
 上传成功后需要看图片是完整路径还是64位编码
 
-![1593498937029](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593498937029.png)
+
 
 
 

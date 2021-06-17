@@ -264,13 +264,12 @@ var newArr = [1, ...arr2, 6]
 2. 语法：
 
 
-    ```
-      async function foo(){
-        await 异步操作;
-        await 异步操作；
-      }
-    
-    ```
+```js
+async function foo(){
+    await 异步操作;
+    await 异步操作；
+  }
+```
 
 3. 通常和 promise 配合使用，
 4. async 代表异步， await 等待异步执行

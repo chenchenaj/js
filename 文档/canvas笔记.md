@@ -337,8 +337,8 @@ jbInit(e) {
       case 17:
         this.ctrlDown = true;
         // 如果是第一个就加上，如果不是第一个就只执行下面的函数
-        if(this.selectArr.length == 0){
-          this.selectArr.push(this.ctrlEle)
+        if(this.selectArr.length == 0 && this._currToEdit){
+          this.selectArr.push(this._currToEdit)
         }
         break;
       default:
@@ -616,23 +616,13 @@ paint(){
   }
 ```
 
-在元素拖动坐标出现重合的时候出现辅助线
+- 在元素拖动坐标出现重合的时候出现辅助线
+
 
 ```js
 mouseDrag(e){
     // yx 画辅助线
       const auxiliaryLinePoints = AuxiliaryLine.getInstance().getProp('points');
-      const movedX = Math.abs(this._selected.getProp('x') - x); //this._selected选中元素
-			const movedY = Math.abs(this._selected.getProp('y') - y);
-      if(auxiliaryLinePoints && auxiliaryLinePoints.abscissa && !auxiliaryLinePoints.ordinate && movedX < 3) {
-        this._selected.setProps({y: y});
-      } else if(auxiliaryLinePoints && !auxiliaryLinePoints.abscissa && auxiliaryLinePoints.ordinate && movedY < 3) {	
-        this._selected.setProps({x: x});
-      } else if(auxiliaryLinePoints && auxiliaryLinePoints.abscissa && auxiliaryLinePoints.ordinate && (movedY < 3 && movedX < 3)) {
-        return false;
-      } else {
-        // this._selected.setProps({x: x, y: y});
-      }
       
       const points = this.getDrawAuxiliaryLinePoint(this._selected);
         
@@ -682,7 +672,135 @@ mouseDrag(e){
 	}
 ```
 
-在鼠标抬起事件中清空辅助线
+- 辅助线连接点
+
+```js
+/**
+   * yx获取元素连接的点
+   */
+	getElementConnectionPoint(elems, target) {
+		let point = {};
+		
+		if(elems.length > 0) {
+			
+			for(let i = 0, len = elems.length;i < len;i++) {
+				if(elems[i].getProp('id') == target.getProp('id')) {
+					continue;
+				}
+				
+				if(!(elems[i] instanceof Relation)){
+					// 横坐标
+					const abscissa = elems[i].getAbscissaConnectionPoint(target);
+					// 纵坐标
+					const ordinate = elems[i].getOrdinateConnectionPoint(target);
+					// 中线
+					const middle = elems[i].getMiddleConnectionPoint(target);
+					
+					if(point.abscissa && point.ordinate) {
+						return point;
+					}
+
+					if(abscissa && !point.abscissa) {
+						point.abscissa = abscissa;
+					}
+					
+					if(ordinate && !point.ordinate) {
+						point.ordinate = ordinate;
+					}
+
+					if(middle && !point.middle){
+						point.middle = middle
+					}
+				}
+			}
+			return point;
+		} else {
+			return null;
+		}
+	}
+```
+
+- 纵向横向中线的连接点
+
+```js
+/**
+   * yx 获取纵向的连接点
+   */
+  getAbscissaConnectionPoint(target) {
+		if(parseInt(target.x) == parseInt(this.x) && target.y >= this.y) {
+			return {beginPoint: {x: this.x, y: this.y}, endPoint: {x: target.x, y: (target.y + target.height)}};
+		} else if(parseInt(target.x) == parseInt(this.x) && target.y <= this.y) {
+			return {beginPoint: {x: target.x, y: target.y}, endPoint: {x: this.x, y: (this.y + this.height)}};
+		} else if(parseInt(target.x) == parseInt(this.x + this.width) && target.y >= this.y) {
+			return {beginPoint: {x: (this.x + this.width), y: this.y}, endPoint: {x: target.x, y: (target.y + target.height)}};
+		} else if(parseInt(target.x) == parseInt(this.x + this.width) && target.y <= this.y) {
+			return {beginPoint: {x: target.x, y: target.y}, endPoint: {x: (this.x + this.width), y: (this.y + this.height)}};
+		} else if(parseInt(target.x + target.width) == parseInt(this.x) && target.y >= this.y) {
+			return {beginPoint: {x: this.x, y: this.y}, endPoint: {x: (target.x + target.width), y: (target.y + target.height)}};
+		} else if(parseInt(target.x + target.width) == parseInt(this.x) && target.y <= this.y) {
+			return {beginPoint: {x: (target.x + target.width), y: target.y}, endPoint: {x: this.x, y: (this.y + this.height)}};
+		} else if(parseInt(target.x + target.width) == parseInt(this.x + this.width) && target.y >= this.y) {
+			return {beginPoint: {x: (this.x + this.width), y: this.y}, endPoint: {x: (target.x + target.width), y: (target.y + target.height)}};
+		} else if(parseInt(target.x + target.width) == parseInt(this.x + this.width) && target.y <= this.y) {
+			return {beginPoint: {x: (target.x + target.width), y: target.y}, endPoint: {x: (this.x + this.width), y: (this.y + this.height)}}
+		} else {
+			return null;
+		}
+	}
+
+  /**
+   * yx 获取横向链接点
+   */
+  getOrdinateConnectionPoint(target) {
+		if(parseInt(target.y) == parseInt(this.y) && target.x >= this.x) {
+			return {beginPoint: {x: this.x, y: this.y}, endPoint: {x: (target.x + target.width), y: target.y}};
+		} else if(parseInt(target.y)== parseInt(this.y) && target.x <= this.x) {
+			return {beginPoint: {x: target.x, y: target.y}, endPoint: {x: (this.x + this.width), y: this.y}};
+		} else if(parseInt(target.y) == parseInt(this.y + this.height) && target.x >= this.x) {
+			return {beginPoint: {x: this.x, y: (this.y + this.height)}, endPoint: {x: (target.x + target.width), y: target.y}};
+		} else if(parseInt(target.y) == parseInt(this.y + this.height) && target.x <= this.x) {
+			return {beginPoint: {x: target.x, y: target.y}, endPoint: {x: (this.x + this.width), y: (this.y + this.height)}};
+		} else if(parseInt(target.y + target.height) == parseInt(this.y) && target.x >= this.x) {
+			return {beginPoint: {x: this.x, y: this.y}, endPoint: {x: (target.x + target.width), y: (target.y + target.height)}};
+		} else if(parseInt(target.y + target.height) == parseInt(this.y) && target.x <= this.x) {
+			return {beginPoint: {x: target.x, y: (target.y + target.height)}, endPoint: {x: (this.x + this.width), y: this.y}};
+		} else if(parseInt(target.y + target.height) == parseInt(this.y + this.height) && target.x >= this.x) {
+			return {beginPoint: {x: this.x, y: (this.y + this.height)}, endPoint: {x: (target.x + target.width), y: (target.y + target.height)}};
+		} else if(parseInt(target.y + target.height) == parseInt(this.y + this.height) && target.x <= this.x) {
+			return {beginPoint: {x: target.x, y: (target.y + target.height)}, endPoint: {x: (this.x + this.width), y: (this.y + this.height)}};
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * yx 获取中线坐标的连接点
+	 * @returns 
+	 */
+	getMiddleConnectionPoint(target){
+		if(parseInt(target.x) >= parseInt(this.x) && target.y+target.height == this.y+this.height && target.height == this.height) { //target和this都为大节点
+			return {beginPoint: {x: this.x, y: this.y + this.height / 2}, endPoint: {x: target.x + target.width, y: target.y + (target.height / 2)}};
+		}else if(parseInt(target.x) <= parseInt(this.x) && target.y+target.height == this.y+this.height && target.height == this.height){
+			return {beginPoint: {x: target.x, y: target.y + target.height / 2}, endPoint: {x: this.x + this.width, y: this.y + (this.height / 2)}};
+		}else if(target.x <= this.x && target.y+target.height/2 == this.y+this.height/2){
+			return {beginPoint: {x:target.x, y: target.y + target.height / 2 - 1}, endPoint: {x: this.x + this.width, y: this.y + this.height / 2}}
+		}else if(target.x >= this.x && target.y+target.height/2 == this.y+this.height/2){
+			return {beginPoint: {x:this.x, y: this.y + this.height / 2 - 1}, endPoint: {x: target.x + target.width, y: target.y + target.height / 2}}
+		}else if((this.x + (target.width - this.width) / 2) + this.width / 2 == target.x + target.width / 2 && this.y >= target.y){
+			return {beginPoint: {x: target.x + target.width / 2, y: target.y}, endPoint: {x: this.x + this.width / 2 , y: this.y + this.height}}
+		}else if(this.x == target.x && this.y >= target.y && this.height == target.height){
+			return {beginPoint: {x: this.x, y: this.y + this.height / 2}, endPoint: {x: target.x + this.width, y: this.y + (this.height / 2)}};
+		}else if(this.x == target.x && this.y <= target.y && this.height == target.height){
+			return {beginPoint: {x: this.x + this.width / 2, y: this.y}, endPoint: {x: target.x + target.width / 2, y: target.y + target.height}}
+		}else if(target.y <= this.y && target.x+target.width/2 == this.x+this.width/2){
+			return {beginPoint: {x:target.x + target.width / 2 - 1, y: target.y}, endPoint: {x: this.x + this.width / 2, y: this.y + this.height}}
+		}else if(target.y >= this.y && target.x+target.width/2 == this.x+this.width/2){
+			return {beginPoint: {x:this.x + this.width / 2 - 1, y: this.y}, endPoint: {x: target.x + target.width / 2, y: target.y + target.height}}
+		}
+	}
+```
+
+- 在鼠标抬起事件中清空辅助线
 
 ```js
 mouseUp(e) {
@@ -736,5 +854,399 @@ getScaleNum(option) {
     }
     return (this.scaleNum).toFixed(1);
   }
+```
+
+
+
+## 未添加元素移动时画到canvas
+
+如果拖动的时候也需要显示当前元素的移动，那么在paint方法中应该添加未加入画布元素
+
+camelPanel.js
+
+```js
+paint() {
+    const g = this.g;
+    //清空画布
+    g.save();
+    g.setColor("#fff");
+    g.fillRect(0, 0, this.width, this.height);
+    // 画背景网格
+    g.setColor(Resources.COLOR.lightGray);
+    // 画纵向线
+    for (let i = 0; i < this.width / 10; i++) {
+      g.drawLine(i * 10, 0, i * 10, this.height);
+    }
+    // 画横向线
+    for (let i = 0; i < this.width / 10; i++) {
+      g.drawLine(0, i * 10, this.width, i * 10);
+    }
+    g.setColor(Resources.COLOR.grey);
+    for (let i = 0; i < this.width / 50; i++) {
+      g.drawLine(i * 50, 0, i * 50, this.height);
+    }
+    for (let i = 0; i < this.width / 50; i++) {
+      g.drawLine(0, i * 50, this.width, i * 50);
+    }
+    g.restore();
+
+    // 画元素【需要先画route，再画子元素才能使得子元素覆盖在上面】
+    if (this._elems.length > 0) {
+      // 先画route
+      this._elems.filter((ele) => {
+        if (ele instanceof Route) ele.paint(this.g);
+      });
+      // 再画其他元素(保持route在最下方)
+      this._elems.filter((ele) => {
+        if (!(ele instanceof Route)) ele.paint(this.g);
+      });
+    }
+
+    //绘制尚未放入区域的移动中的元素
+    if (this.elem != null) {
+      this.elem.paint(g);
+    }
+  }
+```
+
+
+
+
+
+## 将元素添加到画布中
+
+拖拽元素(目前只发现button有效其余无效)，需要对拖拽的元素绑定mousedown和mouseup事件，这样在元素拖出来之后不会立刻选中元素
+
+camelDesign.js
+
+```js
+// 绑定事件
+bindEvent() {
+    const $component = $(this.container);
+    // 组件
+    $component.on("mousedown", "#route", () => {
+       this.camel.addRoute();
+    });
+    // 如果不是拖拽当前元素那么要注销
+    $component.on("mouseup", "#route", (e) => {
+       this.camel.delElement();
+    });
+}
+```
+
+
+
+camelPanel.js
+
+```js
+// 添加组件到画布上
+  addRoute() {
+    let elem = new Route();
+    elem.rid = Sequence.createId();
+    this.elem = elem;
+    this.isAllowDraw = true;
+  }
+
+// 鼠标抬起的时候检测有没有elem，如果有就添加到画布中
+mouseup(e){
+    if(this.elem){
+        this._elems.push(this.elem)
+    }
+}
+```
+
+
+
+
+
+## 选中元素显示不同的属性值
+
+camelDesign.js
+
+```js
+// 绑定事件
+bindEvent() {
+    const $camelBoard = $("#camelBoard");
+
+    // 渲染不同的属性面板
+    $camelBoard.off("click").on("click", (e) => {
+      console.log("执行全局的propspanel");
+      this.renderPropsPanel();
+
+      e.stopPropagation();
+      return false;
+    });
+}
+```
+
+
+
+单独继承的组件AOP
+
+```js
+import CamelElement from "../CamelElement";
+import { Resources } from "../../utility";
+class Aop extends CamelElement {
+  constructor() {
+    super();
+    this.scope = "Aop";
+    this.parent = "";
+    this.inputid = ""; // 线的接入
+    this.outputid = ""; // 线的出口
+    this.id = "_aop";
+    this.description = "";
+    this.afterFinallyUri = "";
+    this.afterUri = "";
+    this.beforeUri = "";
+  }
+
+  paint(g) {
+    if (this._img == null) {
+      this._img = Resources.IMG_START_NODE;
+    }
+
+    g.save();
+    this.color = "#cebee1";
+    g.drawOvalBorder(this.x, this.y, this.width, this.height, 10, this.color);
+    g.drawImage(this._img, this.x + 10, this.y + 5, this.icon_width / 2, this.icon_height / 2);
+    g.setColor(Resources.COLOR.black);
+    g.drawText("Aop" + this.id, this.x + this.width / 6, this.y + this.height / 1.5);
+    g.restore();
+  }
+
+  toXML() {
+    let str = "";
+    str += `<aop id="${this.id}" x="${this.x}" y="${this.y}" scope="${this.scope}" description="${this.description}"  afterFinallyUri="${this.afterFinallyUri}" afterUri="${this.afterUri}" beforeUri="${this.beforeUri}">\n <description>${this.description}</description>\n </aop>\n`;
+    return str;
+  }
+
+  parseXML(xmlNode) {}
+
+  getPropsDesc() {
+    return {
+      details: ["id", "description", "afterFinallyUri", "afterUri", "beforeUri"],
+    };
+  }
+}
+export default Aop;
+
+```
+
+
+
+属性面板PropsPanel
+
+```js
+async render() {
+    let that = this;
+    const camel = this.camel;
+    const $container = $(this.container);
+
+    if (camel) {
+        const currToEdit = camel.getCurrToEdit();
+        if (currToEdit == null) {
+            // 对应的属性
+
+            this.bindEvent();
+        } else {
+            this.propsDesc = currToEdit.getPropsDesc();
+
+            const destinationTypeOption = [
+                { label: "", value: "" },
+                { label: "队列", value: "queue" },
+                { label: "主题", value: "topic" },
+                { label: "临时队列", value: "temp-queue" },
+                { label: "临时话题", value: "temp-topic" },
+            ];
+
+            if (this.rendering == false) {
+                this.rendering = true;
+                // 清空上一次的值
+                this.panel.innerHTML = "";
+                // 最外侧div
+                let div = document.createElement("DIV");
+                div.setAttribute("class", "panel panel-info h100");
+                // 上方标题
+                let baseTitle = document.createElement("DIV");
+                let basetxt = document.createTextNode(currToEdit.scope);
+                baseTitle.setAttribute("class", "panel-heading");
+                baseTitle.appendChild(basetxt);
+                div.appendChild(baseTitle);
+
+                // 左侧的tab标签
+                let lDiv = document.createElement("UL");
+                lDiv.setAttribute("class", "col-xs-2 lTab nav nav-tabs nav-pills");
+
+                // 右侧tab
+                let rDiv = document.createElement("DIV");
+                rDiv.setAttribute("class", "rTab tab-content col-xs-22");
+
+                // 右侧高级嵌套的tab和内容
+                let rDivTab = document.createElement("UL");
+                rDivTab.setAttribute("class", "nav nav-tabs");
+                let rDivTabContent = document.createElement("DIV");
+                rDivTabContent.setAttribute("class", "rTabContent tab-content");
+
+                for (let propPart in this.propsDesc) {
+                    switch (propPart) {
+                        case "detail": // 第一层
+                            // 左侧tab标签
+                            let detailTitle = document.createElement("LI");
+                            detailTitle.setAttribute("class", "active w100 tc");
+                            let aDetail = document.createElement("A");
+                            let atxt = document.createTextNode("详情");
+                            aDetail.setAttribute("href", "#details");
+                            aDetail.setAttribute("data-toggle", "tab");
+                            aDetail.appendChild(atxt);
+                            detailTitle.appendChild(aDetail);
+                            lDiv.appendChild(detailTitle);
+
+                            // 右侧属性面板的值
+                            let firstCon = document.createElement("DIV");
+
+                            for (let i = 0; i < that.propsDesc[propPart].length; i++) {
+                                let propName = that.propsDesc[propPart][i];
+                                let chinaName = null;
+                                let span = document.createElement("p");
+                                let html = "";
+                                switch (propName) {
+                                    case "id": // 第一层数组的每一个值
+                                        chinaName = "id";
+                                        html += `<label class="w80">${chinaName}</label><input class="form-control w400 inlineBlock" id='${propName}' value='${currToEdit[propName]}'>`;
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                span.innerHTML = html;
+                                firstCon.appendChild(span);
+                            }
+
+                            // 将细节内容添加到rdiv中
+                            firstCon.setAttribute("id", "details");
+                            firstCon.setAttribute("class", "tab-pane pt10 active");
+                            rDiv.appendChild(firstCon);
+                            break;
+
+                        case "hidden": // 第二层
+                            let advance = that.creatTab("advancedTitle", "advanced", "advanced_txt", "高级", "advanced");
+                            advance.setAttribute("class", "w100 tc");
+                            lDiv.appendChild(advance);
+
+                            // 右侧属性面板的值
+                            let thirdCon = that.createTabContent("thirdCon", "advanced", "tab-pane");
+
+                            for (let advancedItem in that.propsDesc[propPart]) {
+                                switch (advancedItem) {
+                                    case "hiddenscript": // 第二层数组的每一个值
+                                        let sec = that.creatTab("secTitle", "security", "sec_txt", "安全", "security");
+                                        rDivTab.appendChild(sec);
+
+                                        // 右侧属性面板的值
+                                        let secCon = that.createTabContent("secCon", "security", "tab-pane pt10");
+
+                                        for (let i = 0; i < that.propsDesc[propPart][advancedItem].length; i++) {
+                                            let propName = that.propsDesc[propPart][advancedItem][i];
+                                            let chinaName = null;
+                                            let p = document.createElement("p");
+                                            let html = "";
+                                            switch (propName) {
+                                                case "account":
+                                                    chinaName = "账户";
+                                                    html += `<label class="w80">${chinaName}</label><input class="form-control w400 inlineBlock" id='${propName}' value='${currToEdit[propName]}'>`;
+                                                    break;
+                                                default:
+                                                    break;
+                                            }
+                                            p.innerHTML = html;
+                                            secCon.appendChild(p);
+                                        }
+
+                                        rDivTabContent.appendChild(secCon);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            thirdCon.appendChild(rDivTab);
+                            thirdCon.appendChild(rDivTabContent);
+                            rDiv.appendChild(thirdCon);
+                            break;
+                        default:
+                            break;
+                    }
+                    // 主div添加左侧tab标签
+                    div.appendChild(lDiv);
+                    // 主div添加右侧的tab内容
+                    div.appendChild(rDiv);
+                }
+                this.panel.appendChild(div);
+            }
+
+            this.bindEvent();
+            this.rendering = false;
+        }
+    }
+}
+```
+
+
+
+## 不同类型属性值的html写法
+
+- input类型
+
+```js
+case "bindingId":
+    chinaName = "绑定ID";
+    html += `<label class="w80">${chinaName}</label><input class="form-control w400 inlineBlock" id='${propName}' value='${currToEdit[propName]}'>`;
+    break;
+```
+
+- number类型
+
+```js
+case "chunkedMaxContentLength":
+    chinaName = "分块的最大内容长度";
+    html += `<label class="w80">${chinaName}</label><input class="form-control w400 inlineBlock" type="number" id='${propName}' value='${currToEdit[propName]}'>`;
+    break;
+```
+
+- checkbox类型
+
+```js
+case "defaultTaskExecutorType":
+    chinaName = "断开无回复";
+    html += `<label class="w80">${chinaName}</label>`;
+    if (currToEdit[propName] == true) {
+      html += `<input name='${propName}' type='checkbox' checked/>`;
+    } else {
+      html += `<input name='${propName}' type='checkbox' />`;
+    }
+    break;
+```
+
+- select类型
+
+```js
+case "outputType":
+    chinaName = "输出类型";
+    html += `<label class="w80">${chinaName}</label><select name='${propName}' class="form-control w400 inlineBlock">`;
+    outputTypeOption.forEach((el) => {
+      if (el.value == currToEdit[propName]) {
+        html += `<option value='${el.value}' selected>${el.label}</option>`;
+      } else {
+        html += `<option value='${el.value}'>${el.label}</option>`;
+      }
+    });
+    break;
+```
+
+- file类型
+
+```js
+case "trustStoreFile":
+    chinaName = "信任存储文件";
+    html += `<label class="w80">${chinaName}</label><input class="form-control w400 inlineBlock" type="file" id='${propName}' value='${currToEdit[propName]}'>`;
+    break;
 ```
 

@@ -4,22 +4,14 @@
 
 **取一个对象三层及三层以上的内容**会报错，可以通过 v-if 来解决
 
-![](https://uploader.shimo.im/f/qvfXyCYx2fVCgYeX.png!thumbnail)![图片](https://uploader.shimo.im/f/cmduTzldOf4aUlu3.png!thumbnail)
-
 * **如果在 undefined 中读取不到 length，尝试通过 children 的方式来获取，证明mounted中加载 better-scroll 的时间早了，可以增加判断条件来确定什么时候初始化better-scroll；**
 * **轮播图横向滑动要先给ul加width，同时要开启scrollX： true**
-
-![图片](https://uploader.shimo.im/f/s2QvAPtPyTsMwMd7.png!thumbnail)
-
-![图片](https://uploader.shimo.im/f/x3kMqiKzh6IxNPe3.png!thumbnail)![图片](https://uploader.shimo.im/f/LgQADHz4Ov9OchLX.png!thumbnail)
 
 * **过滤评论内容**
 
 子组件想要改变父组件的状态内容，用子组件向父组件传值
 
 过滤判断条件：先确定【全部 / 推荐 / 吐槽】，再确定【是否只看有评论的内容】
-
-![图片](https://uploader.shimo.im/f/dTEePb6P3qexPoBZ.png!thumbnail)![图片](https://uploader.shimo.im/f/N78JGdd197UFJLRF.png!thumbnail)
 
 ```plain
 filterRatingsComment(){
@@ -45,8 +37,6 @@ filterRatingsComment(){
 * **伪数组转真数组遍历**
 
 伪数组如果想要实现forEach方法，可以通过改变this指向
-
-![图片](https://uploader.shimo.im/f/HTZYzMaLmeshdUZj.png!thumbnail)
 
 ```plain
 模板：
@@ -91,12 +81,7 @@ getNewCaptcha: throttle(function(){
 
 页面设计登录退出最好不要加路由缓存，否则登录的记录不会被清除，下次进入同一页面的时候还有上次登录的信息
 
-![图片](https://uploader.shimo.im/f/TgOPnO7lWLYLPss1.png!thumbnail)
-
-## 
 * vue Uncaught (in promise) undefined报错
-
-![图片](https://uploader.shimo.im/f/c36XFGdDVyRA6LEf.png!thumbnail)
 
 降低路由的版本
 
@@ -148,12 +133,9 @@ flex可以和width同时使用
   4 重新发送请求
   5 数据请求回来 需要手动的关闭 等待效果【在请求成功的函数写关闭代码】
 ```
-![图片](https://uploader.shimo.im/f/ZSphJmTntmwO44cl.png!thumbnail)
-
-![图片](https://uploader.shimo.im/f/EtIk3QZN0GKtCfBf.png!thumbnail)
-
 | ** // 获取商品列表数据**  **  async getGoodsList(){**  **    const res=await request({url:"/goods/search",data:this.QueryParams});**  **    // 获取 总条数**  **    const total=res.total;**  **    // 计算总页数**  **    this.totalPages=Math.ceil(total/this.QueryParams.pagesize);**  **    this.setData({**  **      // 拼接了数组**  **      goodsList:[...this.data.goodsList,...res.goods]**  **    })**    **    // 关闭下拉刷新的窗口 如果没有调用下拉刷新的窗口 直接关闭也不会报错  **  **    wx.stopPullDownRefresh();**  **  },**    **  // 页面上滑 滚动条触底事件**  **  onReachBottom(){**  **  //  1 判断还有没有下一页数据**  **    if(this.QueryParams.pagenum>=this.totalPages){**  **      // 没有下一页数据**  **      wx.showToast({ title: '没有下一页数据' });**  **        **  **    }else{**  **      // 还有下一页数据**  **      this.QueryParams.pagenum++;**  **      this.getGoodsList();**  **    }**  **  },**   | 
 |----|
+
 * 节约性能
 
 data中只存放要使用的数据，多余的数据需要过滤掉
@@ -170,8 +152,6 @@ Boolean({}) --true
 Boolean(null) --false
 ```
 ## 取值属性名
-
-![图片](https://uploader.shimo.im/f/eXkbh5Dt7eUVR8Oy.png!thumbnail)
 
 发现属性名很怪异的时候，需要通过 [] 包裹并结合""来取值
 
@@ -191,8 +171,6 @@ Object
 cart 数组     checked 数组中的属性
 const allCheck = cart.every(item => item.checked) // 返回true或false
 ```
-![图片](https://uploader.shimo.im/f/lYMRY637Pq5jgwAA.png!thumbnail)
-
 ## 从缓存中获取数据
 
 如果是数组，没有的时候需要加[]
@@ -388,8 +366,6 @@ targetTouches，touches 在离开屏幕的时候无法记录触摸点
 4.4 pageX   pageY        基于页面（视口）
 4.4 screenX screenY      基于屏幕
 ```
-![图片](https://uploader.shimo.im/f/VHAanCGwdK1S38eq.png!thumbnail)
-
 ## 定时器interval
 
 如果是遇到可能有负数的情况，先--，然后在判断是否需要移除
@@ -432,21 +408,7 @@ if (res.data.status == 0) {
 ```
 ## 图片上传
 
-![](https://uploader.shimo.im/f/hgnfkojQRrhuM0hL.png!thumbnail)
 
-![](https://uploader.shimo.im/f/OGffHZdSkKgWSwqe.png!thumbnail)
-
-![图片](https://uploader.shimo.im/f/GFzHqCqG9NBAVt2K.png!thumbnail)
-
-![图片](https://uploader.shimo.im/f/xzqgynoQWiHNhF5a.png!thumbnail)
-
-![图片](https://uploader.shimo.im/f/8wiNYom8Gqc0mjRt.png!thumbnail)![图片](https://uploader.shimo.im/f/tC0Em7DeFBA6DAfU.png!thumbnail)
-
-![图片](https://uploader.shimo.im/f/h6L9mK1COVaF8Zct.png!thumbnail)![图片](https://uploader.shimo.im/f/SpJsk1WlChM5AXhR.png!thumbnail)![图片](https://uploader.shimo.im/f/gAPXWiLSzfYRIzMj.png!thumbnail)
-
-PC端
-
-![图片](https://uploader.shimo.im/f/IMDLcI4xj63W8hqS.png!thumbnail)
 
 ## 自动聚焦
 
@@ -467,7 +429,7 @@ this.user.name = this.inputName
 双向数据绑定
 v-model="data中的数据"
 ```
-![图片](https://uploader.shimo.im/f/qaFk6UlSvhs0IPbO.png!thumbnail)
+
 
 ## 含变量的请求方法
 
@@ -543,11 +505,9 @@ Object.keys(goods).length !== 0
 ```plain
 {{goods.services[goods.services.length-1].name}}
 ```
-![图片](https://uploader.shimo.im/f/KFEIWNNIrKX9zOu6.png!thumbnail)
+
 
 ## 使用数组的其中几个值
-
-![图片](https://uploader.shimo.im/f/ooFgBtOSv4pGKXcU.png!thumbnail)
 
 ```plain
 遍历除数组最后一个值
@@ -561,12 +521,12 @@ v-for"item in 10" item => 1,2...10
 ```
 
 
-![图片](https://uploader.shimo.im/f/6Y1xECeZEWwnutC9.png!thumbnail)
+
 
 
 ## 城市列表的数据
 
-![图片](https://uploader.shimo.im/f/A9vh8aZUk1VoUcv5.png!thumbnail)
+
 
 ## 接口可传可不传的params
 
@@ -590,19 +550,17 @@ const [res1,res2] = await Promise.all([getArtical(),getNews()])
 const {data} = await getArtical()
 const {data: tagData} = await getNews()
 ```
-![1591763981330](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1591763981330.png)
 
-![图片](https://uploader.shimo.im/f/tlLF2dXc44R2NOD8.png!thumbnail)
 
 ## 判断添加到数组中的内容是否重复
 
-![图片](https://uploader.shimo.im/f/eVJxvFkBqIq3S848.png!thumbnail)
+
 
 
 
 ## 共用同一个方法
 
-![1592311104454](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1592311104454.png)
+
 
 ```js
 handleClick(type){
@@ -627,8 +585,6 @@ handleClick(type){
 
 
 ## 历史记录
-
-![1592294054457](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1592294054457.png)
 
 ### tia保存到localstorage
 
