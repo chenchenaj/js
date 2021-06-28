@@ -1,4 +1,4 @@
-Vue简介
+## Vue简介
 
 ### 单页面应用程序
 - Single Page Application

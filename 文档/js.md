@@ -2323,20 +2323,3 @@ oBox.removeAttribute('myColor'); //=>删除
 #### 多态
 
 ## 同步异步
-
-
-
-### BOM
-
-#### 鼠标事件
-
-click：单击事件
-dblclick：双击事件
-mousedown：按下鼠标键时触发
-mouseup：释放按下的鼠标键时触发
-mousemove：鼠标移动事件
-mouseover：移入事件
-mouseout：移出事件
-mouseenter：移入事
-mouseleave：移出事件
-contextmenu：右键事件

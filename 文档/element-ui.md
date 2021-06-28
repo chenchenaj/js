@@ -59,7 +59,7 @@ data(){
 
 
 
-#### 重置表单
+#### 重置表单resetFields
 
 ##### 方式一
 
@@ -93,39 +93,36 @@ resetForm(formName) {
 
 
 
-#### 校验参数
+#### 重置校验clearValidate
 
-##### 方式一
+```js
+<el-button @click="resetForm('LoginFormRef')" type="info">重置</el-button>
+
+resetForm(formName) {
+   this.$refs[formName].clearValidate()
+}
+```
+
+
+
+#### 校验参数且提示校验消息
 
 传入el-form的那个ref值
 
 ```vue
 <el-button type="primary" @click="submitForm('LoginFormRef')">立即创建</el-button>
 submitForm(formName) {
-  this.$refs[formName].validate((valid) => {
+  this.$refs[formName].validate((valid, errmsg) => {
     if (valid) {
       alert('submit!');
     } else {
-      console.log('error submit!!');
-      return false;
-    }
-  });
-},
-```
-
-##### 方式二
-
-直接使用validate函数重置整个表单
-
-```
-<el-button type="primary" @click="submitForm">立即创建</el-button>
-
-submitForm(formName) {
-  this.$refs.LoginFormRef.validate((valid) => {
-    if (valid) {
-      alert('submit!');
-    } else {
-      console.log('error submit!!');
+      let m = ''
+      for (let i in errmsg) {
+        errmsg[i].forEach((elm) => {
+          m += elm.message
+        })
+      }
+      this.$message.error(m)
       return false;
     }
   });
@@ -176,6 +173,26 @@ email: [
   { required: true, message: "请输入邮箱", trigger: "blur" },
   { validator: checkEmail, trigger: "blur" },
 ],
+```
+
+
+
+#### 将必填符号挪到右侧
+
+```css
+/* 去除左侧标识符 */
+.el-form-item.is-required:not(.is-no-asterisk) .el-form-item__label-wrap > .el-form-item__label:before,
+.el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:before {
+  content: "";
+  margin-right: 0;
+}
+
+/* 右侧侧标识符 */
+.el-form-item.is-required:not(.is-no-asterisk) .el-form-item__label-wrap > .el-form-item__label:before,
+.el-form-item.is-required:not(.is-no-asterisk) > .el-form-item__label:after {
+  content: "*";
+  color: #f56c6c;
+}
 ```
 
 
@@ -291,12 +308,6 @@ data () {
   </el-menu-item-group>
 </el-submenu>
 ```
-
-
-
-可以使用栅格布局
-
-![1593089529100](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\1593089529100.png)
 
 
 
@@ -517,7 +528,7 @@ cancelSubmit(){
 
 ### drawer抽屉
 
-Drawer 的内容是懒渲染的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。因此，如果需要执行 DOM 操作，或通过 `ref` 获取相应组件，请在 `open` 事件回调中进行。
+Drawer 的内容是**懒渲染**的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。因此，如果需要执行 DOM 操作，或通过 `ref` 获取相应组件，请在 `open` 事件回调中进行。
 
 | 参数                  | 说明                                                         | 类型                                 | 可选值 | 默认值 |
 | :-------------------- | :----------------------------------------------------------- | :----------------------------------- | :----- | :----- |
@@ -587,8 +598,9 @@ handelDel(item, id){
 <el-tree :data="treeList" :props="treeProps" show-checkbox default-expand-all :default-checked-keys="defaultSelectKey" node-key="id"></el-tree>
 ```
 
-1. **data**：数据源
+#### 有默认data
 
+1. **data**：数据源
 2. **props**：tree中的对象，里面包含需要展示在界面的各种属性
 
 例：返回的数据对象
@@ -718,6 +730,14 @@ async handelSubmitAuth() {
 
 8.**highlight-current**: 是否高亮当前选中节点
 
+
+
+#### 没有默认data
+
+js\文档\案例.md 文档的右键新建菜单可以作参考
+
+
+
 ### select
 
 ```
@@ -739,9 +759,9 @@ v-model="value"：已选中的id值【点击内容的时候就会有值】
 
 
 
+
+
 ### 级联选择器Cascader
-
-
 
 ```
 <el-cascader v-model="selectIds" :options="cateList" :props="cascaderProps" @change="handleChange"></el-cascader>
