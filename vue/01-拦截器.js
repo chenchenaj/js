@@ -2,6 +2,10 @@ import axios from 'axios'
 import store from '../store'
 import router from '../router'
 
+// 添加加载条
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
+
 // 默认请求的基础地址
 const request = axios.create({
   baseURL: '...',
@@ -9,6 +13,8 @@ const request = axios.create({
 })
 
 request.interceptors.request.use(function (config) {
+  // 加载条启动
+  NProgress.start()
   // 看请求体格式，如果是urlencode则需要写
   const { method, data } = config
   if (method.toLowerCase() === 'post' && data instanceof Object) {
@@ -28,8 +34,12 @@ request.interceptors.request.use(function (config) {
 
 // 响应拦截器
 request.interceptors.response.use(function (response) {
+  // 加载条结束
+  NProgress.done()
   return response.data;
 }, function (error) {
+  // 加载条结束
+  NProgress.done()
   // 权限过期
   if (error.response.status == 401 || error.response.status == 402) {
     // 调用退出登录的方法
@@ -41,7 +51,7 @@ request.interceptors.response.use(function (response) {
   } else {
     alert(error.response.data.message)
   }
-  return new Promise(() => { })
+  return new Promise(() => { }) // 中断后续的promise
 })
 
 export default request
@@ -49,20 +59,20 @@ export default request
 
 // =====================store.js======================
 const actions = {
-  resetUser({ commit }) {
+  resetUser ({ commit }) {
     commit(RESET_USER)
     commit(RESET_TOKEN)
     // 清除内存中的token
     window.localStorage.removeItem('token_key')
   }
 }
-const mutations ={
-  
-  [RESET_USER](state){
+const mutations = {
+
+  [RESET_USER] (state) {
     state.user = {}
   },
 
-  [RESET_TOKEN](state){
+  [RESET_TOKEN] (state) {
     state.token = ''
   },
 }
@@ -71,7 +81,7 @@ const mutations ={
 
 使用捕获的方法
 const actions = {
-  async getComment(){
+  async getComment () {
     try {
       const result = await reqGetComment(this.$route.params.aid)
       this.comments = result.comments

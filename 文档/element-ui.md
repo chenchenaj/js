@@ -1,6 +1,6 @@
 
 
-### Form
+## Form
 
 ![](https://img2020.cnblogs.com/blog/1983442/202006/1983442-20200625120120378-44381404.png)
 
@@ -258,7 +258,7 @@ data () {
 
 
 
-### 菜单
+## 菜单
 
 1. 点击的时候其中一个菜单栏，所有菜单都展开，记得修改`el-menu-item`中的`index`值，就是控制显示那一层
 
@@ -311,7 +311,7 @@ data () {
 
 
 
-### 表格
+## 表格
 
 #### 形成自动高度
 
@@ -478,7 +478,7 @@ formatter (row, column, cellValue, index) {
 
 
 
-### 卡片
+## 卡片
 
 使用卡片组件，在缩小的时候会一直都懂，可以通过改变width来防止抖动
 
@@ -490,7 +490,7 @@ formatter (row, column, cellValue, index) {
 
 
 
-### input
+## input
 
 使用`clearable`来删除输入框的内容
 
@@ -508,7 +508,7 @@ formatter (row, column, cellValue, index) {
 
 
 
-### dialog弹框
+## dialog弹框
 
 关闭对话框：如果是输入内容的表单需要完整的重置
 
@@ -526,7 +526,7 @@ cancelSubmit(){
 
 
 
-### drawer抽屉
+## drawer抽屉
 
 Drawer 的内容是**懒渲染**的，即在第一次被打开之前，传入的默认 slot 不会被渲染到 DOM 上。因此，如果需要执行 DOM 操作，或通过 `ref` 获取相应组件，请在 `open` 事件回调中进行。
 
@@ -547,7 +547,7 @@ Drawer 的内容是**懒渲染**的，即在第一次被打开之前，传入的
 
 
 
-### tag
+## tag
 
 需要使用页面栅格系统的布局
 
@@ -592,7 +592,7 @@ handelDel(item, id){
 
 
 
-### Tree
+## Tree
 
 ```
 <el-tree :data="treeList" :props="treeProps" show-checkbox default-expand-all :default-checked-keys="defaultSelectKey" node-key="id"></el-tree>
@@ -738,7 +738,31 @@ js\文档\案例.md 文档的右键新建菜单可以作参考
 
 
 
-### select
+#### 列表数据转为树形结构(递归)
+
+```js
+export function tranListToTreeData(list, rootValue){
+    let arr = []
+    list.forEach(item => {
+        if(item.pid == rootValue){
+            // 找到之后 就要去找item下面有没有子节点
+            const children = tranListToTreeData(list, item.id)
+            if(children.length){
+                // 如果children的长度大于0 说明找到了子节点
+                item.children = children
+            }
+            arr.push(item) // 将内容加入到数组中
+        }
+    })
+    return arr
+}
+```
+
+
+
+
+
+## select
 
 ```
 <el-select v-model="value" placeholder="请选择">
@@ -761,7 +785,7 @@ v-model="value"：已选中的id值【点击内容的时候就会有值】
 
 
 
-### 级联选择器Cascader
+## 级联选择器Cascader
 
 ```
 <el-cascader v-model="selectIds" :options="cateList" :props="cascaderProps" @change="handleChange"></el-cascader>
@@ -793,7 +817,7 @@ v-model：需要显示的数组内容
 
 
 
-### tabs
+## tabs
 
 ```
 <el-tabs v-model="activeName" @tab-click="handleTabClick">
@@ -838,7 +862,7 @@ res.data.map(item => {
 
 
 
-### step和tabs联动
+## step和tabs联动
 
 关键在于`activeIndex`，步骤条的activeIndex 需要数值，tabs的activeIndex为字符串
 
@@ -885,7 +909,7 @@ data() {
 
 
 
-### upload
+## upload
 
 有图片列表显示不一定代表上传成功，
 
@@ -1015,7 +1039,7 @@ handlePreview(file) {
 
 
 
-### 滚动条scrollbar
+## 滚动条scrollbar
 
 ```vue
 <el-scrollbar :style="{height: tableHeight + 'px'}" :native="false">
@@ -1047,7 +1071,7 @@ mounted(){
 
 
 
-### transfer实现上下左右穿梭
+## transfer实现上下左右穿梭
 
 ```vue
 <template>
@@ -1198,7 +1222,7 @@ export default {
 
 
 
-### DateTimePicker 日期时间选择器
+## DateTimePicker 日期时间选择器
 
 | 参数         | 说明                 | 类型   | 可选值                                                       | 默认值              |
 | :----------- | :------------------- | :----- | :----------------------------------------------------------- | :------------------ |
@@ -1215,5 +1239,35 @@ export default {
   value-format="yyyy-MM-dd" // 双向绑定的值
   >
 </el-date-picker>
+```
+
+
+
+## 下拉菜单dropdown
+
+通过command的方式监听点击的是哪个属性值，如果不用这种方式，可以在每个下拉item中使用@click.native的方式监听
+
+```js
+<el-dropdown @command="handleCommand">
+  <span class="el-dropdown-link">
+    下拉菜单<i class="el-icon-arrow-down el-icon--right"></i>
+  </span>
+  <el-dropdown-menu slot="dropdown">
+    <el-dropdown-item command="a">黄金糕</el-dropdown-item>
+    <el-dropdown-item command="b">狮子头</el-dropdown-item>
+    <el-dropdown-item command="c">螺蛳粉</el-dropdown-item>
+    <el-dropdown-item command="d" disabled>双皮奶</el-dropdown-item>
+    <el-dropdown-item command="e" divided>蚵仔煎</el-dropdown-item>
+  </el-dropdown-menu>
+</el-dropdown>
+<script>
+  export default {
+    methods: {
+      handleCommand(command) {
+        this.$message('click on item ' + command);
+      }
+    }
+  }
+</script>
 ```
 
