@@ -1,4 +1,155 @@
-## vue-商品分类模板
+# vue-mobile
+
+## 项目配置
+
+### 视口配置
+
+在public的index.html中修改为下面的内容
+
+```html
+<!-- 移动端视口 -->
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no">
+```
+
+### 解决点击响应延时0.3s
+
+在public的index.html中修改为下面的内容
+
+```html
+<!-- 移动端延迟0.3s -->
+<script src="https://as.alipayobjects.com/g/component/fastclick/1.0.6/fastclick.js"></script>
+  <script>
+    if ('addEventListener' in document) {
+      document.addEventListener('DOMContentLoaded', function () {
+        FastClick.attach(document.body);
+      }, false);
+    }
+  </script>
+```
+
+## 组件
+
+### nav
+
+```vue
+<template>
+    <div class="navbar">
+        <div class="left"><slot name="left"></slot></div>
+        <div class="center"><slot name="center"></slot></div>
+        <div class="right"><slot name="right"></slot></div>
+    </div>
+</template>
+<script>
+export default {
+    
+}
+</script>
+<style lang="less" scoped>
+.navbar{
+    display: flex;
+    height: 44px;
+    line-height: 44px;
+    text-align: center;
+    box-shadow: 0 1px 1px rgba(100,100,100,.1);
+
+    /* position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99; */
+
+    .left, .right{
+        width: 60px;
+    }
+    .center{
+        flex: 1;
+        text-align: center;
+    }
+}
+</style>
+```
+
+### tabbar
+
+```vue
+<template>
+  <div class="bottom-tab">
+    <div class="tab-item" @click="switchTo('/home')">
+      <img :src="$route.path.includes('/home') ? tabBarImgArr[0].selected: tabBarImgArr[0].normal" alt="">
+      <span :class="{on: $route.path.includes('/home')}">首页</span>
+    </div>
+    <div class="tab-item" @click="switchTo('/recommend')">
+      <img :src="$route.path.includes('/recommend') ? tabBarImgArr[1].selected: tabBarImgArr[1].normal" alt="">
+      <span :class="{on: $route.path.includes('/recommend')}">推荐</span>
+    </div>
+    <div class="tab-item" @click="switchTo('/search')">
+      <img :src="$route.path.includes('/search') ? tabBarImgArr[2].selected: tabBarImgArr[2].normal" alt="">
+      <span :class="{on: $route.path.includes('/search')}">搜索</span>
+    </div>
+    <div class="tab-item" @click="switchTo('/cart')">
+      <img :src="$route.path.includes('/cart') ? tabBarImgArr[3].selected: tabBarImgArr[3].normal" alt="">
+      <span :class="{on: $route.path.includes('/cart')}">购物车</span>
+    </div>
+    <div class="tab-item" @click="switchTo('/me')">
+      <img :src="$route.path.includes('/me') ? tabBarImgArr[4].selected: tabBarImgArr[4].normal" alt="">
+      <span :class="{on: $route.path.includes('/me')}">个人中心</span>
+    </div>
+  </div>
+</template>
+
+<script>
+  export default {
+    name: "TabBar",
+    data(){
+      return {
+        tabBarImgArr: [
+          {normal: require('./../../common/img/icon_home.png'), selected: require('./../../common/img/icon_home_selected.png')},
+          {normal: require('./../../common/img/icon_intro.png'), selected: require('./../../common/img/icon_intro_selected.png')},
+          {normal: require('./../../common/img/icon_search.png'), selected: require('./../../common/img/icon_search_selected.png')},
+          {normal: require('./../../common/img/icon_chat.png'), selected: require('./../../common/img/icon_chat_selected.png')},
+          {normal: require('./../../common/img/icon_mine.png'), selected: require('./../../common/img/icon_mine_selected.png')}
+        ]
+      }
+    },
+    methods: {
+      switchTo(path){
+          // 切换路由
+          this.$router.replace(path);
+      }
+    }
+  }
+</script>
+
+<style scoped lang="stylus" ref="stylesheet/stylus">
+    .bottom-tab
+      width 100%
+      height 5rem
+      background-color #fff
+      position fixed
+      left 0
+      bottom 0
+      z-index 999
+      box-shadow 0 -0.2rem 1rem #ccc
+      display flex
+      .tab-item
+        display flex
+        flex 1
+        flex-direction column
+        justify-content center
+        align-items center
+        font-size 1.2rem
+        img
+          width 35%
+          margin-bottom 0.3rem
+        .on
+          color red
+</style>
+
+```
+
+
+
+## 商品分类模板
 
 ### 左侧
 
