@@ -1360,6 +1360,8 @@ demo: 打开页面动画自动播放【变色和移动】，hover状态下动画
 
 
 
+transition和animation的区别：transition需要条件才能出发，animation可以自动触发
+
 ### 变形transform
 
 !> transform 不是 transfrom
@@ -1796,6 +1798,23 @@ inline-flex：行内元素
 该属性可能取6个值，除了auto，其他都与align-items属性完全一致
 
 
+
+### 移动端rem
+
+rem官方定义『The font size of the root element』，即根元素的字体大小。rem是一个相对的CSS单位，1rem等于html元素上font-size的大小。所以，我们只要设置html上font-size的大小，就可以改变1rem所代表的大小。
+
+getBoundingClientRect用于获取某个元素相对于视窗的位置集合
+
+```
+(function () {
+    var html = document.documentElement;
+    function onWindowResize() {
+        html.style.fontSize = html.getBoundingClientRect().width / 20 + 'px';
+    }
+    window.addEventListener('resize', onWindowResize);
+    onWindowResize();
+})();
+```
 
 
 
