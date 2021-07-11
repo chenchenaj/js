@@ -2322,4 +2322,14 @@ oBox.removeAttribute('myColor'); //=>删除
 
 #### 多态
 
+## 事件
+
+原生事件
+
+btn.onclick= function(){}
+
+btn.addEventListen('click', function(){})
+
+在元素上绑定onclick="demo()"  	function demo(){}
+
 ## 同步异步

@@ -27,6 +27,65 @@
   </script>
 ```
 
+### [移动端rem适配]([二、项目初始化 · 语雀 (yuque.com)](https://www.yuque.com/lipengzhou/toutiao-mobile-vue/wdnpoi#a56a12e6))
+
+如果需要使用 `rem` 单位进行适配，推荐使用以下两个工具：
+
+- [postcss-pxtorem](https://github.com/cuth/postcss-pxtorem) 是一款 PostCSS 插件，用于将 px 单位转化为 rem 单位
+- [lib-flexible](https://github.com/amfe/lib-flexible) 用于设置 rem 基准值
+
+####  [**lib-flexible**](https://github.com/amfe/lib-flexible) 
+
+**使用** [**lib-flexible**](https://github.com/amfe/lib-flexible) **动态设置 REM 基准值（html 标签的字体大小）**
+
+安装依赖：
+
+```shell
+npm i amfe-flexible
+```
+
+然后在 `main.js` 中加载执行该模块：
+
+```js
+import 'amfe-flexible'
+```
+
+####  [**postcss-pxtorem**](https://github.com/cuth/postcss-pxtorem)
+
+**使用** [**postcss-pxtorem**](https://github.com/cuth/postcss-pxtorem) **将** `px` **转为** `rem`
+
+安装依赖：
+
+```shell
+npm install postcss-pxtorem -D
+```
+
+然后在**项目根目录**中创建 `postcss.config.js` 文件：
+
+```js
+module.exports = {
+  plugins: {
+    'autoprefixer': {
+      browsers: ['Android >= 4.0', 'iOS >= 8']
+    },
+    'postcss-pxtorem': {
+      rootValue: 37.5,
+      propList: ['*']
+    }
+  }
+}
+```
+
+配置完毕，**重新启动服务**。
+
+**需要注意的是：**
+
+- 该插件**不能转换行内样式中的** `**px**`，例如 `<div style="width: 200px;"></div>`
+
+
+
+
+
 ## 组件
 
 ### nav
