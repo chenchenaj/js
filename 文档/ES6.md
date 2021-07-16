@@ -128,6 +128,20 @@ setTimeOut(function() {
 
 
 
+## 结构赋值
+
+```js
+const {value} = this
+
+// 连续写法
+const {keyWorkEle: {value}} = this // 从this身上获取keyWorkEle，再从keyWorkEle身上获取value
+
+// 结构赋值后重命名
+const {value: data} = this
+```
+
+
+
 ## 三点运算符
 
 注：三点运算符可以遍历数组，但是不能遍历对象

@@ -10,7 +10,7 @@ babel：将jsx转换成React代码的工具
 
 
 
-# 基本使用
+# react基本使用
 
 ## 在html中使用react
 
@@ -995,4 +995,452 @@ class Login extends React.Component{
 ReactDOM.render(<Login/>,document.getElementById('test'))
 ```
 
+
+
 ## 组件生命周期
+
+React的生命周期从广义上分为三个阶段：挂载、渲染、卸载
+
+### 生命周期(旧v16.8.4)
+
+![](https://i.bmp.ovh/imgs/2021/07/ff188fae10cd379c.png)
+
+第一条线(页面初始化时触发)：constructor=>componentWillMount=>render=>componentDidMount
+
+第二条线(state发生变化时触发)：setState=>shouldComponentUpdate=>componentWillUpdate=>render=>componentDidUpdate
+
+第三条线(state没变化但是想页面强制触发)：forceUpdate=>componentWillUpdate=>render=>componentDidUpdate
+
+第四条线(父组件state属性变化时触发)：父组件render=>componentWillReceiveProps=>shouldComponentUpdate=>componentWillUpdate=>componentDidUpdate
+
+#### 初始化阶段
+
+ 由ReactDOM.render()触发---初次渲染
+
+- constructor()：constructor()中完成了React数据的初始化
+
+- componentWillMount()：代表的过程是组件已经经历了constructor()初始化数据后，但是还未渲染DOM时
+
+- render()
+
+- componentDidMount() ：组件第一次渲染完成，此时dom节点已经生成
+
+  常用：一般在这个钩子中做一些初始化的事，例如：开启定时器、发送网络请求、订阅消息
+
+
+
+#### 更新阶段
+
+由组件内部this.setSate()或父组件render触发
+
+- componentWillReceiveProps()：父组件改变后的props需要重新渲染组件
+
+- shouldComponentUpdate()：控制组件更新的“阀门”
+- componentWillUpdate()：组件将要更新的钩子
+- render() =====> 必须使用的一个
+- componentDidUpdate()：组件更新完毕的钩子
+
+
+
+#### 卸载组件
+
+ 由ReactDOM.unmountComponentAtNode()触发
+
+- componentWillUnmount() =====> 常用
+
+​             一般在这个钩子中做一些收尾的事，例如：关闭定时器、取消订阅消息
+
+
+
+### 生命周期(新v17)
+
+![](https://i.bmp.ovh/imgs/2021/07/5cb691a3e79f1beb.png)
+
+getDerivedStateFromProps(nextProps, prevState)：若state的值在任何时候都取决于props，那么可以使用getDerivedStateFromProps，该方法是类的静态方法，return 数据对象后触发setState页面是不会发生变化的(需要return null 或数据对象)
+
+getSnapshotBeforeUpdate：在更新之前获取快照(需要return)
+
+
+
+## 组件通信
+
+### 父子组件传值props
+
+缺点：只能一层一层传递/兄弟组件必须借助父组件
+
+```js
+父组件App定义更新的方法并将该方法传递给子组件
+export default class App extends Component {
+	state = { //初始化状态
+		isLoading:false,//标识是否处于加载中
+	} 
+
+	//更新App的state
+	updateAppState = (stateObj)=>{
+		this.setState(stateObj)
+	}
+
+	render() {
+		return (
+			<div className="container">
+				<Search updateAppState={this.updateAppState}/>
+			</div>
+		)
+	}
+}
+
+子组件List定义的函数通过props调用父组件更新数据的方法
+export default class Search extends Component {
+	search = ()=>{
+		//发送请求前通知App更新状态
+		this.props.updateAppState({isLoading:true})
+	}
+
+	render() {
+		return (
+			<button onClick={this.search}>搜索</button>
+		)
+	}
+}
+```
+
+
+
+### [兄弟组件传值(消息订阅与发布)](https://github.com/mroderick/PubSubJS)
+
+优点：对组件关系没有限制
+
+缺点：不是集中式的管理
+
+下载
+
+```shell
+npm install pubsub-js --save
+```
+
+机制：
+
+- 先订阅，再发布（理解：有一种隔空对话的感觉）
+- 适用于任意组件间通信
+- **要在组件的componentWillUnmount中取消订阅**
+
+
+
+使用：
+
+List组件存放state，Search组件需要发布消息，List组件需要订阅消息
+
+```js
+List组件
+引入库
+import PubSub from 'pubsub-js'
+
+使用
+componentDidMount(){
+    this.token = PubSub.subscribe('atguigu',(_,stateObj)=>{
+        this.setState(stateObj)
+    })
+}
+componentWillUnmount(){
+    PubSub.unsubscribe(this.token)
+}
+
+Search组件
+import PubSub from 'pubsub-js'
+
+使用
+触发state的动作中
+search = ()=>{
+    //获取用户的输入(连续解构赋值+重命名)
+    const {keyWordElement:{value:keyWord}} = this
+    //发送请求前通知List更新状态
+    PubSub.publish('atguigu',{isFirst:false,isLoading:true})
+    //发送网络请求
+    axios.get(`/api1/search/users?q=${keyWord}`).then(
+        response => {
+            //请求成功后通知List更新状态
+            PubSub.publish('atguigu',{isLoading:false,users:response.data.items})
+        },
+        error => {
+            //请求失败后通知App更新状态
+            PubSub.publish('atguigu',{isLoading:false,err:error.message})
+        }
+    )
+}
+```
+
+
+
+### redux
+
+优点：集中式管理多个组件共享的状态
+
+
+
+# react脚手架
+
+## 安装
+
+全局安装
+
+```shell
+npm install -g create-react-app
+```
+
+创建项目
+
+```shell
+create-react-app 项目名称
+```
+
+index.html的解析
+
+```html
+<html lang="en">
+  <head>
+		<meta charset="utf-8" />
+		<!-- %PUBLIC_URL%代表public文件夹的路径 -->
+		<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+		<!-- 开启理想视口，用于做移动端网页的适配 -->
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- 用于配置浏览器页签+地址栏的颜色(仅支持安卓手机浏览器) -->
+    <meta name="theme-color" content="red" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+		/>
+		<!-- 用于指定网页添加到手机主屏幕后的图标 -->
+		<link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+		<!-- 应用加壳时的配置文件 -->
+		<link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>React App</title>
+  </head>
+  <body>
+		<!-- 若llq不支持js则展示标签中的内容 -->
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
+```
+
+
+
+# react-ajax
+
+## 配置代理
+
+### 方法一
+
+在package.json中最后追加如下配置
+
+```json
+"proxy":"http://localhost:5000"
+```
+
+说明：
+
+1. 优点：配置简单，前端请求资源时可以不加任何前缀。
+
+2. 缺点：不能配置多个代理。
+
+3. 工作方式：上述方式配置代理，当请求了3000(前端)不存在的资源时，那么该请求会转发给5000(服务器) （优先匹配前端资源）
+
+
+
+### 方法二
+
+第一步：创建代理配置文件(在src下创建配置文件：src/setupProxy.js)
+
+第二步：编写setupProxy.js配置具体代理规则
+
+```js
+const proxy = require('http-proxy-middleware')
+module.exports = function(app) {
+ app.use(
+   proxy('/api1', {  //api1是需要转发的请求(所有带有/api1前缀的请求都会转发给5000)
+     target: 'http://localhost:5000', //配置转发目标地址(能返回数据的服务器地址)
+     changeOrigin: true, //控制服务器接收到的请求头中host字段的值
+     /*
+        changeOrigin设置为true时，服务器收到的请求头中的host为：localhost:5000
+        changeOrigin设置为false时，服务器收到的请求头中的host为：localhost:3000
+        changeOrigin默认值为false，但我们一般将changeOrigin值设为true
+     */
+     pathRewrite: {'^/api1': ''} //去除请求前缀，保证交给后台服务器的是正常请求地址(必须配置)
+   }),
+   proxy('/api2', { 
+     target: 'http://localhost:5001',
+     changeOrigin: true,
+     pathRewrite: {'^/api2': ''}
+   })
+ )
+}
+```
+
+说明：
+
+优点：可以配置多个代理，可以灵活的控制请求是否走代理。
+
+缺点：配置繁琐，前端请求资源时**必须加前缀**。
+
+
+
+## 发送请求的库或原生js
+
+xhr，jQuery，axios，fetch
+
+原生请求：xhr，fetch；库：jQuery，axios
+
+fetch发送数据成功，但是没有收到返回的数据，需要使用response.json()接收返回的数据(**要使用两个await**)
+
+```js
+try {
+    const response= await fetch(`/api1/search/users2?q=${keyWord}`)
+    const data = await response.json() // 生成Promise对象
+    console.log(data);
+} catch (error) {
+    console.log('请求出错',error);
+}
+```
+
+fetch使用的频率不高原因：浏览器的兼容性比较差
+
+
+
+# react-router
+
+### SPA的理解
+
+- 单页Web应用（single page web application，SPA）
+- 整个应用只有一个完整的页面【public下的index.html】
+- 点击页面中的链接不会刷新页面, 本身也不会向服务器发请求
+- 当点击路由链接时, 只会做页面的局部更新
+- 数据都需要通过ajax请求获取, 并在前端异步展现
+
+
+
+### react-router-dom
+
+原生html中靠a标签跳转到不同的内容
+
+在react中靠路由链接实现组件切换以及路由注册
+
+```jsx
+在最外层index.js中包裹浏览器路由
+import {BrowserRouter} from 'react-router-dom'
+ReactDOM.render(
+	<BrowserRouter>
+		<App/>
+	</BrowserRouter>,
+	document.getElementById('root')
+)
+
+在Home组件中使用路由的内容
+import {NavLink,Route} from 'react-router-dom'
+
+```
+
+
+
+
+
+# react-redux
+
+
+
+
+
+# 易忘点
+
+状态在哪里，修改状态的方法就在哪里
+
+
+
+子传父：通过props传递，要求父提前给子传递一个函数，子组件直接调用父组件的方法
+
+父传子：直接在子组件的标签中传过去即可，子组件通过this.props接收父亲传递过来的值
+
+```js
+// 父组件给子组件传值(todos)
+<List todos={todos} updateTodo={this.updateTodo} deleteTodo={this.deleteTodo}/>
+    
+// 子组件调用父组件的方法更新数据
+子组件的方法：
+handleDelete = (id)=>{
+    if(window.confirm('确定删除吗？')){
+        this.props.deleteTodo(id) // 通过props属性调用父组件的方法
+    }
+}
+父组件的方法：
+deleteTodo = (id)=>{
+    //获取原来的todos
+    const {todos} = this.state
+    //删除指定id的todo对象
+    const newTodos = todos.filter((todoObj)=>{
+        return todoObj.id !== id
+    })
+    //更新状态
+    this.setState({todos:newTodos})
+}
+```
+
+
+
+style={{}}
+
+```
+<span style={{color:'white',fontSize:'29px'}}>hello</span>
+```
+
+
+
+class的正确写法className
+
+```
+<button className="btn btn-danger">点击</button>
+```
+
+
+
+onClick={this.get('d')} 方法中有括号是直接调用，需要返回的是一个函数而不是函数的返回值
+
+```js
+// 含参数的调用方法
+<input onClick={this.get('a')} type="text" />
+
+get = (val) => {
+    return (event)=>{
+        console.log(event, val)
+    }
+}
+
+// 不含参数的调用方法
+<input onClick={this.get} type="text"/>
+
+get = ()=>{
+    console.log('执行了方法')
+}
+```
+
+
+
+标签中传递对应所有的值 {...obj}
+
+```
+ <Item key={todo.id} {...todo} updateTodo={updateTodo} />
+```
+
+
+
+给数组绑定key， key={index}
+
+```
+ <Item key={todo.id}/>
+```
+
+
+
+react中初始化的checkbox值可以使用defaultChecked，如果使用checked那么必须要搭配onChange方法使用，但是使用defaultChecked只会在第一次时有效，由其他事件触发的checkbox一定要绑定checked这个属性
+
+
+
+jsx中如果要写动态值，需要用{}包裹然后再用map遍历数组，{}中可以直接使用if或三元表达式
