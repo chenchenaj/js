@@ -1336,7 +1336,64 @@ ReactDOM.render(
 
 在Home组件中使用路由的内容
 import {NavLink,Route} from 'react-router-dom'
+路由组件
+<NavLink activeClassName="atguigu" className="list-group-item" to="/about">About</NavLink>
+<Route path="/about" component={About}/>
+ 
+一般组件
+<Header />
+```
 
+
+
+### 路由组件与一般组件
+
+1.写法不同：
+
+​      一般组件：<Demo/>
+
+​      路由组件：<Route path="/demo" component={Demo}/>
+
+   2.存放位置不同：
+
+​      一般组件：components
+
+​      路由组件：pages
+
+   3.接收到的props不同：
+
+​      一般组件：写组件标签时传递了什么，就能收到什么
+
+​      路由组件：接收到三个固定的属性
+
+```js
+history:
+    go: ƒ go(n)
+    goBack: ƒ goBack()
+    goForward: ƒ goForward()
+    push: ƒ push(path, state)
+    replace: ƒ replace(path, state)
+location:
+    pathname: "/about"
+    search: ""
+    state: undefined
+match:
+    params: {}
+    path: "/about"
+    url: "/about"
+```
+
+
+
+### Link与NavLink 
+
+NavLink点击了谁就在当前的路由追加一个active类名，因此点击项会高亮 
+
+如果想要添加自己定义的类型，那么需要每一个NavLink都添加`activeClassName`，里面定义类的内容
+
+```js
+<NavLink activeClassName="atguigu" className="list-group-item" to="/about">About</NavLink>
+<NavLink activeClassName="atguigu" className="list-group-item" to="/home">Home</NavLink>
 ```
 
 
