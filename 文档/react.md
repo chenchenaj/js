@@ -145,6 +145,131 @@ const VDOM = (
 ReactDOM.render(VDOM,document.getElementById('test'))
 ```
 
+## jsx写注释
+
+```jsx
+{ /* 写注释内容 */ }
+```
+
+## jsx嵌入数据显示
+
+在react中，数据是null，undefined，Boolean类型的都不会将内容输出到页面中，如果需要将这些类型输出到页面需要先转换为字符串才能在页面中显示
+
+
+
+## jsx绑定属性
+
+### 动态添加class属性
+
+```jsx
+<div className="aa bb">111</div>
+<div className={"aa bb" + (isActive ? "active" : "")}>111</div> // 动态加class的写法
+```
+
+### 动态添加style属性
+
+```jsx
+// 一般添加style
+<span style={{color:'white',fontSize:'29px'}}>{myData.toLowerCase()}</span>
+
+// 动态添加style
+<span style={{display: (isLogin ? 'block' : 'none')}}>{myData.toLowerCase()}</span>
+```
+
+### 一般属性
+
+```jsx
+<h2 id={myId.toLowerCase()}>111</h2>
+```
+
+
+
+## jsx绑定事件
+
+### 方法一：绑定bind
+
+```jsx
+constructor(){
+    this.changeWeather = this.changeWeather.bind(this)
+}
+changeWeather(){
+    // 操作
+}
+
+<h1 onClick={this.changeWeather}>提示</h1>
+```
+
+
+
+### 方法二：箭头函数
+
+```jsx
+changeWeather = () => {
+    // 操作
+}
+
+<h1 onClick={this.changeWeather}>提示</h1>
+```
+
+
+
+### 方法三：直接传入箭头函数，在箭头函数中执行对应的方法
+
+```jsx
+<h1 onClick={() => {this.changeWeather()}}>提示</h1> // 当前的内容是在render中执行，由于箭头函数，没有自己的this，便在render中找
+
+changeWeather(){
+    // 操作
+}
+```
+
+
+
+## jsx事件传参
+
+```jsx
+<h1 onClick={(e) => {this.changeWeather('a', e)}}>提示</h1> // 当前的内容是在render中执行，由于箭头函数，没有自己的this，便在render中找
+
+changeWeather(val, e){
+    console.log(val, e) // e属于事件对象，需要在箭头函数中接收传递才能使用
+}
+```
+
+
+
+## jsx条件渲染
+
+```jsx
+// 二选一
+<h1>今天天气很{this.state.isHot ? '炎热' : '凉爽'}</h1>
+
+// 只在条件成立时展示
+<h1>今天天气很{this.state.isHot && '炎热'}</h1>
+```
+
+
+
+## jsx列表渲染
+
+```jsx
+const data = ['Angular','React','Vue']
+//1.创建虚拟DOM
+const VDOM = (
+    <div>
+        <h1>前端js框架列表</h1>
+        <ul>
+            {
+                data.map((item,index)=>{
+                    return <li key={index}>{item}</li>
+                })
+            }
+        </ul>
+    </div>
+)
+//2.渲染虚拟DOM到页面
+ReactDOM.render(VDOM,document.getElementById('test'))
+```
+
 
 
 ## 虚拟DOM
@@ -153,13 +278,28 @@ ReactDOM.render(VDOM,document.getElementById('test'))
 - 虚拟DOM比较“轻”，真实DOM比较“重”，因为虚拟DOM是React内部在用，无需真实DOM上那么多的属性。
 - 虚拟DOM最终会被React转化为真实DOM，呈现在页面上。
 
+```jsx
+//1.创建虚拟DOM
+const VDOM = (  /* 此处一定不要写引号，因为不是字符串 */
+    <h1 id="title">
+        <span>Hello,React</span>
+    </h1>
+)
+//2.渲染虚拟DOM到页面
+ReactDOM.render(VDOM,document.getElementById('test'))
+
+const TDOM = document.getElementById('demo')
+console.log('虚拟DOM',VDOM);
+console.log('真实DOM',TDOM);
+```
+
 
 
 ## 组件
 
 ### 函数式组件
 
-组件名称需要大写；组件标签需要闭合
+组件名称需要大写；组件标签需要闭合；**缺失this，没有实例对象，不能使用state和refs和生命周期**
 
 过程：执行了ReactDOM.render(<MyComponent/>.......之后，发生了什么？
 
@@ -1308,7 +1448,7 @@ fetch使用的频率不高原因：浏览器的兼容性比较差
 
 # react-router
 
-### SPA的理解
+## SPA的理解
 
 - 单页Web应用（single page web application，SPA）
 - 整个应用只有一个完整的页面【public下的index.html】
@@ -1318,7 +1458,7 @@ fetch使用的频率不高原因：浏览器的兼容性比较差
 
 
 
-### react-router-dom
+## react-router-dom
 
 原生html中靠a标签跳转到不同的内容
 
@@ -1346,7 +1486,7 @@ import {NavLink,Route} from 'react-router-dom'
 
 
 
-### 路由组件与一般组件
+## 路由组件与一般组件
 
 1.写法不同：
 
@@ -1385,7 +1525,7 @@ match:
 
 
 
-### Link与NavLink 
+## Link与NavLink 
 
 NavLink点击了谁就在当前的路由追加一个active类名，因此点击项会高亮 
 
@@ -1395,16 +1535,6 @@ NavLink点击了谁就在当前的路由追加一个active类名，因此点击�
 <NavLink activeClassName="atguigu" className="list-group-item" to="/about">About</NavLink>
 <NavLink activeClassName="atguigu" className="list-group-item" to="/home">Home</NavLink>
 ```
-
-
-
-
-
-# react-redux
-
-
-
-
 
 封装的组件批量获取NavLink中的所有属性，同时标签体内容是一个特殊的标签属性
 
@@ -1596,8 +1726,6 @@ export default withRouter(Header)
 
 
 
-
-
 ### BrowserRouter与HashRouter的区别
 
 - 底层原理不一样：
@@ -1610,6 +1738,433 @@ export default withRouter(Header)
   - BrowserRouter没有任何影响，因为state保存在history对象中。
   - **HashRouter刷新后会导致路由state参数的丢失**！！！
 - 备注：HashRouter可以用于解决一些路径错误相关的问题。
+
+
+
+# react-redux
+
+
+
+# 扩展
+
+## setState
+
+### 写法一：对象式的setState
+
+(1). setState(stateChange, [callback])------对象式的setState
+
+​      1.stateChange为状态改变对象(该对象可以体现出状态的更改)
+
+​      2.**callback是可选的回调函数, 它在状态更新完毕、界面也更新后(render调用后)才被调用**，如果不在回调中输出，有可能界面更新但是输出的数据还是旧的
+
+**setState本身是同步的方法，但是setState引起react后续更新状态是异步的**
+
+```js
+const {count} = this.state
+//2.更新状态
+this.setState({count:count+1},()=>{ // 在回调函数中输出是得到最新的值
+    console.log(this.state.count);
+})
+```
+
+### 写法二：函数式的setState
+
+(2). setState(updater, [callback])------函数式的setState
+
+​      1.**updater为返回stateChange对象的函数**。
+
+​      2.updater**可以接收到state和props**。
+
+​      4.callback是可选的回调函数, 它在状态更新、界面也更新后(render调用后)才被调用。
+
+```js
+this.setState((state, prop) => {return {count: state.count + 1}})
+```
+
+总结
+
+1.对象式的setState是函数式的setState的简写方式(语法糖)
+
+2.使用原则：
+
+​    (1).如果新状态不依赖于原状态 ===> 使用对象方式
+
+​    (2).如果新状态依赖于原状态 ===> 使用函数方式
+
+​    (3).如果需要在setState()执行后获取最新的状态数据, 要在第二个callback函数中读取
+
+
+
+## 路由懒加载lazyLoad
+
+路由组件用lazy函数引入，loading组件正常方式引入
+
+要引入lazy,Suspense，lazy是用于在懒加载，Suspense是路由在加载中默认展示的内容，Suspense的fallback用做默认展示什么内容
+
+```jsx
+//1.通过React的lazy函数配合import()函数动态加载路由组件 ===> 路由组件代码会被分开打包
+const Login = lazy(()=>import('@/pages/Login'))
+
+//2.通过<Suspense>指定在加载得到路由打包文件前显示一个自定义loading界面
+<Suspense fallback={<h1>loading.....</h1>}>
+    <Switch>
+        <Route path="/xxx" component={Xxxx}/>
+        <Redirect to="/login"/>
+    </Switch>
+</Suspense>
+```
+
+## Hooks
+
+### State Hook
+
+```
+(1). State Hook让函数组件也可以有state状态, 并进行状态数据的读写操作
+(2). 语法: const [xxx, setXxx] = React.useState(initValue)  
+(3). useState()说明:
+        参数: 第一次初始化指定的值在内部作缓存
+        返回值: 包含2个元素的数组, 第1个为内部当前状态值, 第2个为更新状态值的函数
+(4). setXxx()2种写法:
+        setXxx(newValue): 参数为非函数值, 直接指定新的状态值, 内部用其覆盖原来的状态值
+        setXxx(value => newValue): 参数为函数, 接收原本的状态值, 返回新的状态值, 内部用其覆盖原来的状态值
+```
+
+
+
+hooks使得函数式组件可以操作state
+
+Demo方法调用的次数是1+n，初始化是第一次，其后所有做修改的内容都会调用Demo
+
+```jsx
+import React from 'react'
+import ReactDOM from 'react-dom'
+
+// 函数式组件
+function Demo(){
+	const [count,setCount] = React.useState(0) // 0表示count初始化的值，setCount表示要操作count调用的函数
+
+	//加的回调
+	function add(){
+		//setCount(count+1) //第一种写法
+		setCount(count => count+1) // 第二种写法
+	}
+
+	return (
+		<div>
+			<input type="text"/>
+			<h2>当前求和为：{count}</h2>
+			<button onClick={add}>点我+1</button>
+		</div>
+	)
+}
+
+export default Demo
+```
+
+### Effect Hook
+
+```
+(1). Effect Hook 可以让你在函数组件中执行副作用操作(用于模拟类组件中的生命周期钩子)
+(2). React中的副作用操作:
+        发ajax请求数据获取
+        设置订阅 / 启动定时器
+        手动更改真实DOM
+(3). 语法和说明: 
+        useEffect(() => { 
+          // 在此可以执行任何带副作用操作
+          return () => { // 在组件卸载前执行
+            // 在此做一些收尾工作, 比如清除定时器/取消订阅等
+          }
+        }, [stateValue]) // 如果指定的是[], 回调函数只会在第一次render()后执行
+    
+(4). 可以把 useEffect Hook 看做如下三个函数的组合
+        componentDidMount()
+        componentDidUpdate()
+    	componentWillUnmount()
+```
+
+该钩子可以在函数式中使用生命周期的钩子
+
+useEffect如果只传一个参数，不仅在页面挂载的时候执行，在页面更新的时候也会执行，相当于监测所有state
+
+useEffect第一个参数是箭头函数，第二个参数为数组(选填)，如果不传第二个参数相当于componentDidMount+componentDidUpdate的结合，如果第一个参数返回一个参数且不传第二个参数相当于componentDidMount+componentDidUpdate+componentWillUnmount
+
+如果第二个参数传入空数组，相当于componentDidMount钩子函数；
+
+如果第二个参数传入要监测的值，监测的值相当于vue的watch，当前值发生改变就会执行componentDidMount+componentDidUpdate，其他值改变不会执行useEffect中的函数
+
+```jsx
+const [count,setCount] = React.useState(0)
+const [name,setName] = React.useState('tom')
+
+React.useEffect(()=>{
+    console.log('@') // 执行add方法是会触发更新useEffect，但是执行change方法不会触发useEffect，监测对象没有name，只有
+},[count])
+
+function add(){
+    setCount(count => count+1)
+}
+function change(){
+    setName('jack')
+}
+
+<h2>当前求和为：{count}</h2>
+<button onClick={add}>点我+1</button>
+<button onClick={change}>改名</button>
+```
+
+
+
+useEffect第一个参数是箭头函数返回的参数相当于componentWillUnmount
+
+```jsx
+React.useEffect(()=>{
+    let timer = setInterval(()=>{
+        setCount(count => count+1 )
+    },1000)
+    return ()=>{
+        clearInterval(timer)
+    }
+},[])
+```
+
+
+
+### Ref Hook
+
+```
+(1). Ref Hook可以在函数组件中存储/查找组件内的标签或任意其它数据
+(2). 语法: const refContainer = useRef()
+(3). 作用:保存标签对象,功能与React.createRef()一样
+```
+
+```jsx
+function Demo(){
+	const myRef = React.useRef()
+
+	//提示输入的回调
+	function show(){
+		alert(myRef.current.value)
+	}
+
+	return (
+		<div>
+			<input type="text" ref={myRef}/>
+			<button onClick={show}>点我提示数据</button>
+		</div>
+	)
+}
+```
+
+## Fragment
+
+使用可以不用必须有一个真实的DOM根标签了
+
+<Fragment><Fragment>
+
+ <></>
+
+```jsx
+import React, { Component,Fragment } from 'react'
+
+export default class Demo extends Component {
+	render() {
+		return (
+			<Fragment key={1}>
+				<input type="text"/>
+				<input type="text"/>
+			</Fragment>
+		)
+	}
+}
+```
+
+## Context
+
+> 一种组件间通信方式, 常用于【祖组件】与【后代组件】间通信
+
+```
+1) 创建Context容器对象：
+	const XxxContext = React.createContext()  
+	
+2) 渲染子组时，外面包裹xxxContext.Provider, 通过value属性给后代组件传递数据：
+	<xxxContext.Provider value={数据}>
+		子组件
+    </xxxContext.Provider>
+    
+3) 后代组件读取数据：
+
+	//第一种方式:仅适用于类组件 
+	  static contextType = xxxContext  // 声明接收context
+	  this.context // 读取context中的value数据
+	  
+	//第二种方式: 函数组件与类组件都可以
+	  <xxxContext.Consumer>
+	    {
+	      value => ( // value就是context中的value数据
+	        要显示的内容
+	      )
+	    }
+	  </xxxContext.Consumer>
+```
+
+使用
+
+```js
+import React, { Component } from 'react'
+import './index.css'
+
+//创建Context对象
+const MyContext = React.createContext()
+const {Provider,Consumer} = MyContext
+export default class A extends Component {
+
+	state = {username:'tom',age:18}
+
+	render() {
+		const {username,age} = this.state
+		return (
+			<div className="parent">
+				<h3>我是A组件</h3>
+				<h4>我的用户名是:{username}</h4>
+				<Provider value={{username,age}}>
+					<B/>
+				</Provider>
+			</div>
+		)
+	}
+}
+
+class B extends Component {
+	render() {
+		return (
+			<div className="child">
+				<h3>我是B组件</h3>
+				<C/>
+			</div>
+		)
+	}
+}
+
+/* class C extends Component {
+	//声明接收context
+	static contextType = MyContext
+	render() {
+		const {username,age} = this.context
+		return (
+			<div className="grand">
+				<h3>我是C组件</h3>
+				<h4>我从A组件接收到的用户名:{username},年龄是{age}</h4>
+			</div>
+		)
+	}
+} */
+
+function C(){
+	return (
+		<div className="grand">
+			<h3>我是C组件</h3>
+			<h4>我从A组件接收到的用户名:
+			<Consumer>
+				{value => `${value.username},年龄是${value.age}`}
+			</Consumer>
+			</h4>
+		</div>
+	)
+}
+```
+
+## PureComponent
+
+Component的2个问题：
+
+> 1. 只要执行setState(),即使不改变状态数据, 组件也会重新render()
+>
+> 2. 只当前组件重新render(), 就会自动重新render子组件 ==> 效率低
+
+
+
+**效率高的做法**
+
+**只有当组件的state或props数据发生改变时才重新render()**，例如：可以在当前组件添加shouldComponentUpdate函数对比，如果state中的值没有发生改变就不重新render，子组件也添加shouldComponentUpdate，如果接受的props值没有发生改变就不重新render，有一种简写的方式是直接使用react中的PureComponent
+
+
+
+**原因**
+
+Component中的shouldComponentUpdate()钩子总是返回true
+
+
+
+**解决办法**
+
+```
+办法1: 
+    重写shouldComponentUpdate()方法
+    比较新旧state或props数据, 如果有变化才返回true, 如果没有返回false
+办法2:  
+    使用PureComponent
+    PureComponent重写了shouldComponentUpdate(), 只有state或props数据有变化才返回true
+    注意: 
+        只是进行state和props数据的浅比较, 如果只是数据对象内部数据变了, 返回false  
+        不要直接修改state数据, 而是要产生新数据
+项目中一般使用PureComponent来优化
+```
+
+
+
+## renderProps插槽
+
+**向组件内部动态传入带内容的结构(标签)**
+
+Vue中: 
+
+  使用slot技术, 也就是通过组件标签体传入结构 <AA><BB/></AA>
+
+ React中:
+
+  使用children props: 通过组件标签体传入结构
+
+  使用render props: 通过组件标签属性传入结构, 一般用render函数属性
+
+### children props
+
+	<A>
+	  <B>xxxx</B>
+	</A>
+	{this.props.children}
+	问题: 如果B组件需要A组件内的数据, ==> 做不到 
+
+### render props
+
+	<A render={(data) => <C data={data}></C>}></A>
+	A组件: {this.props.render(内部state数据)}
+	C组件: 读取A组件传入的数据显示 {this.props.data}
+
+## 错误边界
+
+错误边界：用来捕获后代组件错误，渲染出备用页面
+
+只能捕获后代组件生命周期产生的错误，不能捕获自己组件产生的错误和其他组件在合成事件、定时器中产生的错误
+
+```js
+// 生命周期函数，一旦后台组件报错，就会触发
+static getDerivedStateFromError(error) {
+    console.log(error);
+    // 在render之前触发
+    // 返回新的state
+    return {
+        hasError: true,
+    };
+}
+
+componentDidCatch(error, info) {
+    // 统计页面的错误。发送请求发送到后台去
+    console.log(error, info);
+}
+```
+
+
 
 # 易忘点
 
