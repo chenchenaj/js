@@ -72,7 +72,64 @@ vm.plus()
 vm.a // 2
 ```
 
+
+
+### 数据代理
+
+#### Object.defineProperty
+
+通过Object.defineProperty定义出来的值不会一开始就显示出来，会出现(...)这样的字符，点击(...)的时候会触发当前属性的getter和setter属性
+
+```js
+<script type="text/javascript" >
+    let number = 18
+    let person = {
+        name:'张三',
+        sex:'男',
+    }
+
+    Object.defineProperty(person,'age',{
+        // value:18,
+        // enumerable:true, //控制属性是否可以枚举，默认值是false
+        // writable:true, //控制属性是否可以被修改，默认值是false
+        // configurable:true //控制属性是否可以被删除，默认值是false
+
+        //当有人读取person的age属性时，get函数(getter)就会被调用，且返回值就是age的值
+        get(){
+            console.log('有人读取age属性了')
+            return number
+        },
+
+        //当有人修改person的age属性时，set函数(setter)就会被调用，且会收到修改的具体值
+        set(value){
+            console.log('有人修改了age属性，且值是',value)
+            number = value
+        }
+
+    })
+
+    console.log(person)
+</script>
+```
+
+
+
+#### 数据代理
+
+1.Vue中的数据代理：**通过vm对象来代理data对象中属性的操作（读/写）**
+
+2.Vue中数据代理的好处：更加方便的操作data中的数据
+
+3.基本原理：
+
+- 通过Object.defineProperty()把data对象中所有属性添加到vm上。
+- 为每一个添加到vm上的属性，都指定一个getter/setter。
+- 在getter/setter内部去操作（读/写）data中对应的属性。
+
+
+
 ## Directives指令概念和语法
+
 ### 系统内置指令
 #### [v-text](https://cn.vuejs.org/v2/api/#v-text)
 
@@ -80,6 +137,8 @@ vm.a // 2
 - `{{}}` 会造成闪烁问题
 - `v-text` 不会有闪烁问题
 - 如果还想用 `{{}}` 又不想有闪烁问题，则使用 `v-cloak` 来处理
+
+
 
 #### [v-html](https://cn.vuejs.org/v2/api/#v-html)
 
@@ -156,10 +215,85 @@ for(let item of this.books){}  // 这里item类似于 v-for="item in books"中�
 
 - **@click.native：组件原生点击事件**
 
-  ```html
-   <my-component v-on:click.native="doTheThing"></my-component>
-  ```
+- **@click.capture:使用事件的捕获模式**
 
+- **@click.self:只有在event.target是当前操作的元素时才触发事件**
+
+- **@click.passive:事件的默认行为立即执行，无需等待事件回调执行完毕**
+
+- 键盘事件：回车 => enter；删除 => delete (捕获“删除”和“退格”键)；退出 => esc；空格 => space；
+
+  换行 => tab (特殊，必须配合keydown去使用)；上 => up；下 => down；左 => left；右 => right；
+  
+  ```html
+<body>
+      <!-- 准备好一个容器-->
+      <div id="root">
+          <h2>欢迎来到{{name}}学习</h2>
+          <!-- 阻止默认事件（常用） -->
+          <a href="http://www.atguigu.com" @click.prevent="showInfo">点我提示信息</a>
+  
+          <!-- 阻止事件冒泡（常用） -->
+          <div class="demo1" @click="showInfo">
+              <button @click.stop="showInfo">点我提示信息</button>
+              <!-- 修饰符可以连续写 -->
+              <!-- <a href="http://www.atguigu.com" @click.prevent.stop="showInfo">点我提示信息</a> -->
+          </div>
+  
+          <!-- 事件只触发一次（常用） -->
+          <button @click.once="showInfo">点我提示信息</button>
+  
+          <!-- 使用事件的捕获模式 -->
+          <div class="box1" @click.capture="showMsg(1)">
+              div1
+              <div class="box2" @click="showMsg(2)">
+                  div2
+              </div>
+          </div>
+  
+          <!-- 只有event.target是当前操作的元素时才触发事件； -->
+          <div class="demo1" @click.self="showInfo">
+              <button @click="showInfo">点我提示信息</button>
+          </div>
+  
+          <!-- 事件的默认行为立即执行，无需等待事件回调执行完毕； -->
+          <ul @wheel.passive="demo" class="list">
+              <li>1</li>
+              <li>2</li>
+              <li>3</li>
+              <li>4</li>
+          </ul>
+  
+      </div>
+  </body>
+  
+  <script type="text/javascript">
+      Vue.config.productionTip = false //阻止 vue 在启动时生成生产提示。
+  
+      new Vue({
+          el:'#root',
+          data:{
+              name:'尚硅谷'
+          },
+          methods:{
+              showInfo(e){
+                  alert('同学你好！')
+                  // console.log(e.target)
+              },
+              showMsg(msg){
+                  console.log(msg)
+              },
+              demo(){
+                  for (let i = 0; i < 100000; i++) {
+                      console.log('#')
+                  }
+                  console.log('累坏了')
+              }
+          }
+      })
+  </script>
+  ```
+  
   
 
 #### [v-bind](https://cn.vuejs.org/v2/api/#v-bind)
@@ -1818,5 +1952,7 @@ deactivated() {
  console.log('deactivated');
 },
 ```
+
+
 
 ## vuex
