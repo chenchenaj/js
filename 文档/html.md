@@ -375,11 +375,11 @@ margin-left + border-left + padding-left + width + padding-right + border-right 
 ​	可选值：
 
   	visible：默认值 子元素会从父元素中溢出，在父元素外部的位置显示
-
+  	
   	hidden： 溢出内容将会被裁剪不会显示
-
+  	
   	scroll： 生成两个滚动条，通过滚动条来查看完整的内容
-
+  	
   	auto： 根据需要生成滚动条
 
 overflow-x
@@ -550,7 +550,7 @@ border-radius: 20px / 40px; 代表横向20px，纵向40px
 
 ![](https://i.bmp.ovh/imgs/2020/05/6bba3a6e108c570f.png)
 
-##### 开启BFC
+##### [开启BFC](https://www.bilibili.com/video/BV1XJ411X7Ud?p=64)
 
 !> ::before,::after 用于解决外边距重叠问题；clear:both 用于解决高度塌陷问题
 
@@ -649,6 +649,8 @@ border-radius: 20px / 40px; 代表横向20px，纵向40px
 ```
 
 ###### 方式五:after
+
+clear:both;清除两侧中较大的浮动元素
 
 ```html
 <style>
