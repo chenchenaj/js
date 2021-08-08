@@ -81,7 +81,7 @@ Vue.use(VueCompositionApi)
 
 
 
-# 总 结
+# Vue3基本语法
 
 直接在 setup 中用方法修改 state 的值是页面不会发生改变，因为 reactive 不是响应式数据，需要通过`toRefs`包裹
 
@@ -116,7 +116,7 @@ setup() {
 
 ### 执行时机
 
-**setup** 函数会在 **beforeCreate** 之后、**created** 之前执行，**只执行一次**
+**setup** 函数会在 **beforeCreate** 之前、**created** 之前执行，**只执行一次**
 
 ### 接收 props 数据
 
@@ -362,7 +362,7 @@ export default {
 
 参数二：回调函数 (oldValue, value) => {}
 
-参数三：额外的配置
+参数三：额外的配置(立即执行和深度监视)
 
 ### 监听 ref
 
@@ -563,7 +563,15 @@ import {onBeforeMount, onMounted,...} from 'vue'
 
 
 
-### toRefs
+## 自定义hook
+
+相当于vue2的mixin
+
+本质是一个函数，把setup函数中使用的Componsition API进行封装
+
+
+
+## toRefs
 
 **把一个响应式对象转换成普通对象，该普通对象的每个 property 都是一个 ref**
 
@@ -805,3 +813,67 @@ export default defineComponent({
 </script>
 ```
 
+
+
+# 总结
+
+- ref('zx')包装基本数据类型是RefImpl引用对象，该对象是通过Object.definedProperty的set和get实现数据劫持，修改时要通过.value的方式；
+- ref({type: '01'})包装对象是Proxy代理对象，是经过reactive加工后的对象；
+- **ref缺点要一直写.value才能修改数据**
+- reactive({type: '01'})包装对象是Proxy代理对象，这个响应式是深层次的；
+- 内容基于ES6的Proxy实现，通过代理对象对源数据对象进行操作；
+-  [vue2和vue3响应式总结](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=146&spm_id_from=pageDriver) 
+- **reactive缺点要一直写对象是谁person.xxx才能修改数据**
+
+
+
+vue3实现响应式
+
+- 通过Proxy代理：拦截对象中任意属性的变化，包括：属性值的读写，属性的添加，属性的删除等；
+- 通过Reflect反射：对被代理对象的属性进行操作；
+
+```js
+let person = {
+    name: 'zs',
+    age: 18
+}
+const p = new Proxy(person, {
+    // 读取
+    get(target, propName){
+        console.log('有人读取了p身上的属性')
+        // return target[propName]
+        return Reflect.get(target, propName)
+    },
+    // 修改或新增
+    set(target, propName, newValue){
+        console.log('有人修改了p身上的属性')
+        // target[propName] = newValue
+        Reflect.set(target, propName, newValue)
+    },
+    // 删除
+    deleteProperty(target, propName){
+        console.log('有人删除了p身上的属性')
+        // return delete target[propName]
+        return Reflect.deleteProperty(target, propName)
+    },
+    
+})
+```
+
+
+
+- setup的执行时期比beforeCreate早
+- setup参数props：值为对象，包含组件外部传过来且有声明接收的属性
+- setup参数context：上下文对象
+  - props：值为对象，包含组件外部传过来但没有在props配置中声明的$attrs属性，相当于`this.$attrs`
+  - slots：收到插槽的内容，相当于`this.$slots`
+  - setup参数emits：触发自定义事件的函数，相当于`this.$emit()`
+
+
+
+watch
+
+- 监视reactive定义的响应式数据时：oldValue无法正确获取、强制开启了深度监视(deep配置失效)。
+- 监视reactive定义的响应式数据中某个属性时：deep配置有效。
+- watch套路：既要指明监视的属性，又要指明监视的回调。
+- watchEffect套路：不用指明监视的属性，监视的回调中用到哪个属性，就监视哪个属性。(有点像computed)
