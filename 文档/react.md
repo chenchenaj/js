@@ -2168,13 +2168,15 @@ componentDidCatch(error, info) {
 
 # 易忘点
 
-状态在哪里，修改状态的方法就在哪里
+- 状态在哪里，修改状态的方法就在哪里
 
 
 
-子传父：通过props传递，要求父提前给子传递一个函数，子组件直接调用父组件的方法
 
-父传子：直接在子组件的标签中传过去即可，子组件通过this.props接收父亲传递过来的值
+- 子传父：通过props传递，要求父提前给子传递一个函数，子组件直接调用父组件的方法
+
+- 父传子：直接在子组件的标签中传过去即可，子组件通过this.props接收父亲传递过来的值
+
 
 ```js
 // 父组件给子组件传值(todos)
@@ -2202,7 +2204,8 @@ deleteTodo = (id)=>{
 
 
 
-style={{}}
+- style={{}}
+
 
 ```
 <span style={{color:'white',fontSize:'29px'}}>hello</span>
@@ -2210,7 +2213,8 @@ style={{}}
 
 
 
-class的正确写法className
+- class的正确写法className
+
 
 ```
 <button className="btn btn-danger">点击</button>
@@ -2218,7 +2222,8 @@ class的正确写法className
 
 
 
-onClick={this.get('d')} 方法中有括号是直接调用，需要返回的是一个函数而不是函数的返回值
+- onClick={this.get('d')} 方法中有括号是直接调用，需要返回的是一个函数而不是函数的返回值
+
 
 ```js
 // 含参数的调用方法
@@ -2240,7 +2245,8 @@ get = ()=>{
 
 
 
-标签中传递对应所有的值 {...obj}
+- 标签中传递对应所有的值 {...obj}
+
 
 ```
  <Item key={todo.id} {...todo} updateTodo={updateTodo} />
@@ -2248,7 +2254,8 @@ get = ()=>{
 
 
 
-给数组绑定key， key={index}
+- 给数组绑定key， key={index}
+
 
 ```
  <Item key={todo.id}/>
@@ -2256,8 +2263,47 @@ get = ()=>{
 
 
 
-react中初始化的checkbox值可以使用defaultChecked，如果使用checked那么必须要搭配onChange方法使用，但是使用defaultChecked只会在第一次时有效，由其他事件触发的checkbox一定要绑定checked这个属性
+- react中初始化的checkbox值可以使用defaultChecked，如果使用checked那么必须要搭配onChange方法使用，但是使用defaultChecked只会在第一次时有效，由其他事件触发的checkbox一定要绑定checked这个属性
 
 
 
-jsx中如果要写动态值，需要用{}包裹然后再用map遍历数组，{}中可以直接使用if或三元表达式
+
+- jsx中如果要写动态值，需要用{}包裹然后再用map遍历数组，{}中可以直接使用if或三元表达式
+
+
+
+# 项目经验
+
+App.vue
+
+```jsx
+import React, {Component} from 'react'
+import {HashRouter, Switch, Route, Redirect} from 'react-router-dom'
+import Admin from './pages/admin/Admin'
+import Login from './pages/login/Login'
+/*
+应用根组件
+ */
+class App extends Component {
+  render(){
+    return(
+      <HashRouter>
+        <Switch>
+        <Route path="/login" component={Login}/>
+        <Route path="/admin" component={Admin}/>
+        <Redirect to="/login" />>
+        </Switch>
+      </HashRouter>
+    )
+  }
+}
+
+export default App
+```
+
+Login.vue
+
+收集信息
+
+用到高级函数和高阶组件
+
