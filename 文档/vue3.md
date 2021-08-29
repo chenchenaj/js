@@ -40,7 +40,7 @@ npm run dev
 
 
 
-# vue2.x 项目转换成 3.x 的方式
+# 一、vue2.x 项目转换成 3.x 的方式
 
 ## 安装 vue-cli3
 
@@ -81,34 +81,64 @@ Vue.use(VueCompositionApi)
 
 
 
-# 总 结
+# 二、Vue3基本语法
 
-直接在 setup 中用方法修改 state 的值是页面不会发生改变，因为 reactive 不是响应式数据，需要通过`toRefs`包裹
+## 响应式原理
 
-使用 ref 则需要通过`.value`来修改值
+### vue2.x的响应式
 
-```
-setup() {
-    const state = reactive({
-      msg2: '你是个坏蛋',
+- 实现原理：
+
+  - 对象类型：通过```Object.defineProperty()```对属性的读取、修改进行拦截（数据劫持）。
+
+  - 数组类型：通过重写更新数组的一系列方法来实现拦截。（对数组的变更方法进行了包裹）。
+
+    ```js
+    Object.defineProperty(data, 'count', {
+        get () {}, 
+        set () {}
     })
+    ```
 
-    const msg3 = ref('加油加油~')
+- 存在问题：
 
-    const changeMsg = () => {
-      state.msg2 = '你是个大花旦'
+  - 新增属性、删除属性, 界面不会更新。
+  - 直接通过下标修改数组, 界面不会自动更新。
 
-      msg3.value = '刚把得'
-    }
+### vue3实现响应式
 
+- 通过Proxy代理：拦截对象中任意属性的变化，包括：属性值的读写，属性的添加，属性的删除等；
+- 通过Reflect反射：对被代理对象的属性进行操作；
 
-    return {
-      msg3,
-      ...toRefs(state), // 将整个state的每个值都变为响应式
-      changeMsg,
-    }
-  },
+```js
+let person = {
+    name: 'zs',
+    age: 18
+}
+const p = new Proxy(person, {
+    // 读取
+    get(target, propName){
+        console.log('有人读取了p身上的属性')
+        // return target[propName]
+        return Reflect.get(target, propName)
+    },
+    // 修改或新增
+    set(target, propName, newValue){
+        console.log('有人修改了p身上的属性')
+        // target[propName] = newValue
+        Reflect.set(target, propName, newValue)
+    },
+    // 删除
+    deleteProperty(target, propName){
+        console.log('有人删除了p身上的属性')
+        // return delete target[propName]
+        return Reflect.deleteProperty(target, propName)
+    },
+    
+})
 ```
+
+
 
 ## setup
 
@@ -116,7 +146,7 @@ setup() {
 
 ### 执行时机
 
-**setup** 函数会在 **beforeCreate** 之后、**created** 之前执行，**只执行一次**
+**setup** 函数会在 **beforeCreate** 之前、**created** 之前执行，**只执行一次**
 
 ### 接收 props 数据
 
@@ -362,171 +392,64 @@ export default {
 
 参数二：回调函数 (oldValue, value) => {}
 
-参数三：额外的配置
+参数三：额外的配置(立即执行和深度监视)
 
-### 监听 ref
+```js
+//情况一：监视ref定义的响应式数据
+watch(sum,(newValue,oldValue)=>{
+	console.log('sum变化了',newValue,oldValue)
+},{immediate:true})
 
-```vue
-<template>
-  <div>
-    <p>watch的使用</p>
-    {{ money }}
-    <button @click="money++">修改money</button>
-    {{ car.brand }}
-    <button @click="car.brand = '奔驰'">修改brand</button>
-    {{ msg }}
-    <button @click="msg = 'vue'">修改msg</button>
-  </div>
-</template>
+//情况二：监视多个ref定义的响应式数据
+watch([sum,msg],(newValue,oldValue)=>{
+	console.log('sum或msg变化了',newValue,oldValue)
+}) 
 
-<script>
-import { reactive, watch, toRefs, ref } from 'vue'
-export default {
-  setup() {
-    const state = reactive({
-      money: 100,
-      car: {
-        brand: '宝马',
-      },
-    })
+/* 情况三：监视reactive定义的响应式数据
+			若watch监视的是reactive定义的响应式数据，则无法正确获得oldValue！！
+			若watch监视的是reactive定义的响应式数据，则强制开启了深度监视 
+*/
+watch(person,(newValue,oldValue)=>{
+	console.log('person变化了',newValue,oldValue)
+},{immediate:true,deep:false}) //此处的deep配置不再奏效
 
-    const msg = ref('hello')
+//情况四：监视reactive定义的响应式数据中的某个属性
+watch(()=>person.job,(newValue,oldValue)=>{
+	console.log('person的job变化了',newValue,oldValue)
+},{immediate:true,deep:true}) 
 
-    // 监听ref的复杂类型
-    watch(msg, (value) => {
-      console.log('数据发生了改变' + value)
-    })
+//情况五：监视reactive定义的响应式数据中的某些属性
+watch([()=>person.job,()=>person.name],(newValue,oldValue)=>{
+	console.log('person的job变化了',newValue,oldValue)
+},{immediate:true,deep:true})
 
-    return {
-      ...toRefs(state),
-      msg,
-    }
-  },
-}
-</script>
-```
-
-### 监听 reactive
-
-```vue
-<template>
-  <div>
-    <p>watch的使用</p>
-    {{ money }}
-    <button @click="money++">修改money</button>
-    {{ car.brand }}
-    <button @click="car.brand = '奔驰'">修改brand</button>
-    {{ msg }}
-    <button @click="msg = 'vue'">修改msg</button>
-  </div>
-</template>
-
-<script>
-import { reactive, watch, toRefs, ref } from 'vue'
-export default {
-  setup() {
-    const state = reactive({
-      money: 100,
-      car: {
-        brand: '宝马',
-      },
-    })
-
-    const msg = ref('hello')
-
-    // 监听reactive的简单类型
-    watch(
-      () => state.money,
-      (value, oldValue) => {
-        console.log('数据发生了改变' + value)
-      }
-    )
-
-    // 监听reactive的复杂类型
-    watch(
-      () => state.car,
-      (value, oldValue) => {
-        console.log('数据发生了改变' + value)
-      },
-      {
-        deep: true,
-      }
-    )
-
-    // 监听reactive的多个值
-    watch(
-      [() => state.money, () => state.car],
-      ([money, car], [oldMoney, oldCar]) => {
-        console.log('数据发生了改变' + money, car)
-      },
-      {
-        deep: true,
-      }
-    )
-
-    return {
-      ...toRefs(state),
-      msg,
-    }
-  },
-}
-</script>
-```
-
-### 监听整个 state
-
-```vue
-<template>
-  <div>
-    <p>watch的使用</p>
-    {{ money }}
-    <button @click="money++">修改money</button>
-    {{ car.brand }}
-    <button @click="car.brand = '奔驰'">修改brand</button>
-    {{ msg }}
-    <button @click="msg = 'vue'">修改msg</button>
-  </div>
-</template>
-
-<script>
-import { reactive, watch, toRefs, ref } from 'vue'
-export default {
-  setup() {
-    const state = reactive({
-      money: 100,
-      car: {
-        brand: '宝马',
-      },
-    })
-    const msg = ref('hello')
-
-    // 监听整个reactive对象
-    watch(
-      state,
-      (value) => {
-        console.log('数据发生了改变' + value)
-      },
-      {
-        deep: true,
-      }
-    )
-
-    return {
-      ...toRefs(state),
-      msg,
-    }
-  },
-}
-</script>
+//特殊情况
+watch(()=>person.job,(newValue,oldValue)=>{
+    console.log('person的job变化了',newValue,oldValue)
+},{deep:true}) //此处由于监视的是reactive素定义的对象中的某个属性，所以deep配置有效
 ```
 
 
 
-## watchEffect
+## watchEffect函数
 
-- 不用直接指定要监视的数据, 回调函数中使用的哪些响应式数据就监视哪些响应式数据
-- **默认初始时就会执行第一次**
-- 监视数据发生变化时回调
+- watch的套路是：既要指明监视的属性，也要指明监视的回调。
+
+- watchEffect的套路是：不用指明监视哪个属性，监视的回调中用到哪个属性，那就监视哪个属性。
+
+- watchEffect有点像computed：
+
+  - 但computed注重的计算出来的值（回调函数的返回值），所以必须要写返回值。
+  - 而watchEffect更注重的是过程（回调函数的函数体），所以不用写返回值。
+
+  ```js
+  //watchEffect所指定的回调中用到的数据只要发生变化，则直接重新执行回调。
+  watchEffect(()=>{
+      const x1 = sum.value
+      const x2 = person.age
+      console.log('watchEffect配置的回调执行了')
+  })
+  ```
 
 
 
@@ -538,7 +461,13 @@ export default {
 import {onBeforeMount, onMounted,...} from 'vue'
 ```
 
+vue2生命周期
 
+<img src="https://cn.vuejs.org/images/lifecycle.png" alt="lifecycle_2"/>
+
+
+
+vue3生命周期<img src="https://v3.cn.vuejs.org/images/lifecycle.svg" alt="lifecycle_3" />
 
 ### 与 2.x 版本生命周期相对应的组合式 API
 
@@ -563,7 +492,15 @@ import {onBeforeMount, onMounted,...} from 'vue'
 
 
 
-### toRefs
+## 自定义hook
+
+相当于vue2的mixin
+
+本质是一个函数，把setup函数中使用的Componsition API进行封装
+
+
+
+## toRefs
 
 **把一个响应式对象转换成普通对象，该普通对象的每个 property 都是一个 ref**
 
@@ -734,7 +671,326 @@ export default {
     - 有些值不应被设置为响应式的，例如复杂的第三方类实例或 Vue 组件对象。
     - 当渲染具有不可变数据源的大列表时，跳过代理转换可以提高性能。
 
+# 三、其它 Composition API
 
+## 1.shallowReactive 与 shallowRef
+
+- shallowReactive：只处理对象最外层属性的响应式（浅响应式）。
+- shallowRef：只处理基本数据类型的响应式, 不进行对象的响应式处理。
+
+- 什么时候使用?
+  -  如果有一个对象数据，结构比较深, 但变化时只是外层属性变化 ===> shallowReactive。
+  -  如果有一个对象数据，后续功能不会修改该对象中的属性，而是生新的对象来替换 ===> shallowRef。
+
+## 2.readonly 与 shallowReadonly
+
+- readonly: 让一个响应式数据变为只读的（深只读）。
+- shallowReadonly：让一个响应式数据变为只读的（浅只读）。
+- 应用场景: 不希望数据被修改时。
+
+## 3.toRaw 与 markRaw
+
+- toRaw：
+  - 作用：将一个由```reactive```生成的<strong style="color:orange">响应式对象</strong>转为<strong style="color:orange">普通对象</strong>。
+  - 使用场景：用于读取响应式对象对应的普通对象，对这个普通对象的所有操作，不会引起页面更新。
+- markRaw：
+  - 作用：标记一个对象，使其永远不会再成为响应式对象。
+  - 应用场景:
+    1. 有些值不应被设置为响应式的，例如复杂的第三方类库等。
+    2. 当渲染具有不可变数据源的大列表时，跳过响应式转换可以提高性能。
+
+## 4.customRef
+
+- 作用：创建一个自定义的 ref，并对其依赖项跟踪和更新触发进行显式控制。
+
+- 实现防抖效果：
+
+  ```vue
+  <template>
+  	<input type="text" v-model="keyword">
+  	<h3>{{keyword}}</h3>
+  </template>
+  
+  <script>
+  	import {ref,customRef} from 'vue'
+  	export default {
+  		name:'Demo',
+  		setup(){
+  			// let keyword = ref('hello') //使用Vue准备好的内置ref
+  			//自定义一个myRef
+  			function myRef(value,delay){
+  				let timer
+  				//通过customRef去实现自定义
+  				return customRef((track,trigger)=>{
+  					return{
+  						get(){
+  							track() //告诉Vue这个value值是需要被“追踪”的
+  							return value
+  						},
+  						set(newValue){
+  							clearTimeout(timer)
+  							timer = setTimeout(()=>{
+  								value = newValue
+  								trigger() //告诉Vue去更新界面
+  							},delay)
+  						}
+  					}
+  				})
+  			}
+  			let keyword = myRef('hello',500) //使用程序员自定义的ref
+  			return {
+  				keyword
+  			}
+  		}
+  	}
+  </script>
+  ```
+
+  
+
+## 5.provide 与 inject
+
+<img src="https://v3.cn.vuejs.org/images/components_provide.png" style="width:300px" />
+
+- 作用：实现<strong style="color:#DD5145">祖与后代组件间</strong>通信
+
+- 套路：父组件有一个 `provide` 选项来提供数据，后代组件有一个 `inject` 选项来开始使用这些数据
+
+- 具体写法：
+
+  1. 祖组件中：
+
+     ```js
+     setup(){
+     	......
+         let car = reactive({name:'奔驰',price:'40万'})
+         provide('car',car)
+         ......
+     }
+     ```
+
+  2. 后代组件中：
+
+     ```js
+     setup(props,context){
+     	......
+         const car = inject('car')
+         return {car}
+     	......
+     }
+     ```
+
+## 6.响应式数据的判断
+
+- isRef: 检查一个值是否为一个 ref 对象
+- isReactive: 检查一个对象是否是由 `reactive` 创建的响应式代理
+- isReadonly: 检查一个对象是否是由 `readonly` 创建的只读代理
+- isProxy: 检查一个对象是否是由 `reactive` 或者 `readonly` 方法创建的代理
+
+# 四、Composition API 的优势
+
+## 1.Options API 存在的问题
+
+使用传统OptionsAPI中，新增或者修改一个需求，就需要分别在data，methods，computed里修改 。
+
+<div style="width:600px;height:370px;overflow:hidden;float:left">
+    <img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f84e4e2c02424d9a99862ade0a2e4114~tplv-k3u1fbpfcp-watermark.image" style="width:600px;float:left" />
+</div>
+<div style="width:300px;height:370px;overflow:hidden;float:left">
+    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e5ac7e20d1784887a826f6360768a368~tplv-k3u1fbpfcp-watermark.image" style="zoom:50%;width:560px;left" /> 
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 2.Composition API 的优势
+
+我们可以更加优雅的组织我们的代码，函数。让相关功能的代码更加有序的组织在一起。
+
+<div style="width:500px;height:340px;overflow:hidden;float:left">
+    <img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bc0be8211fc54b6c941c036791ba4efe~tplv-k3u1fbpfcp-watermark.image"style="height:360px"/>
+</div>
+<div style="width:430px;height:340px;overflow:hidden;float:left">
+    <img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6cc55165c0e34069a75fe36f8712eb80~tplv-k3u1fbpfcp-watermark.image"style="height:360px"/>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# 五、新的组件
+
+## 1.Fragment
+
+- 在Vue2中: 组件必须有一个根标签
+- 在Vue3中: 组件可以没有根标签, 内部会将多个标签包含在一个Fragment虚拟元素中
+- 好处: 减少标签层级, 减小内存占用
+
+## 2.Teleport
+
+- 什么是Teleport？—— `Teleport` 是一种能够将我们的<strong style="color:#DD5145">组件html结构</strong>移动到指定位置的技术。
+
+  ```vue
+  <teleport to="移动位置">
+  	<div v-if="isShow" class="mask">
+  		<div class="dialog">
+  			<h3>我是一个弹窗</h3>
+  			<button @click="isShow = false">关闭弹窗</button>
+  		</div>
+  	</div>
+  </teleport>
+  ```
+
+## 3.Suspense
+
+- 等待异步组件时渲染一些额外内容，让应用有更好的用户体验
+
+- 使用步骤：
+
+  - 异步引入组件
+
+    ```js
+    import {defineAsyncComponent} from 'vue'
+    const Child = defineAsyncComponent(()=>import('./components/Child.vue'))
+    ```
+
+  - 使用```Suspense```包裹组件，并配置好```default``` 与 ```fallback```
+
+    ```vue
+    <template>
+    	<div class="app">
+    		<h3>我是App组件</h3>
+    		<Suspense>
+    			<template v-slot:default>
+    				<Child/>
+    			</template>
+    			<template v-slot:fallback>
+    				<h3>加载中.....</h3>
+    			</template>
+    		</Suspense>
+    	</div>
+    </template>
+    ```
+
+# 六、其他
+
+## 1.全局API的转移
+
+- Vue 2.x 有许多全局 API 和配置。
+
+  - 例如：注册全局组件、注册全局指令等。
+
+    ```js
+    //注册全局组件
+    Vue.component('MyButton', {
+      data: () => ({
+        count: 0
+      }),
+      template: '<button @click="count++">Clicked {{ count }} times.</button>'
+    })
+    
+    //注册全局指令
+    Vue.directive('focus', {
+      inserted: el => el.focus()
+    }
+    ```
+
+- Vue3.0中对这些API做出了调整：
+
+  - 将全局的API，即：```Vue.xxx```调整到应用实例（```app```）上
+
+    | 2.x 全局 API（```Vue```） | 3.x 实例 API (`app`)                        |
+    | ------------------------- | ------------------------------------------- |
+    | Vue.config.xxxx           | app.config.xxxx                             |
+    | Vue.config.productionTip  | <strong style="color:#DD5145">移除</strong> |
+    | Vue.component             | app.component                               |
+    | Vue.directive             | app.directive                               |
+    | Vue.mixin                 | app.mixin                                   |
+    | Vue.use                   | app.use                                     |
+    | Vue.prototype             | app.config.globalProperties                 |
+
+## 2.其他改变
+
+- data选项应始终被声明为一个函数。
+
+- 过度类名的更改：
+
+  - Vue2.x写法
+
+    ```css
+    .v-enter,
+    .v-leave-to {
+      opacity: 0;
+    }
+    .v-leave,
+    .v-enter-to {
+      opacity: 1;
+    }
+    ```
+
+  - Vue3.x写法
+
+    ```css
+    .v-enter-from,
+    .v-leave-to {
+      opacity: 0;
+    }
+    
+    .v-leave-from,
+    .v-enter-to {
+      opacity: 1;
+    }
+    ```
+
+- <strong style="color:#DD5145">移除</strong>keyCode作为 v-on 的修饰符，同时也不再支持```config.keyCodes```
+
+- <strong style="color:#DD5145">移除</strong>```v-on.native```修饰符
+
+  - 父组件中绑定事件
+
+    ```vue
+    <my-component
+      v-on:close="handleComponentEvent"
+      v-on:click="handleNativeClickEvent"
+    />
+    ```
+
+  - 子组件中声明自定义事件
+
+    ```vue
+    <script>
+      export default {
+        emits: ['close']
+      }
+    </script>
+    ```
+
+- <strong style="color:#DD5145">移除</strong>过滤器（filter）
+
+  > 过滤器虽然这看起来很方便，但它需要一个自定义语法，打破大括号内表达式是 “只是 JavaScript” 的假设，这不仅有学习成本，而且有实现成本！建议用方法调用或计算属性去替换过滤器。
+
+- ......
 
 ## 配置文件解析
 
@@ -805,3 +1061,30 @@ export default defineComponent({
 </script>
 ```
 
+
+
+# 总结
+
+- ref('zx')包装基本数据类型是RefImpl引用对象，该对象是通过Object.definedProperty的set和get实现数据劫持，修改时要通过.value的方式；
+- ref({type: '01'})包装对象是Proxy代理对象，是经过reactive加工后的对象；
+- **ref缺点要一直写.value才能修改数据**
+- reactive({type: '01'})包装对象是Proxy代理对象，这个响应式是深层次的；
+- 内容基于ES6的Proxy实现，通过代理对象对源数据对象进行操作；
+-  [vue2和vue3响应式总结](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=146&spm_id_from=pageDriver) 
+- **reactive缺点要一直写对象是谁person.xxx才能修改数据**
+
+- setup的执行时期比beforeCreate早
+- setup参数props：值为对象，包含组件外部传过来且有声明接收的属性
+- setup参数context：上下文对象
+  - props：值为对象，包含组件外部传过来但没有在props配置中声明的$attrs属性，相当于`this.$attrs`
+  - slots：收到插槽的内容，相当于`this.$slots`
+  - setup参数emits：触发自定义事件的函数，相当于`this.$emit()`
+
+
+
+watch
+
+- 监视reactive定义的响应式数据时：oldValue无法正确获取、强制开启了深度监视(deep配置失效)。
+- 监视reactive定义的响应式数据中某个属性时：deep配置有效。
+- watch套路：既要指明监视的属性，又要指明监视的回调。
+- watchEffect套路：不用指明监视的属性，监视的回调中用到哪个属性，就监视哪个属性。(有点像computed)
