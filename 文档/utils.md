@@ -163,34 +163,61 @@ export function throttle (func, delay) {
 
 ```js
 export function debounce (func, wait) {
-
-     var timeout;
-
-     return function () {
-
+ var timeout;
+ return function () {
       var context = this;
-
       var args = arguments;
-
       clearTimeout(timeout);
-
       timeout = setTimeout(() => {
-
        func.apply(context, args)
-
       }, wait);
-
-     }
-
+ }
 }
 ```
 
-将值转为万
+## 将值转为万
 
 ```js
 export function formatNumber (number) {
   number = Number(number) || 0
   return number > 100000 ? `${Math.round(number / 10000)}万` : number
+}
+```
+
+## 对象转数组
+
+```js
+export const obj2Arr = (arr) => {
+  let list = []
+  for (let key in arr) {
+    let obj = {}
+    obj.id = key
+    obj.name = arr[key]
+    list.push(obj)
+  }
+  return list
+}
+```
+
+## 判断是否显示id
+
+```js
+export const checkHasId = (arr, id) => {
+  let flag = true
+  if(arr.length == 0){
+    flag = true;
+  }else{
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i].id == id) {
+        flag = false;
+        break;
+      }
+    }
+  }
+  if(flag){
+    id = ''
+  }
+  return id
 }
 ```
 

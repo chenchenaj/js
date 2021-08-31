@@ -1061,7 +1061,142 @@ export default defineComponent({
 </script>
 ```
 
+# 七、vuex和route使用
 
+## 路由
+
+```js
+<script>
+import { useRouter, useRoute } from 'vue-router' // 是在vue-router中引入
+import {  onMounted } from "vue"
+export default {
+  setup() {
+    const router = useRouter() // 组件内路由
+    const route = useRoute() // 组件内路由信息
+    
+    onMounted = () =>{
+        console.log(router)
+        console.log(route)
+    }
+  }
+}
+</script>
+```
+
+## vuex
+
+```js
+<script>
+import { useStore } from 'vuex'
+export default {
+  setup() {
+    const store = useStore()
+    const state = store.state
+   	const methods = {
+   	  // 处理commit
+      handleMutation: () => {
+        store.commit(...)
+      },
+      // 处理dispatch
+      handleAction: () => {
+        store.dispatch(...)
+      }
+   	}
+
+    return {
+      ...methods 
+    }
+  }
+}
+</script>
+```
+
+
+
+# 项目案例
+
+## props和emit
+
+```vue
+<template>
+  <div>
+    <el-button type="text" @click="openDialog">点击打开 Dialog</el-button>
+    <about v-if="dialogVisible" :dialogVisible="dialogVisible" @handleClose="handleClose" />
+  </div>
+</template>
+
+<script>
+import about from "./About.vue"
+import { reactive, toRefs } from "vue"
+export default {
+  name: "",
+  components: {
+    about,
+  },
+  setup() {
+    const state = reactive({
+      dialogVisible: false,
+      tableData: [],
+    })
+
+    const openDialog = () => {
+      state.dialogVisible = true
+    }
+
+    const handleClose = () => {
+      state.dialogVisible = false
+    }
+
+    return {
+      openDialog,
+      handleClose,
+      ...toRefs(state),
+    }
+  },
+}
+</script>
+<style lang="less" scoped></style>
+
+// 子组件
+<template>
+  <div>
+    <el-dialog title="提示" v-model="dialogVisible" width="30%" :before-close="handleClose">
+      <span>这是一段信息</span>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleClose">取 消</el-button>
+          <el-button type="primary" @click="handleClose">确 定</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<script>
+import { reactive, toRefs } from "@vue/reactivity"
+export default {
+  name: "about",
+  props: {
+    dialogVisible: Boolean,
+  },
+  setup(props, { emit }) {
+    const state = reactive({
+      dialogVisible: props.dialogVisible,
+    })
+
+    const handleClose = () => {
+      emit("handleClose")
+    }
+
+    return {
+      handleClose,
+      ...toRefs(state),
+    }
+  },
+}
+</script>
+<style lang="less" scoped></style>
+```
 
 # 总结
 
