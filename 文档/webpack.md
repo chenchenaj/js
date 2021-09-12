@@ -1445,3 +1445,192 @@ module.exports = {
 }
 ```
 
+
+
+# 总结
+
+## 多页面打包案例
+
+```js
+const { resolve } = require('path');
+const autoprefixer = require('autoprefixer');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const cleanWebpackPlugin = require('clean-webpack-plugin');
+const uglifyjsWebpackPlugin = require('uglifyjs-webpack-plugin');
+
+module.exports = {
+  // 模式：开发  生产
+  mode: 'development', // production
+  // source-map
+  devtool: 'source-map',
+  // 优化，禁止压缩 最小化
+  optimization: {
+    minimize: false
+  },
+  // 入口文件  多文件入口
+  entry: {
+    index: resolve(__dirname, './src/js/index.js'),
+    detail: resolve(__dirname, './src/js/detail.js'),
+    collections: resolve(__dirname, './src/js/collections.js'),
+  },
+  // 输出/打包设置
+  output: {
+    // 路径
+    path: resolve(__dirname, './dist'),
+    // 打包后的文件名
+    filename: 'js/[name].js'
+  },
+  // 模块设置
+  module: {
+    // 模块匹配规则
+    rules: [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: resolve(__dirname, 'node_modules'),
+        query: {
+          'presets': ['latest']
+        }
+      },
+      {
+        test: /\.tpl$/,
+        loader: 'ejs-loader'
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins: function () {
+                return [autoprefixer('last 5 versions')];
+              }
+            }
+          }
+        ]
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              plugins: function () {
+                return [autoprefixer('last 5 versions')];
+              }
+            }
+          },
+          'sass-loader'
+        ]
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif|ico|woff|eot|svg|ttf)$/i,
+        loaders: 'url-loader?limit=1024&name=img/[name]-[hash:16].[ext]'
+      }
+    ]
+  },
+  // 插件配置
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: 'index.html',
+      template: resolve(__dirname, 'src/index.html'),
+      title: '新闻头条',
+      chunks: ['index'],//可以设置chunks按需引入JS文件，不设置就会引入所有产出的js
+      chunksSortMode: 'manual',//将chunks按引入的顺序排序,不用这个的话,引入到html的JS可能是错乱排序的
+      excludeChunks: ['node_modules'],//是指定生成的页面中不引入某个chunk
+      hash: true,
+      minify: { // 把CSS和JS压缩和削减
+        removeComments: true, // 移除注释
+        collapseWhitespace: true // 去掉空格回车符等
+      }
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'detail.html',
+      template: resolve(__dirname, 'src/detail.html'),
+      title: '新闻详情',
+      chunks: ['detail'],
+      chunksSortMode: 'manual',
+      excludeChunks: ['node_modules'],
+      hash: true,
+      minify: {
+        removeComments: true,
+        collapseWhitespace: true
+      }
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'collections.html',
+      template: resolve(__dirname, 'src/collections.html'),
+      title: '我的新闻',
+      chunks: ['collections'],
+      chunksSortMode: 'manual',
+      excludeChunks: ['node_modules'],
+      hash: true,
+      minify: {
+        removeComments: true,
+        collapseWhitespace: true
+      }
+    }),
+    new cleanWebpackPlugin(['dist']),
+    new uglifyjsWebpackPlugin(),
+  ],
+  // 开发服务器的配置
+  devServer: {
+    watchOptions: {
+      ignored: /node_modules/
+    },
+    open: true,
+    host: 'localhost',
+    port: 3000
+  }
+}
+```
+
+需下载的依赖
+
+ejs/ejs-loader：处理模板文件
+
+```js
+{
+  "name": "news",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "webpack": "webpack",
+    "dev": "webpack-dev-server"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^9.5.1",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-latest": "^6.24.1",
+    "css-loader": "^2.1.1",
+    "ejs": "^3.1.5",
+    "ejs-loader": "^0.3.3",
+    "file-loader": "^3.0.1",
+    "html-loader": "^0.5.5"
+    "html-webpack-plugin": "^3.2.0",
+    "image-webpack-loader": "^4.6.0",
+    "mini-css-extract-plugin": "^0.7.0",
+    "node-sass": "^4.11.0",
+    "postcss-loader": "^3.0.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^2.1.2",
+    "url-loader": "^1.1.2",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0",
+    "webpack-dev-server": "^3.7.2"
+  }
+}
+```
+
+
+
