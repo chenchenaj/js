@@ -394,6 +394,124 @@ legend:{
 
 
 
+## echarts4
+
+版本号："echarts": "^4.9.0"
+
+### 动态加载地图
+
+```vue
+<template>
+  <div>
+    <div id="main" style="width: 1000px; height: 500px;"></div>
+  </div>
+</template>
+
+<script>
+import { ROOT_PATH } from "@/contextPath";
+import axios from "axios";
+// 引入 ECharts 主模块
+const echarts = require("echarts/lib/echarts");
+// 引入柱状图
+require("echarts/lib/chart/bar");
+require("echarts/lib/chart/sankey"); // 桑基图
+require("echarts/lib/chart/parallel"); // 平行坐标系
+require("echarts/lib/chart/sunburst"); // 旭日图
+require("echarts/lib/chart/funnel"); // 漏斗圖
+require("echarts/lib/chart/gauge"); // 仪表盘
+require("echarts/lib/chart/pictorialBar"); // 象形柱图
+require("echarts/lib/chart/scatter"); // 散點
+require("echarts/lib/chart/effectScatter"); // 漣漪散點
+require("echarts/lib/chart/map");
+require("echarts/extension/bmap/bmap"); // 要在index.html中結合引入<script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=wRXgYrEFzBEnWYDSDP5X4EjPC7Urn04F">
+
+// 引入提示框和标题组件
+require("echarts/lib/component/tooltip");
+require("echarts/lib/component/title");
+require("echarts/lib/component/toolbox");
+// 引入legend模块
+require("echarts/lib/component/legend");
+// 视觉映射组件
+require("echarts/lib/component/visualMap");
+
+export default {
+  data() {
+    return {
+      mapType: ""
+    };
+  },
+  mounted() {
+    // 基于准备好的dom，初始化echarts实例
+    const myChart = echarts.init(document.getElementById("main"));
+
+    this.batchImport("全国", [{ name: "全国", value: "全国" }]);
+
+    let option = {
+      geo: {
+        map: this.mapType,
+        roam: true,
+        selectedMode: "single",
+        label: {
+          normal: {
+            show: true,
+            textStyle: {
+              color: "rgba(0,0,0,0.4)"
+            }
+          }
+        }
+      }
+    };
+
+    myChart.setOption(option);
+
+    myChart.on("geoselectchanged", arg => {
+      console.log(arg)
+      // 当前的数据是写死的，后续需要根据调整
+      this.batchImport("jiangxi", [{ name: "jiangxi", value: "江西" }]);
+      option = {
+        geo: {
+          map: this.mapType,
+          roam: true,
+          selectedMode: "single",
+          label: {
+            normal: {
+              show: true,
+              textStyle: {
+                color: "rgba(0,0,0,0.4)"
+              }
+            }
+          }
+        }
+      };
+      myChart.setOption(option);
+    });
+  },
+  methods: {
+    // 动态引入哪一个地图
+    batchImport(name, pro) {
+      pro.forEach(obj => {
+        if (obj.name === name) {
+          if (name === "全国") {
+            require("echarts/map/js/china");
+            this.mapType = "china";
+            return false;
+          }
+
+          require("echarts/map/js/province/" + obj.name);
+          this.mapType = obj.value;
+          return false;
+        }
+      });
+    }
+  }
+};
+</script>
+```
+
+
+
+
+
 局部引入雷达图
 
 ```vue
