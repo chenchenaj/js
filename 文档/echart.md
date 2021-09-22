@@ -359,8 +359,12 @@ tooltip:{
 toolbox: {
     show: true,
     feature: {
-      dataZoom: {}, // 区域缩放
-      dataView: {}, // 数据视图
+      dataZoom: { // 区域缩放
+          yAxisIndex: 'none' // 区域缩放的时候y轴不发生变化
+      }, 
+      dataView: { // 数据视图
+          readOnly: true // 开启后无法修改数据
+      }, 
       magicType: { // 动态图表类型的切换
         type: ["line", "bar"]
       },
@@ -387,6 +391,352 @@ legend:{
     }]
     or
     data: ['语文', '数学'],series中的name必须有这两个值
+}
+```
+
+
+
+
+
+## 零散API
+
+### 平滑线条smooth
+
+在series中添加`smooth: true`
+
+```js
+series: [
+    {
+      data: [820, 932, 901, 934, 1290, 1330, 1320],
+      type: 'line',
+      smooth: true
+    }
+  ]
+```
+
+
+
+### 封闭面积图
+
+boundaryGap：默认为 `true`，这时候[刻度](https://echarts.apache.org/zh/option.html#xAxis.axisTick)只是作为分隔线，标签和数据点都会在两个[刻度](https://echarts.apache.org/zh/option.html#xAxis.axisTick)之间的带(band)中间。非类目轴，包括时间，数值，对数轴，`boundaryGap`是一个两个值的数组，分别表示数据最小值和最大值的延伸范围，可以直接设置数值或者相对的百分比，在设置 [min](https://echarts.apache.org/zh/option.html#xAxis.min) 和 [max](https://echarts.apache.org/zh/option.html#xAxis.max) 后无效。
+
+areaStyle：开启面积图
+
+```js
+xAxis: {
+	boundaryGap: false,
+},
+series: [
+    {
+      data: [820, 932, 901, 934, 1290, 1330, 1320],
+      type: 'line',
+      areaStyle: {}
+    }
+]
+```
+
+
+
+### 提示tooltip
+
+- `'line'` 直线指示器
+- `'shadow'` 阴影指示器
+- `'none'` 无指示器
+- `'cross'` 十字准星指示器。
+
+```js
+tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'cross', // 形成纵横交错的坐标轴
+      label: {
+        backgroundColor: '#6a7985'
+      }
+    }
+  },
+```
+
+
+
+### emphasis
+
+```js
+{
+  name: 'Email',
+  type: 'line',
+  stack: 'Total',
+  areaStyle: {},
+  emphasis: {
+    focus: 'series'
+  },
+  data: [120, 132, 101, 134, 90, 230, 210]
+},
+```
+
+
+
+### 颜色渐变LinearGradient
+
+new echarts.graphic.LinearGradient
+
+```js
+areaStyle: {
+    opacity: 0.8,
+    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [ // x1, y1, x2, y2代表从哪个方向
+      {
+        offset: 0,
+        color: 'rgba(128, 255, 165)'
+      },
+      {
+        offset: 1,
+        color: 'rgba(1, 191, 236)'
+      }
+    ])
+  },
+```
+
+
+
+
+
+### 是否显示线上面的点&折线宽度&点大小
+
+是否显示 symbol, 如果 `false` 则只有在 tooltip hover 的时候显示
+
+```js
+{
+      name: 'Line 2',
+      type: 'line',
+      stack: 'Total', // 使用堆叠形成面积
+      smooth: true, // 线开启平滑模式
+      lineStyle: { // 折线宽度
+        width: 0
+      },
+      showSymbol: false, // 默认是否显示折线上的点
+      symbolSize: 8, // 线上点的大小
+      label: {  // 显示线上面文字且文字位置在顶部
+        show: true,
+        position: 'top'
+      },
+      emphasis: { // 高亮时隐藏其他图例，只显示当前hover的图例
+        focus: 'series'
+      },
+}
+```
+
+
+
+### 坐标轴显示特定内容
+
+```js
+yAxis: {
+    type: 'value',
+    axisLabel: {
+      formatter: '{value} °C' // 注：此处也可以使用函数
+    }
+  },
+```
+
+
+
+### 最大值最小值平均值
+
+```js
+series: [
+    {
+      name: 'Highest',
+      type: 'line',
+      data: [10, 11, 13, 11, 12, 12, 9],
+      markPoint: { // 点的最大值最小值
+        data: [
+          { type: 'max', name: 'Max' },
+          { type: 'min', name: 'Min' }
+        ]
+      },
+      markLine: { // 线的平均值
+        silent: true, // 鼠标移上是否有响应（线变粗）
+        data: [
+            { type: 'average', name: 'Avg' },
+            [ // 开启线右侧往左侧延伸的最大值
+                {
+                  symbol: 'none', // 虚线且没有箭头
+                  x: '90%',
+                  yAxis: 'max'
+                },
+                {
+                  symbol: 'circle',
+                  label: {
+                    position: 'start',
+                    formatter: 'Max'
+                  },
+                  type: 'max',
+                  name: '最高点'
+                }
+              ]
+        ]
+      }
+    },
+]
+```
+
+
+
+### 标轴指示器是否自动吸附到点上
+
+```js
+yAxis: {
+    type: 'value',
+    axisPointer: {
+      snap: true // 鼠标移动到坐标轴指示器就是吸附到点上
+    }
+  },
+```
+
+
+
+### x轴y轴刻度间隔N
+
+```js
+yAxis: {
+    splitNumber: 3
+ },
+```
+
+
+
+### 显示刻度线刻度坐标
+
+```js
+xAxis: {
+    name: 'x',
+    minorTick: { // 显示刻度坐标
+      show: true
+    },
+    minorSplitLine: { // 显示刻度线
+      show: true
+    }
+  },
+```
+
+
+
+### 不同系列的柱间距离
+
+```js
+{
+  name: 'Forest',
+  type: 'bar',
+  barGap: 0, //柱子与柱子之间的间隔
+},
+```
+
+
+
+### [左右坐标轴]([Examples - Apache ECharts](https://echarts.apache.org/examples/zh/editor.html?c=mix-line-bar))
+
+```js
+ yAxis: [
+    {
+      type: 'value',
+      name: 'Precipitation',
+      min: 0,
+      max: 250,
+      interval: 50,
+      axisLabel: {
+        formatter: '{value} ml'
+      }
+    },
+    {
+      type: 'value',
+      name: 'Temperature',
+      min: 0,
+      max: 25,
+      interval: 5,
+      axisLabel: {
+        formatter: '{value} °C'
+      }
+    }
+  ],
+```
+
+
+
+### [数据动态增长]([Examples - Apache ECharts](https://echarts.apache.org/examples/zh/editor.html?c=bar-race))
+
+```js
+const data = [];
+for (let i = 0; i < 5; ++i) {
+  data.push(Math.round(Math.random() * 200));
+}
+option = {
+  xAxis: {
+    max: 'dataMax'
+  },
+  yAxis: {
+    type: 'category',
+    data: ['A', 'B', 'C', 'D', 'E'],
+    inverse: true,
+    animationDuration: 300, // y轴做动画的速度是多少ms
+    animationDurationUpdate: 300, // y轴更新的速度多少ms
+    max: 4 // 显示在画布上最大的数量
+  },
+  series: [
+    {
+      realtimeSort: true,
+      name: 'X',
+      type: 'bar',
+      data: data,
+      label: {
+        show: true,
+        position: 'right',
+        valueAnimation: true
+      }
+    }
+  ],
+  legend: {
+    show: true
+  },
+  animationDuration: 0,
+  animationDurationUpdate: 3000, // 动画更新时的速度
+  animationEasing: 'linear', // 动画效果
+  animationEasingUpdate: 'linear'
+};
+function run() {
+  for (var i = 0; i < data.length; ++i) {
+    if (Math.random() > 0.9) {
+      data[i] += Math.round(Math.random() * 2000);
+    } else {
+      data[i] += Math.round(Math.random() * 200);
+    }
+  }
+  myChart.setOption({
+    series: [
+      {
+        type: 'bar',
+        data
+      }
+    ]
+  });
+}
+setTimeout(function () {
+  run();
+}, 0);
+setInterval(function () {
+  run();
+}, 3000);
+```
+
+
+
+### 饼图文字线的左对齐和右对齐
+
+```js
+series:{
+     label: {
+        alignTo: 'edge', // 指示线的靠左侧和靠右侧对其，'labelLine': 靠指示线中心对其， 'none': 随意对其
+        edgeDistance: 10, // 文字距离饼图的距离
+        lineHeight: 15, // 文字间距的高度
+     }
 }
 ```
 
