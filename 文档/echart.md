@@ -742,6 +742,27 @@ series:{
 
 
 
+### 地图上使用散点图
+
+ 如果想在地图中显示散点的数据, 我们需要给散点的图表增加一个配置, coordinateSystem:geo
+
+```js
+const seriesArr = this.allData.map((item) => {
+    return {
+      name: item.name, // 配置legend必写项
+      type: "effectScatter",
+      data: item.children,
+      coordinateSystem: "geo",
+    }
+  })
+  const option = {
+    series: seriesArr,
+  }
+  this.chartInstance.setOption(option)
+```
+
+
+
 
 
 ## echarts4

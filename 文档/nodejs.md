@@ -80,3 +80,20 @@ getMovies('https://maoyan.com/films?showType=1')
 }
 ```
 
+
+
+或则另外一种方法
+
+```shell
+npm init -y
+
+npm i express requests
+```
+
+使用
+
+```js
+const requests = require('requests')
+// 到node_modules下找requests这个包的readme.md文档查看对应的用法
+```
+
