@@ -1365,3 +1365,407 @@ document.addEventListener('click', (event: MouseEvent) => {
 })
 const fragment: DocumentFragment = document.createDocumentFragment()
 ```
+
+
+
+# vue中使用typescript
+
+- private title?: string; // 标识当前的参数是可选的
+- private num!: number; // 标识当前的参数一定有值
+- ?.是判断左边的值是否存在 例如：let name = data?.row?.name  => if(data && data.name) name = data.name.row ;、
+- ?? 和?: 和?.和!.的区别
+- ?:是指可选参数，可以理解为参数自动加上undefined
+- ?? 和 || 的意思有点相似，但是又有点区别,??相较||比较严谨, 当值等于0的时候||就把他给排除了，但是?? 不会
+- console.log(0 || 5)       //5
+- console.log(0 ?? 5)      //0
+- ?.的意思基本和 && 是一样的
+- a?.b 相当于 a && a.b ? a.b : undefined
+- !.的意思是断言，告诉ts你这个对象里一定有某个值
+
+ts中使用component，prop，emit，watch，model都需要引入装饰器
+
+```typescript
+import { Vue, Component, Prop, Component, Emit, Watch, Model, Minxins} from 'vue-property-decorator'
+```
+
+
+
+## component
+
+```vue
+<script lang="ts">
+import { Vue, Component } from 'vue-property-decorator'
+import PersonCheckViewList from './PersonCheckViewList.vue'
+import PersonCheckViewHistory from './PersonCheckViewHistory.vue'
+
+@Component({
+  components: {
+    PersonCheckViewList,
+    PersonCheckViewHistory
+  }
+})
+</script>
+```
+
+
+
+## prop
+
+```vue
+<template>
+	<p>prop-a: {{ propA }}</p>
+</template>
+
+<script>
+import { Vue, Prop } from 'vue-property-decorator'
+  
+export default index extends Vue{
+  // prop !表示这个prop一定有值  ? 代表可选参数
+  @Prop({ default: 'propa' }) private propA!: string
+  
+}
+</script>
+
+等价于
+<script>
+ props: {
+    propA: {
+      type: String,
+      required: true,
+      default: 'propa'
+    }
+ }
+</script>
+```
+
+
+
+## watch
+
+```vue
+import { Vue, Watch } from 'vue-property-decorator'
+<script>
+  export default class Layout extends Vue {
+    // data
+    private count: number = 0
+
+    // watch
+    @Watch('count', {
+      immediate: true
+    })
+    private watchCount(val: string) {
+      if (val) {
+        this.form.hasCar = '1'
+      } else {
+        this.form.hasCar = '0'
+      }
+    }
+  }
+</script>
+
+等价于
+<script>
+export default{
+   watch: {
+    count: {
+      watchCount (newVal) {
+        if (val) {
+          this.form.hasCar = '1'
+        } else {
+          this.form.hasCar = '0'
+        }
+      },
+      deep: true
+    }
+}
+</script>
+```
+
+
+
+## computed
+
+```vue
+import { Vue } from 'vue-property-decorator'
+<script>
+  export default class Layout extends Vue {
+    private get 计算属性名称(){
+      return 对应的值
+    }
+    private set 计算属性名称(val){
+      对应值的修改
+    }
+  }
+</script>
+```
+
+
+
+## emit
+
+```vue
+<script>
+import { Vue, Emit, Component } from 'vue-property-decorator'
+
+@Component
+export default class Home extends Vue {
+  // 写法一  emit()括号里不写函数名 函数名为驼峰 在父组件接收函数要采用(驼峰式会转为横杠式写法) return-parent
+  @Emit()
+  private returnParent (): object {
+    return { msg: '我是子组件返回的对象' }
+  }
+
+  // 写法二: 注意，这时父组件接收值时是用@Emit("returnParent")括号中的returnParent接收的，returnParent会把正面的方法名字覆盖。
+  @Emit('returnParent')
+  private backParent (): object {
+    return { msg: '我是子组件返回的对象' }
+  }
+}
+</script>
+
+等价于
+<script>
+export default {
+  methods: {
+    backParent () {
+      this.$emit('returnParent', { msg: '我是子组件返回的对象' })
+    }
+  }
+}
+</script>
+```
+
+
+
+
+
+## mixins
+
+### TipsMinxin.ts
+
+```typescript
+import { Vue, Component } from 'vue-property-decorator'
+
+@Component
+export default class TipsMinxin extends Vue {
+  $refs!: {
+    globalTips: globalTipsElement
+    uForm: HTMLFormElement
+  }
+}
+```
+
+
+
+### 定义接口
+
+```typescript
+interface globalTipsElementParam {
+  position?: 'top' | 'bottom' | 'center'
+  type?: '' | 'translucent' | 'primary' | 'green' | 'warning' | 'danger'
+  duration?: number
+  msg: string
+}
+
+interface globalTipsElement extends Vue {
+  showTips: (params: globalTipsElementParam) => void
+}
+```
+
+
+
+
+
+### 使用混入
+
+```vue
+<template>
+  <view>
+    <global-tips ref="globalTips" />
+  </view>
+</template>
+
+<script lang="ts">
+import { Mixins, Component } from 'vue-property-decorator'
+import { loadCode } from '@/api/user'
+import tipsMixin from '@/mixins/tipsMixin'
+
+@Component
+export default class LoginPopup extends Mixins(tipsMixin)  {
+  async getPhoneNumber(e: any) {
+    try {
+      const { code, data, msg } = await loadCode()
+      if (code == 200) {
+        // 正确时处理的操作
+      } else {
+        this.$refs.globalTips?.showTips({ // 使用到mixin中的$refs
+          type: 'danger',
+          msg:  msg
+        })
+      }
+    } catch (err) {
+      console.error('loadUserRegister -> ' + err)
+    } finally {
+      uni.hideLoading()
+    }
+  }
+}
+</script>
+```
+
+
+
+
+
+## vuex
+
+### index.ts
+
+```typescript
+import Vue from 'vue'
+import Vuex, { StoreOptions } from 'vuex' // vuex需要用到的基本属性
+import appointment from './modules/appointment' // 模块
+import getters from './getters' // 计算属性
+
+Vue.use(Vuex)
+
+export default new Vuex.Store<Store.RootState>(<StoreOptions<Store.RootState>>{
+  modules: {
+    appointment
+  },
+  getters
+})
+```
+
+
+
+### 模块
+
+```typescript
+import Vue from 'vue'
+import { Module } from 'vuex'
+
+const appointment: Module<Store.AppointMentState, Store.RootState> = {
+  namespaced: true, // 必须要开放
+  state: {
+    authorInfo: {}, // 预约人信息
+  },
+  mutations: { // 同步修改state中的内容
+    saveAuthorInfo(state, authorInfo: string) {
+      state.authorInfo = JSON.parse(authorInfo)
+    },
+  },
+  actions: {} // 异步请求
+}
+
+export default appointment
+```
+
+
+
+### 计算属性
+
+```typescript
+import { GetterTree } from 'vuex'
+
+const getters: GetterTree<Store.RootState, Store.RootState> = {
+  authorInfo: (state) => state.appointment.authorInfo,
+}
+export default getters
+```
+
+
+
+### 定义接口中的类(对应模块中state的顺序)
+
+```typescript
+declare namespace Store {
+  interface RootState {
+    appointment: AppointMentState
+  }
+
+  interface AppointMentState {
+    authorInfo: AnyObject,
+  }
+}
+```
+
+
+
+### 使用getters
+
+```vue
+<template>
+	<view class="label">{{authorInfo.name}}</view>
+</template>
+
+<script>
+import { Vue, Component } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+import { loadAddActivity } from '@/api/home'
+
+@Component
+export default class CheckInfo extends Vue { // CheckInfo是vue的文件名
+  @Getter authorInfo!: AnyArray
+}
+</script>
+```
+
+
+
+### 使用mutation
+
+```vue
+<script lang="ts">
+import { Component } from 'vue-property-decorator'
+import { Getter, namespace } from 'vuex-class'
+
+const appointment = namespace('appointment')
+
+@Component
+export default class InformationForm extends Vue {
+  @appointment.Mutation saveAuthorInfo: any
+
+  handleCommit() {
+      // 将值存到vuex中
+      this.saveAuthorInfo(JSON.stringify(saveForm))
+  }
+}
+</script>
+```
+
+
+
+### 使用action
+
+```vue
+<script lang="ts">
+import { Component } from 'vue-property-decorator'
+import { Getter, namespace } from 'vuex-class'
+
+const appointment = namespace('appointment')
+
+@Component
+export default class InformationForm extends Vue {
+  @appointment.Action saveAuthorInfo: any
+
+  async handleCommit() {
+      const { data } = await saveAuthorInfo()
+      console.log(data)
+  }
+}
+</script>
+```
+
+
+
+
+
+ref使用前要先判断是否存在才能使用
+
+```typescript
+$refs!: {
+  globalTips: globalTipsElement
+}
+```
+

@@ -1634,3 +1634,93 @@ ejs/ejs-loader：处理模板文件
 
 
 
+# 忽略打包依赖
+
+## 手动引入
+
+在`vue.config.js`文件中添加配置
+
+```js
+module.exports = {
+  chainWebpack: config => {
+    config.set('externals', { // 打包忽略的依赖
+      vue: 'Vue',
+      'vue-router': 'VueRouter',
+      axios: 'axios',
+      lodash: '_',
+      echarts: 'echarts',
+      nprogress: 'NProgress',
+      moment: 'moment',
+      'vue-quill-editor': 'VueQuillEditor'
+    })
+  },
+}
+```
+
+
+
+在`index.html`中引入对应的css和js
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <!-- nprogress 的样式表文件 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.css" />
+    <!-- 富文本编辑器 的样式表文件 -->
+    <link href="https://cdn.staticfile.org/quill/2.0.0-dev.3/quill.bubble.min.css" rel="stylesheet">
+    <link href="https://cdn.staticfile.org/quill/2.0.0-dev.3/quill.core.min.css" rel="stylesheet">
+    <!-- element-ui 的样式表文件 -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/element-ui/2.8.2/theme-chalk/index.css"/>
+
+
+    <!-- 富文本编辑器的 js 文件 -->
+    <script src="https://cdn.staticfile.org/quill/1.3.4/quill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-quill-editor@3.0.4/dist/vue-quill-editor.js"></script>
+
+    <script src="https://cdn.staticfile.org/vue/2.6.11/vue.min.js"></script>
+    <script src="https://cdn.staticfile.org/vue-router/3.1.3/vue-router.min.js"></script>
+    <script src="https://cdn.staticfile.org/axios/0.19.2/axios.min.js"></script>
+    <script src="https://cdn.staticfile.org/lodash.js/4.17.15/lodash.min.js"></script>
+    <script src="https://cdn.staticfile.org/echarts/4.7.0/echarts.min.js"></script>
+    <script src="https://cdn.staticfile.org/nprogress/0.2.0/nprogress.min.js"></script>
+    <script src="https://cdn.staticfile.org/moment.js/2.24.0/moment.min.js"></script>
+    <!-- element-ui 的 js 文件 -->
+    <script src="https://cdn.staticfile.org/element-ui/2.8.2/index.js"></script>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>
+```
+
+
+
+## 根据配置引入
+
+修改插件选项
+
+```js
+module.exports = {
+  chainWebpack: config => {
+    config
+      .plugin('html')
+      .tap(args => {
+        return [/* 传递给 html-webpack-plugin's 构造函数的新参数 */]
+      })
+  }
+}
+```
+
+
+
+<img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1365f976db4f41df96bc4a0da227f2da~tplv-k3u1fbpfcp-watermark.awebp">
