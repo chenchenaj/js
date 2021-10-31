@@ -84,6 +84,19 @@ module.exports = {
 
 
 
+## 滑动
+
+- 给容器绑定按下屏幕`touchstart`和离开屏幕`touchend`事件，手指在屏幕上的坐标`e.changedTouches[0].clientX/clientY`
+- 用户按下屏幕的事件
+  - 记录用户按下屏幕的事件`Date now()`
+  - 记录用户按下屏幕的坐标 x 和 y
+- 用户离开屏幕的事件
+  - 记录用户离开屏幕的事件`Date now()`
+  - 记录用户离开屏幕的坐标 x 和 y
+  - 根据两个事件运算 判断用户按下屏幕时长是否合法
+  - 根据两对坐标 判断距离是否合法，判断 滑动的方向
+  - 上下滑动的时候可能会触发水平滑动，可以添加临界值判断(Math.abs(startX-endX>10) && Math.abs(startY-endY)<10)
+
 
 
 ## 组件
