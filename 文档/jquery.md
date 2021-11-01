@@ -25,7 +25,7 @@ window.onload = function(){}
 
 一：将jQuery的$全部改为jQuery可以实现功能
 
-```
+```javascript
 $(function () {
   $('button').on('click', function () {
     $('p').html('快乐hahahhah')
@@ -44,7 +44,7 @@ jQuery(function () {
 
 二：形成封闭作用域
 
-```
+```javascript
 window.onload = function(){
 	(function($){
 		$(function () {
@@ -62,7 +62,7 @@ window.onload = function(){
 
 方式一：形成封闭作用域
 
-```
+```javascript
 window.onload = function(){
 	(function($){
 		$(function () {
@@ -76,7 +76,7 @@ window.onload = function(){
 
 方式二：解除jQuery对$的引用
 
-```
+```javascript
  var _ = $.noConflict() //解除jQuery对$的引用
 _(function () {
   _('#btn2').on('click', function () {
@@ -91,7 +91,7 @@ _(function () {
 
 两者不可以调用对方的方法
 
-```
+```javascript
 js对象: var div = document.getElementById('box')
 jQuery对象：var $div = $('#box')
 ```
@@ -100,7 +100,7 @@ jQuery对象：var $div = $('#box')
 
 ### js转jq
 
-```
+```javascript
 var p1 = document.getElementsByTagName('p')[0]
 var $p3 = $(p1)
 console.log($p3.html())
@@ -110,7 +110,7 @@ console.log($p3.html())
 
 ### jq转js
 
-```
+```javascript
 var $p2 = $('p')
 var p4 = $p2.get(0)
 console.log(p4.innerHTML)
@@ -126,19 +126,19 @@ console.log(p4.innerHTML)
 
 ### 添加类
 
-```
+```javascript
 $("p").addClass("selected1 selected2")
 ```
 
 ### 删除类
 
-```
+```javascript
 $("p").removeClass("selected")
 ```
 
 ### 切换类
 
-```
+```javascript
 $("p").toggleClass("selected")
 ```
 
@@ -167,7 +167,7 @@ $("div").click(function(){
 
 ### 获取样式
 
-```
+```html
 .box {
   width: 200px;
   height: 200px;
@@ -191,7 +191,7 @@ $(function () {
 
 #### 方式一：分别设置
 
-```
+```javascript
 $('.btn2').on('click', function () {
     $box.css('width', '300px')
     $box.css('height', '300px')
@@ -203,7 +203,7 @@ $('.btn2').on('click', function () {
 
 #### 方式二：链式调用
 
-```
+```javascript
 $box.css('width', '300px').css('height', '300px').css('background-color', 'blue')
 ```
 
@@ -211,7 +211,7 @@ $box.css('width', '300px').css('height', '300px').css('background-color', 'blue'
 
 #### 方式三：值为对象
 
-```
+```javascript
 $box.css({
   'width': '300px',
   'height': '300px',
