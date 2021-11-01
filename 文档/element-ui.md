@@ -256,6 +256,14 @@ data () {
 
 
 
+#### 弹窗保存后重置data中的form字段
+
+```js
+this.form = this.$options.data().form;
+```
+
+
+
 
 
 ## 菜单
