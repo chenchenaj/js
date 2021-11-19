@@ -507,6 +507,47 @@ for(let item of this.books){}  // 这里item类似于 v-for="item in books"中�
 
 
 
+##### 组件中使用
+
+```vue
+// 正常情况下
+<template>
+  <ChildComponent v-model="pageTitle" />
+  <!-- 是以下的简写: -->
+  <ChildComponent :value="pageTitle" @input="pageTitle = $event" />
+</template>
+
+// 要修改 prop 或事件名称，则需要在 ChildComponent 组件中添加 model 选项
+<!-- ParentComponent.vue -->
+<ChildComponent v-model="pageTitle" />
+<!-- ChildComponent.vue -->
+<input :title="title" @change="change"/>
+<script>
+export default {
+  model: {
+    prop: 'title', // 有变化的是当前的title属性
+    event: 'change'
+  },
+  props: {
+    // 这将允许 `value` 属性用于其他用途
+    value: String,
+    // 使用 `title` 代替 `value` 作为 model 的 prop
+    title: {
+      type: String,
+      default: 'Default title'
+    }
+  }
+}
+</script>
+
+等同于
+<ChildComponent :title="pageTitle" @change="pageTitle = $event" />
+```
+
+
+
+
+
 #### [v-pre](https://cn.vuejs.org/v2/api/#v-pre)
 
 #### [v-cloak](https://cn.vuejs.org/v2/api/#v-cloak)
@@ -520,7 +561,27 @@ for(let item of this.books){}  // 这里item类似于 v-for="item in books"中�
 
 只执行一次性地插值，当数据改变时，插值处的内容不会更新
 
-### 语法：注册及使用
+
+
+### 自定义指令
+
+Vue 提供了自定义指令的5个钩子函数：
+
+- bind：指令第一次绑定到元素时调用，只执行一次。在这里可以进行一次性的初始化设置。
+- inserted：被绑定的元素，插入到父节点的 DOM 中时调用（仅保证父节点存在）。
+- update：组件更新时调用。
+- componentUpdated：组件与子组件更新时调用。
+- unbind：指令与元素解绑时调用，只执行一次。
+
+**注意：**
+
+1. 除 update 与 componentUpdated 钩子函数之外，每个钩子函数都含有 el、binding、vnode 这三个参数
+2. 在每个函数中，第一个参数永远是 el， 表示被绑定了指令的那个 dom 元素，这个el 参数，是一个原生的 JS 对象，所以 **Vue 自定义指令可以用来直接和 DOM 打交道**
+3. binding 是一个对象，它包含以下属性：name、value、oldValue、expression、arg、modifiers
+4. oldVnode 只有在 update 与 componentUpdated 钩子中生效
+5. 除了 el 之外，binding、vnode 属性都是只读的
+
+
 
 举个让输入框自动聚焦的例子，如下。
 
@@ -561,6 +622,12 @@ directives: {
 
 - 在模板中使用自定义指令必须加上 `v-` 前缀
 - 对于驼峰命名法的自定义指令，在使用的时候使用 `-` 连接即可
+
+
+
+
+
+
 
 ### 混入mixin
 

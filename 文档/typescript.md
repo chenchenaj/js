@@ -1537,6 +1537,78 @@ export default {
 
 
 
+## model
+
+model要在component中使用才生效
+
+```vue
+父组件直接使用v-model
+<modelInput v-model="title"/>
+
+子组件定义接收只读的值；接收什么事件；修改的时候emit回父组件
+<template>
+	<input :value="formatValue" @input="change"/>
+</template>
+<script>
+@Model('input', { // 相当于触发哪一个事件，input和value；checked和change；value和change
+  type: String
+})
+private readonly value!: string // 父组件使用v-model这里默认就是value
+
+changeValue(e: any){
+  this.$emit('input', e.target.value)
+}
+  
+private get formatValue(){
+  return this.value
+}
+</script>
+```
+
+
+
+## refs
+
+class内部是不能使用外部的值，即$refs获取的是组件或者是dom, 但是并没有在class注册，在class中也用不了，要让class和$refs关联上就要class中声明这个$refs
+
+```vue
+<template>
+	<global-tip ref="globalTips" />
+</template>
+<script lang="ts">
+  $refs!: {
+    globalTips: globalTipsElement
+  }
+  
+  mounted(){
+    console.log(this.$refs.globalTips)
+  }
+</script>
+```
+
+
+
+## filter
+
+@component是装饰器, 是ts的一个语法, 可以理解为封装下面的那个class，让他变成vue的组件
+@component里面可以接收一般组件内的所有属性.比如components,watch等等，同等于在class内中写
+class中不支持filter，所以只能通过@component传入到class里面
+
+```typescript
+<script lang="ts">
+@Component({
+  filters: {
+    fmtDate: function (value: string) {
+      if (!value) return '--'
+      return value.split(' ')[0]
+    }
+  }
+})
+</script>
+```
+
+
+
 
 
 ## mixins
