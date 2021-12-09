@@ -348,7 +348,7 @@ mounted(){
 
 #### 绑定数据源:data
 
-​	可嵌套很多模板，但是prop的值需要对应:data中的某一个值；label指定标题
+可嵌套很多模板，但是prop的值需要对应:data中的某一个值；label指定标题
 
 使用带边框的属性`border`
 
@@ -480,6 +480,72 @@ formatter (row, column, cellValue, index) {
 
 ```
  align="center"
+```
+
+
+
+#### 合并复杂单元格
+
+elementui中使用`span-method`方法进行合并
+
+后端返回的数据必须是一条条的list，不能是组合好的tree
+
+计算一个需要合并的数组出来，执行的之后遍历将数据渲染上去
+
+![](https://i.bmp.ovh/imgs/2021/12/b5c779eac9eeb67f.png)
+
+```javascript
+<script>
+export default {
+  data() {
+    return {
+      spanArr: [],
+    };
+  },
+  methods: {
+    getData() {
+      // 1. 请求完数据之后要进行合并得到需要合并的数组
+      this.tableData = data;
+      this.rowMerge(this.tableData, this.spanArr, "zpph");
+    },
+
+    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex === 0) {
+        if (this.spanArr[rowIndex]) {
+          return {
+            rowspan: this.spanArr[rowIndex],
+            colspan: 1,
+          };
+        } else {
+          return {
+            rowspan: 0,
+            colspan: 0,
+          };
+        }
+      }
+    },
+      
+    // tableData：需要合并的数据， spanArr：合并后单元格的数组， type：需要合并的key
+    rowMerge(tableData,spanArr, type){ 
+      let contactDot = 0;
+      let flag = false
+      tableData.forEach((item,index) => {
+          if(index===0){
+              spanArr.push(1)
+          }else{
+              if(item[type] === tableData[index-1][type]){// 此处是跟tableData的上一条数据进行比较，返回的list必须是排序好的
+                  spanArr[contactDot] += 1;
+                  spanArr.push(0)
+              }else{
+                  contactDot = index
+                  spanArr.push(1)
+              }
+          }
+      })
+    }
+  },
+};
+</script>
 ```
 
 
