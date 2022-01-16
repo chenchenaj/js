@@ -60,28 +60,43 @@
 
   
 
-
-## 文件读写fs
+## fs文件系统模块
 
 ```js
 const fs = require('fs')
+```
 
+### 读文件
 
+```js
+const fs = require('fs')
 /*
 	读文件
 	第一个参数:要读取的文件路径
-	第二个参数:回调函数
+	第二个参数:编码形式
+	第三个参数:回调函数
 	成功： err 为 null；data为数据
 	失败： err 为 错误对象；data为null
 */
-fs.readFile('./a.txt', function(err, data){
+fs.readFile('./a.txt','utf8', function(err, data){
     if (err) {
         console.log('读取文件失败了')
       } else {
         console.log(data)
       }
 })
+```
 
+
+
+### 写文件
+
+① fs.writeFile() 方法只能用来创建文件，不能用来创建路径
+
+② 重复调用 fs.writeFile() 写入同一个文件，新写入的内容会覆盖之前的旧内容
+
+```js
+const fs = require('fs')
 /*
 	写文件
 	第一个参数：文件路径
@@ -102,28 +117,100 @@ fs.writeFile('./a.txt', '大家好，给大家介绍一下，我是Node.js', fun
 
 
 
+### 动态获取路径
+
+__dirname 动态获取：  可以用来获取当前文件模块所属目录的绝对路径
+
+__filename动态获取：  可以用来获取当前文件的绝对路径
+
+```js
+fs.readFile(path.join(__dirname,'a.txt'),'utf8',function (err,res) {
+    if(err){
+        throw err
+    }
+    console.log(res);
+})
+```
+
+
+
+
+
+## 路径模块path
+
+```js
+const path = require('path')
+```
+
+
+
+### 路径拼接
+
+path.join()：用来将多个路径片段拼接成一个完成的路径字符串
+
+```js
+const pathStr = path.join('/a', '/b/c', '../../', './d', 'e')  // 注意：  ../ 会抵消前面的路径
+console.log(pathStr)  // \a\b\d\e
+```
+
+
+
+### 获取路径中的文件名
+
+path.basename()：用来从路径字符串中将文件名解析出来
+
+```js
+const path = require('path')
+
+// 定义文件的存放路径
+const fpath = '/a/b/c/index.html'
+
+const fullName = path.basename(fpath)
+console.log(fullName) // index.html
+
+const nameWithoutExt = path.basename(fpath, '.html')
+console.log(nameWithoutExt) // index
+```
+
+
+
+### 获取文件扩展名
+
+path.extname()：用来从路径字符串中将文件后缀名解析出来
+
+```js
+const path = require('path')
+
+// 这是文件的存放路径
+const fpath = '/a/b/c/index.html'
+
+const fext = path.extname(fpath)
+console.log(fext) // .html
+```
+
+
+
 ## 网络服务http
 
-- 加载 http 核心模块
-- 使用 `http.createServer()` 方法创建一个 Web 服务器
-- 服务器处理请求，request 请求事件处理函数，需要接收两个参数
-  - Request 请求对象
-    - 请求对象可以用来获取客户端的一些请求信息，例如请求路径
-  - Response 响应对象
-    - 响应对象可以用来给客户端发送响应消息
-    - response 对象有一个方法：write 可以用来给客户端发送响应数据
-    - write 可以使用多次，但是最后一定要使用 end 来结束响应，否则客户端会一直等待
-    - 简写：res.end('要返回给客户端的内容')
-    - [设置响应头](https://tool.oschina.net/commons)：res.setHeader('Content-Type', 'text/html;charset=UTF-8')，只有字符编码才需要传`charset=UTF-8`，图片等不需要传，传了反而会有问题
-- 绑定端口号，启动服务器
+### 创建基本的web服务
+
+#### ① 导入 http 模块
 
 ```js
 // 1. 加载 http 核心模块
 const http = require('http')
+```
 
+#### ② 创建 web 服务器实例
+
+```js
 // 2. 使用 http.createServer() 方法创建一个 Web 服务器
 const server = http.createServer()
+```
 
+#### ③ 为服务器实例绑定 request 事件，监听客户端的请求
+
+```js
 // 3.服务器处理请求 当客户端请求过来，就会自动触发服务器的 request 请求事件，然后执行第二个参数：回调处理函数
 server.on('request', function (req, res) {
     console.log('收到客户端的请求了,请求路径是:'+ req.url)
@@ -135,7 +222,11 @@ server.on('request', function (req, res) {
         res.end('404')
     }
 })
+```
 
+#### ④ 启动服务器
+
+```js
 // 4. 绑定端口号，启动服务器
 server.listen(3000, function () {
   console.log('服务器启动成功了，可以通过 http://127.0.0.1:3000/ 来进行访问')
@@ -144,32 +235,83 @@ server.listen(3000, function () {
 
 
 
-## 路径path
+### req请求对象
+
+只要服务器接收到了客户端的请求，就会调用通过 server.on() 为服务器绑定的 request 事件处理函数。
+
+如果想在事件处理函数中，访问与**客户端**相关的**数据或属性**`req.url;req.method`
+
+
+
+### res 响应对象
+
+在服务器的 request 事件处理函数中，如果想访问与**服务器相关的数据或属性**`res.url;res.method;res.end`
+
+
+
+### 解决中文乱码
+
+调用 res.end() 方法，向客户端发送中文内容的时候，会出现乱码问题，此时，需要手动设置内容的编码格式：
 
 ```js
-const path = require('path')
+const http = require('http')
+const server = http.createServer()
+
+server.on('request', (req, res) => {
+  // 定义一个字符串，包含中文的内容
+  const str = `您请求的 URL 地址是 ${req.url}，请求的 method 类型为 ${req.method}`
+  // 调用 res.setHeader() 方法，设置 Content-Type 响应头，解决中文乱码的问题
+  res.setHeader('Content-Type', 'text/html; charset=utf-8')
+  // res.end() 将内容响应给客户端
+  res.end(str)
+})
+
+server.listen(80, () => {
+  console.log('server running at http://127.0.0.1')
+})
+
 ```
 
 
 
-## 加载与导入
 
-require是加载并使用文件，不能使用其他文件的变量成员
 
-文件有模块作用域，要使用其他文件的变量，需要通过exports暴露
+## 模块化
 
-a文件
+### 加载模块
 
 ```js
-const bExports = require('./b')
-console.log(bExports.foo)
+// 加载内置模块
+const fs = require('fs')
+// 加载用户的自定义模块
+const costom = require('./custom.js')
+// 加载第三方模块
+const moment = require('moment')
 ```
 
-b文件
 
-```js
-exports.foo = 'aaa'
-```
+
+### 模块作用域
+
+和函数作用域类似，在自定义模块中定义的变量、方法等成员，只能在当前模块内被访问，这种模块级别的访问限制，叫做模块
+作用域。
+
+
+
+### 向外共享模块作用域中的成员
+
+在自定义模块中，可以使用 `module.exports` 对象，将模块内的成员共享出去，供外界使用。
+**外界用 require() 方法导入自定义模块时，得到的就是 module.exports 所指向的对象。**
+
+
+
+### exports
+
+由于 module.exports 单词写起来比较复杂，为了简化向外共享成员的代码，Node 提供了 exports 对象。默认情况下，exports 和 module.exports 指向同一个对象。**最终共享的结果，还是以 module.exports 指向的对象为准**
+
+
+
+
 
 
 
