@@ -1187,6 +1187,394 @@ app.listen(80, () => {
 
 
 
+### 在 Express 中使用 Session 认证
+
+#### 安装express-session 中间件
+
+```shell
+npm i express-session
+```
+
+
+
+#### 配置express-session 中间件
+
+```js
+// TODO_01：请配置 Session 中间件
+const session = require('express-session')
+app.use(
+  session({
+    secret: 'itheima', // secret属性的值可以是任意字符串
+    resave: false, // 固定写法
+    saveUninitialized: true, // 固定写法
+  })
+)
+```
+
+
+
+#### 向 session 中存数据
+
+```js
+// 登录的 API 接口
+app.post('/api/login', (req, res) => {
+  // 判断用户提交的登录信息是否正确
+  if (req.body.username !== 'admin' || req.body.password !== '000000') {
+    return res.send({ status: 1, msg: '登录失败' })
+  }
+
+  // TODO_02：请将登录成功后的用户信息，保存到 Session 中
+  // 注意：只有成功配置了 express-session 这个中间件之后，才能够通过 req 点出来 session 这个属性
+  req.session.user = req.body // 用户的信息
+  req.session.islogin = true // 用户的登录状态
+
+  res.send({ status: 0, msg: '登录成功' })
+})
+```
+
+
+
+####  从 session 中取数据
+
+```js
+// 获取用户姓名的接口
+app.get('/api/username', (req, res) => {
+  // TODO_03：请从 Session 中获取用户的名称，响应给客户端
+  if (!req.session.islogin) {
+    return res.send({ status: 1, msg: 'fail' })
+  }
+  res.send({
+    status: 0,
+    msg: 'success',
+    username: req.session.user.username,
+  })
+})
+```
+
+
+
+#### 清空 session
+
+调用 **req.session.destroy()** 函数，即可清空服务器保存的 session 信息。
+
+```js
+// 退出登录的接口
+app.post('/api/logout', (req, res) => {
+  // TODO_04：清空 Session 信息
+  req.session.destroy()
+  res.send({
+    status: 0,
+    msg: '退出登录成功',
+  })
+})
+```
+
+
+
+#### 整合
+
+```js
+// 导入 express 模块
+const express = require('express')
+// 创建 express 的服务器实例
+const app = express()
+
+// TODO_01：请配置 Session 中间件
+const session = require('express-session')
+app.use(
+  session({
+    secret: 'itheima',
+    resave: false,
+    saveUninitialized: true,
+  })
+)
+
+// 托管静态页面
+app.use(express.static('./pages'))
+// 解析 POST 提交过来的表单数据
+app.use(express.urlencoded({ extended: false }))
+
+// 登录的 API 接口
+app.post('/api/login', (req, res) => {
+  // 判断用户提交的登录信息是否正确
+  if (req.body.username !== 'admin' || req.body.password !== '000000') {
+    return res.send({ status: 1, msg: '登录失败' })
+  }
+
+  // TODO_02：请将登录成功后的用户信息，保存到 Session 中
+  // 注意：只有成功配置了 express-session 这个中间件之后，才能够通过 req 点出来 session 这个属性
+  req.session.user = req.body // 用户的信息
+  req.session.islogin = true // 用户的登录状态
+
+  res.send({ status: 0, msg: '登录成功' })
+})
+
+// 获取用户姓名的接口
+app.get('/api/username', (req, res) => {
+  // TODO_03：请从 Session 中获取用户的名称，响应给客户端
+  if (!req.session.islogin) {
+    return res.send({ status: 1, msg: 'fail' })
+  }
+  res.send({
+    status: 0,
+    msg: 'success',
+    username: req.session.user.username,
+  })
+})
+
+// 退出登录的接口
+app.post('/api/logout', (req, res) => {
+  // TODO_04：清空 Session 信息
+  req.session.destroy()
+  res.send({
+    status: 0,
+    msg: '退出登录成功',
+  })
+})
+
+// 调用 app.listen 方法，指定端口号并启动web服务器
+app.listen(80, function () {
+  console.log('Express server running at http://127.0.0.1:80')
+})
+```
+
+
+
+### 在 Express 中使用 JWT
+
+#### 安装 JWT 相关的包
+
+-  **jsonwebtoken** 用于**生成 JWT 字符串**
+
+- **express-jwt** 用于**将 JWT 字符串解析还原成 JSON 对象**
+
+```shell
+npm i jsonwebtoken express-jwt
+```
+
+
+
+#### 导入 JWT 相关的包
+
+```js
+// TODO_01：安装并导入 JWT 相关的两个包，分别是 jsonwebtoken 和 express-jwt
+const jwt = require('jsonwebtoken')
+const expressJWT = require('express-jwt')
+```
+
+
+
+#### 定义 secret 密钥
+
+为了保证 JWT 字符串的安全性，防止 JWT 字符串在网络传输过程中被别人破解，我们需要专门定义一个用于**加密**和**解密**
+
+的 secret 密钥：
+
+① 当生成 JWT 字符串的时候，需要使用 secret 密钥对用户的信息进行加密，最终得到加密好的 JWT 字符串
+
+② 当把 JWT 字符串解析还原成 JSON 对象的时候，需要使用 secret 密钥进行解密
+
+```js
+// TODO_02：定义 secret 密钥，建议将密钥命名为 secretKey
+const secretKey = 'itheima No1 ^_^'
+```
+
+
+
+#### 在登录成功后生成 JWT 字符串
+
+调用 **jsonwebtoken** 包提供的 **sign()** 方法，将用户的信息加密成 JWT 字符串，响应给客户端
+
+```js
+// 登录接口
+app.post('/api/login', function (req, res) {
+  // 将 req.body 请求体中的数据，转存为 userinfo 常量
+  const userinfo = req.body
+  // 登录失败
+  if (userinfo.username !== 'admin' || userinfo.password !== '000000') {
+    return res.send({
+      status: 400,
+      message: '登录失败！',
+    })
+  }
+  // 登录成功
+  // TODO_03：在登录成功之后，调用 jwt.sign() 方法生成 JWT 字符串。并通过 token 属性发送给客户端
+  // 参数1：用户的信息对象
+  // 参数2：加密的秘钥
+  // 参数3：配置对象，可以配置当前 token 的有效期
+  // 记住：千万不要把密码加密到 token 字符中
+  const tokenStr = jwt.sign({ username: userinfo.username }, secretKey, { expiresIn: '30s' })
+  res.send({
+    status: 200,
+    message: '登录成功！',
+    token: tokenStr, // 要发送给客户端的 token 字符串
+  })
+})
+```
+
+
+
+#### 配置白名单
+
+部分接口白名单：path为数组，匹配register和login这两个路由为白名单
+
+```js
+// 注意：放在路由前面
+app.use(expressJWT({ secret: secretKey })).unless({ // 配置白名单
+  path: [/\/api\/register/, /\/api\/login/]
+}))
+```
+
+接口白名单：path，匹配/api开头的路由都是白名单
+
+```js
+// 注意：放在路由前面
+app.use(expressJWT({ secret: secretKey })).unless({ // 配置白名单
+  path: [/^\/api\//]
+}))
+```
+
+
+
+
+
+####  将 JWT 字符串还原为JSON 对象
+
+解析客户端发送的**Authorization 字段**
+
+```js
+// TODO_04：注册将 JWT 字符串解析还原成 JSON 对象的中间件
+// 注意：只要配置成功了 express-jwt 这个中间件，就可以把解析出来的用户信息，挂载到 req.user 属性上
+app.use(expressJWT({ secret: secretKey }).unless({ path: [/^\/api\//] }))
+```
+
+
+
+####  使用 req.user 获取用户信息
+
+```js
+app.get('/admin/getinfo', function (req, res) {
+  // TODO_05：使用 req.user 获取用户信息，并使用 data 属性将用户信息发送给客户端
+  console.log(req.user)
+  res.send({
+    status: 200,
+    message: '获取用户信息成功！',
+    data: req.user, // 要发送给客户端的用户信息
+  })
+})
+```
+
+
+
+####  捕获解析 JWT 失败后产生的错误
+
+当使用 express-jwt 解析 Token 字符串时，如果客户端发送过来的 Token 字符串**过期**或**不合法**，会产生一个**解析失败**
+
+的错误，影响项目的正常运行。
+
+```js
+// TODO_06：使用全局错误处理中间件，捕获解析 JWT 失败后产生的错误
+app.use((err, req, res, next) => {
+  // 这次错误是由 token 解析失败导致的
+  if (err.name === 'UnauthorizedError') {
+    return res.send({
+      status: 401,
+      message: '无效的token',
+    })
+  }
+  res.send({
+    status: 500,
+    message: '未知的错误',
+  })
+})
+```
+
+
+
+#### 整合
+
+```js
+// 导入 express 模块
+const express = require('express')
+// 创建 express 的服务器实例
+const app = express()
+
+// TODO_01：安装并导入 JWT 相关的两个包，分别是 jsonwebtoken 和 express-jwt
+const jwt = require('jsonwebtoken')
+const expressJWT = require('express-jwt')
+
+// 允许跨域资源共享
+const cors = require('cors')
+app.use(cors())
+
+// 解析 post 表单数据的中间件
+const bodyParser = require('body-parser')
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// TODO_02：定义 secret 密钥，建议将密钥命名为 secretKey
+const secretKey = 'itheima No1 ^_^'
+
+// TODO_04：注册将 JWT 字符串解析还原成 JSON 对象的中间件
+// 注意：只要配置成功了 express-jwt 这个中间件，就可以把解析出来的用户信息，挂载到 req.user 属性上
+app.use(expressJWT({ secret: secretKey }).unless({ path: [/^\/api\//] }))
+
+// 登录接口
+app.post('/api/login', function (req, res) {
+  // 将 req.body 请求体中的数据，转存为 userinfo 常量
+  const userinfo = req.body
+  // 登录失败
+  if (userinfo.username !== 'admin' || userinfo.password !== '000000') {
+    return res.send({
+      status: 400,
+      message: '登录失败！',
+    })
+  }
+  // 登录成功
+  // TODO_03：在登录成功之后，调用 jwt.sign() 方法生成 JWT 字符串。并通过 token 属性发送给客户端
+  // 参数1：用户的信息对象
+  // 参数2：加密的秘钥
+  // 参数3：配置对象，可以配置当前 token 的有效期
+  // 记住：千万不要把密码加密到 token 字符中
+  const tokenStr = jwt.sign({ username: userinfo.username }, secretKey, { expiresIn: '30s' })
+  res.send({
+    status: 200,
+    message: '登录成功！',
+    token: tokenStr, // 要发送给客户端的 token 字符串
+  })
+})
+
+// 这是一个有权限的 API 接口
+app.get('/admin/getinfo', function (req, res) {
+  // TODO_05：使用 req.user 获取用户信息，并使用 data 属性将用户信息发送给客户端
+  console.log(req.user)
+  res.send({
+    status: 200,
+    message: '获取用户信息成功！',
+    data: req.user, // 要发送给客户端的用户信息
+  })
+})
+
+// TODO_06：使用全局错误处理中间件，捕获解析 JWT 失败后产生的错误
+app.use((err, req, res, next) => {
+  // 这次错误是由 token 解析失败导致的
+  if (err.name === 'UnauthorizedError') {
+    return res.send({
+      status: 401,
+      message: '无效的token',
+    })
+  }
+  res.send({
+    status: 500,
+    message: '未知的错误',
+  })
+})
+
+// 调用 app.listen 方法，指定端口号并启动web服务器
+app.listen(8888, function () {
+  console.log('Express server running at http://127.0.0.1:8888')
+})
+```
+
 
 
 ## nodejs中使用模板引擎
