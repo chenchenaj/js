@@ -134,6 +134,14 @@ fs.readFile(path.join(__dirname,'a.txt'),'utf8',function (err,res) {
 
 
 
+### 用同步的方式读文件
+
+```js
+
+```
+
+
+
 
 
 ## 路径模块path
@@ -529,6 +537,25 @@ nodemon 执行的文件名
 
 
 
+### 插件(中间件)
+
+#### 解析post请求参数
+
+如果不适用这个插件，在req.body中得到的内容是undefined
+
+```js
+// 1. 导入解析表单数据的中间件 body-parser
+const parser = require('body-parser')
+// 2. 使用 app.use() 注册中间件
+app.use(parser.urlencoded({ extended: false }))
+```
+
+
+
+#### 解析get请求参数
+
+
+
 ### express路由
 
 在 Express 中，**路由指的是客户端的请求与服务器处理函数之间的映射关系**。
@@ -538,6 +565,8 @@ Express 中的路由分 3 部分组成，分别是请求的类型、请求的 UR
 ```javascript
 app.METHOD(PATH, HANDLER)
 ```
+
+> express是用send返回对象的内容，原生nodejs是用end返回对应的内容。原生nodejs返回的对象需要加JSON.stringtify转为字符串
 
 #### 路由的匹配过程
 
@@ -1183,6 +1212,62 @@ app.use('/api', router)
 app.listen(80, () => {
   console.log('express server running at http://127.0.0.1')
 })
+```
+
+
+
+### Express+MYSQL
+
+#### 初始化项目
+
+```shell
+npm init -y
+```
+
+
+
+#### 安装mysql 模块
+
+mysql 模块是托管于 npm 上的第三方模块。它提供了在 Node.js 项目中连接和操作 MySQL 数据库的能力。
+
+```shell
+npm i mysql
+```
+
+
+
+#### 配置mysql 模块
+
+电脑的服务要先启动MySQL的服务
+
+在使用 mysql 模块操作 MySQL 数据库之前，必须先对 mysql 模块进行必要的配置，主要的配置步骤如下
+
+```js
+// 1. 导入 mysql 模块
+const mysql = require('mysql')
+// 2. 建立与 mysql 数据库的链接
+const db = mysql.createPool({
+  host: '127.0.0.1', // 数据库的ip地址
+  user: 'root', // 登录数据库的账号
+  password: 'admin123', // 登录数据库的密码
+  database: 'my_db_01', // 指定要操作的那个数据库名称
+})
+```
+
+
+
+#### 测试 mysql 模块能否正常工作
+
+调用 db.query() 函数，指定要执行的 SQL 语句，通过回调函数拿到执行的结果
+
+```js
+// 测试 mysql 模块能否正常工作
+db.query('select 1', (err, results) => {
+  // mysql 模块工作期间报错了
+  if(err) return console.log(err.message)
+  // 能够成功的执行 SQL 语句
+  console.log(results)
+}) 
 ```
 
 
