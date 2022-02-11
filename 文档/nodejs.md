@@ -1,4 +1,4 @@
-# nodejs
+# [nodejs][GitHub - sindresorhus/awesome-nodejs: Delightful Node.js packages and resources](https://github.com/sindresorhus/awesome-nodejs)
 
 - Node.js 是什么
   + JavaScript 运行时
@@ -136,8 +136,70 @@ fs.readFile(path.join(__dirname,'a.txt'),'utf8',function (err,res) {
 
 ### 用同步的方式读文件
 
-```js
+封装promise读文件的操作
 
+readFile.js
+
+```js
+const fs = require('fs')
+const { promisify } = require('util')  // 用于将老式的Error first callback转换为Promise对象
+const path = require('path')
+
+const readFile = promisify(fs.readFile)
+
+exports.getDB = async (way) => {
+  const dbPath = path.join(__dirname, way)
+  const data = await readFile(dbPath, 'utf8')
+  return JSON.parse(data)
+}
+```
+
+使用
+
+```js
+const {getDB} = require('readFile')
+app.get('/',async (req, res) => {
+  try{
+    const list = await getDB('a.json')
+    console.log('list', list)
+  }catch(err){
+    console.log('err', err)
+  }
+})
+```
+
+
+
+### 用同步的方式写文件
+
+封装promise方式的写文件
+
+```js
+const fs = require('fs')
+const { promisify } = require('util')  // 用于将老式的Error first callback转换为Promise对象
+const path = require('path')
+
+const writeFile = promisify(fs.writeFile)
+
+exports.writeDB = async (db) => {
+  const dbPath = path.join(__dirname, way)
+  const data = JSON.stringify(db) // 不带格式的将数据写入文件
+ // const data = JSON.stringify(db, null, ' ') // 带格式的将数据写入文件
+  await writeFile(dbPath, data)
+}
+```
+
+使用
+
+```js
+const {wirteDB} = require('readFile')
+app.post('/',async (req, res) => {
+  try{
+    await writeDB({id: 1, name: 'yx'})
+  }catch(err){
+    console.log('err', err)
+  }
+})
 ```
 
 
@@ -455,71 +517,30 @@ app.listen(80, () => {
 
 
 
-### 托管静态资源
+### 处理静态资源
 
-如果希望在托管的静态资源访问路径之前，挂载路径前缀，则可以使用如下的方式：
-
-```js
-const express = require('express')
-const app = express()
-
-// 在这里，调用 express.static() 方法，快速的对外提供静态资源
-app.use(express.static('./clock')) // 在浏览器中直接访问http://localhost/clock/index.html
-
-app.listen(80, () => {
-  console.log('express server running at http://127.0.0.1')
-})
-```
-
-现在，你就可以访问 clock 目录中的所有文件了：
-
-http://localhost:3000/images/bg.jpg
-
-http://localhost:3000/css/style.css
-
-http://localhost:3000/js/login.js
-
-
-
-### 托管多个静态资源目录
-
-如果要托管多个静态资源目录，请多次调用 express.static() 函数
+参考文档：http://expressjs.com/en/starter/static-files.html
 
 ```js
-app.use(express.static('public'))
-app.use(express.static('files'))
-```
+// 开放 public 目录中的资源
+// 不需要访问前缀
+app.use(express.static("public"));
 
-访问静态资源文件时，express.static() 函数会根据目录的添加顺序查找所需的文件。
+// 开放 files 目录资源，同上
+app.use(express.static("files"));
 
+// 开放 public 目录，限制访问前缀
+app.use("/public", express.static("public"));
 
+// 开放 public 目录资源，限制访问前缀
+app.use("/static", express.static("public"));
 
-### 挂载路径前缀
-
-如果希望**在托管的静态资源访问路径之前，挂载路径前缀**，则可以使用如下的方式
-
-现在，你就可以通过带有 /public 前缀地址来访问 public 目录中的文件了：
-
-```js
-const express = require('express')
-const app = express()
-
-// 在这里，调用 express.static() 方法，快速的对外提供静态资源
-app.use('/public', express.static('public'))
-
-app.listen(80, () => {
-  console.log('express server running at http://127.0.0.1')
-})
-
+// 开放 publi 目录，限制访问前缀
+// path.join(__dirname, 'public') 会得到一个动态的绝对路径
+app.use("/static", express.static(path.join(__dirname, "public")));
 ```
 
 
-
-http://localhost:3000/public/images/kitten.jpg
-
-http://localhost:3000/public/css/style.css
-
-http://localhost:3000/public/js/app.js
 
 
 
@@ -539,20 +560,301 @@ nodemon 执行的文件名
 
 ### 插件(中间件)
 
-#### 解析post请求参数
+#### 解析请求体
 
-如果不适用这个插件，在req.body中得到的内容是undefined
+##### x-www-form-urlencoded类型
+
+```javascript
+app.use(express.urlencoded())
+```
+
+##### json类型
 
 ```js
-// 1. 导入解析表单数据的中间件 body-parser
-const parser = require('body-parser')
-// 2. 使用 app.use() 注册中间件
-app.use(parser.urlencoded({ extended: false }))
+// 解析json格式的请求体
+app.use(express.json())
+```
+
+##### octet-stream格式
+
+```js
+app.use(express.raw())
+```
+
+##### text格式
+
+```js
+app.use(express.text())
+```
+
+##### 托管静态文件
+
+```js
+app.use(express.static('/public'))
+```
+
+##### 带文件的表单POST请求
+
+
+
+#### 日志输出
+
+```shell
+npm install morgan
+```
+
+使用
+
+```js
+const morgan = require('morgan')
+app.use(morgan('dev')) // 只在dev环境开启日志打印
 ```
 
 
 
-#### 解析get请求参数
+#### 密码加密
+
+##### crypto(内置)
+
+##### bcrypt
+
+
+
+#### 跨域
+
+使用cors 中间件解决跨域问题
+
+cors 是 Express 的一个第三方中间件。通过安装和配置 cors 中间件，可以很方便地解决跨域问题。
+
+使用步骤分为如下 3 步：
+
+① 运行 `npm i cors@2.8.5` 安装中间件
+
+② 使用 const cors = require('cors') 导入中间件
+
+③ 在路由之前调用 app.use(cors()) 配置中间件
+
+> ① CORS 主要在服务器端进行配置。客户端浏览器**无须做任何额外的配置**，即可请求开启了 CORS 的接口。
+>
+> ② CORS 在浏览器中有兼容性。只有支持 XMLHttpRequest Level2 的浏览器，才能正常访问开启了 CORS 的服
+>
+> 务端接口（例如：IE10+、Chrome4+、FireFox3.5+）
+
+```js
+// 导入 express
+const express = require('express')
+// 创建服务器实例
+const app = express()
+
+// 配置解析表单数据的中间件
+app.use(express.urlencoded({ extended: false }))
+
+// 一定要在路由之前，配置 cors 这个中间件，从而解决接口跨域的问题
+const cors = require('cors')
+app.use(cors())
+
+// 导入路由模块
+const router = require('./16.apiRouter')
+// 把路由模块，注册到 app 上
+app.use('/api', router)
+
+// 启动服务器
+app.listen(80, () => {
+  console.log('express server running at http://127.0.0.1')
+})
+```
+
+
+
+
+
+#### 数据校验
+
+##### [express-validator](https://express-validator.github.io/docs/)
+
+```shell
+npm install --save express-validator
+```
+
+中间件
+
+```js
+const express = require('express');
+const { validationResult, ValidationChain } = require('express-validator');
+// can be reused by many routes
+
+// parallel processing
+const validate = validations => {
+  return async (req, res, next) => {
+    await Promise.all(validations.map(validation => validation.run(req)));
+
+    const errors = validationResult(req);
+    if (errors.isEmpty()) {
+      return next();
+    }
+
+    res.status(400).json({ errors: errors.array() });
+  };
+};
+```
+
+校验
+
+```js
+const { body } = require('express-validator');
+const validate = require('./middleware/validate.js')
+exports.register = validate([
+  body('user.username').notEmpty().withMessage('用户名不能为空').custom(async username => {
+    // 到数据库查找有没有相关的用户
+    if(user){
+      return Promise.reject('用户名已存在')
+    }
+  })
+   body('user.password').notEmpty().withMessage('密码不能为空')
+])
+```
+
+路由中使用
+
+```js
+const userValidate = require('./validate/user.js')
+router.post('/regiser', userValidate.register, user_handler.regUser)
+```
+
+
+
+
+
+##### [joi](https://joi.dev/api/?v=17.5.0)
+
+```shell
+ npm i @hapi/joi
+ npm i @escook/express-joi
+```
+
+封装
+
+```js
+// 导入定义验证规则的包
+const joi = require('@hapi/joi')
+
+// 定义用户名和密码的验证规则
+const username = joi.string().alphanum().min(1).max(10).required()
+const password = joi
+  .string()
+  .pattern(/^[\S]{6,12}$/)
+  .required()
+
+// 定义验证注册和登录表单数据的规则对象
+exports.reg_login_schema = {
+  body: {
+    username,
+    password,
+  },
+}
+```
+
+使用
+
+```js
+// 导入用户路由处理函数对应的模块
+const user_handler = require('../router_handler/user')
+
+// 1. 导入验证数据的中间件
+const expressJoi = require('@escook/express-joi')
+// 2. 导入需要的验证规则对象
+const { reg_login_schema } = require('../schema/user')
+
+// 注册新用户
+router.post('/regiser', expressJoi(reg_login_schema), user_handler.regUser)
+```
+
+
+
+### 封装中间件
+
+#### 错误提示中间件一(函数)
+
+中间件
+
+```js
+// 一定要在路由之前，封装 res.cc 函数
+app.use((req, res, next) => {
+  // err 的值，可能是一个错误对象，也可能是一个错误的描述字符串
+  res.cc = (err, status = 500) => {
+    res.send({
+      status,
+      message: err instanceof Error ? err.message : err,
+    })
+  }
+  next()
+})
+```
+
+使用
+
+```js
+router.post('/user/add', (req, res) => {
+  db.query(sql, { username: userinfo.username, password: userinfo.password }, (err, results) => {
+      // 判断 SQL 语句是否执行成功
+      // if (err) return res.send({ status: 1, message: err.message })
+      if (err) return res.cc(err)
+      // 判断影响行数是否为 1
+      if (results.affectedRows !== 1) return res.cc('注册用户失败，请稍后再试！')
+      // 注册用户成功
+      res.cc('注册成功！', 0)
+    })
+})
+```
+
+
+
+#### 错误提示中间件二
+
+中间件
+
+```js
+// 一定要在路由之前，封装 res.cc 函数
+app.use((req, res, next) => {
+  // err 的值，可能是一个错误对象，也可能是一个错误的描述字符串
+  res.status(500).json({
+    error: err.message
+  })
+})
+```
+
+使用
+
+```js
+router.post('/user/list', (req, res) => {
+  try{
+    // 对应的操作
+  }catch(err){
+    next(err)
+  }
+})
+```
+
+
+
+#### 处理404错误
+
+```js
+app.use((req,res,next)=>{
+  res.status(404).send('404 Not Found')
+})
+```
+
+
+
+#### 处理其他错误
+
+```js
+app.use((err, req, res, next) => {
+  console.log('发生了错误！' + err.message)
+  res.send('Error：' + err.message)
+})
+```
 
 
 
@@ -1029,7 +1331,7 @@ app.listen(80, function () {
 
 
 
-#### ⑤ 第三方的中间件
+#### ⑤ [第三方的中间件][GitHub - sindresorhus/awesome-nodejs: Delightful Node.js packages and resources](https://github.com/sindresorhus/awesome-nodejs)
 
 body-parser
 
@@ -1166,52 +1468,6 @@ router.post('/post', (req, res) => {
 })
 
 module.exports = router
-```
-
-
-
-### 跨域问题
-
-使用cors 中间件解决跨域问题
-
-cors 是 Express 的一个第三方中间件。通过安装和配置 cors 中间件，可以很方便地解决跨域问题。
-
-使用步骤分为如下 3 步：
-
-① 运行 `npm i cors@2.8.5` 安装中间件
-
-② 使用 const cors = require('cors') 导入中间件
-
-③ 在路由之前调用 app.use(cors()) 配置中间件
-
-> ① CORS 主要在服务器端进行配置。客户端浏览器**无须做任何额外的配置**，即可请求开启了 CORS 的接口。
->
-> ② CORS 在浏览器中有兼容性。只有支持 XMLHttpRequest Level2 的浏览器，才能正常访问开启了 CORS 的服
->
-> 务端接口（例如：IE10+、Chrome4+、FireFox3.5+）
-
-```js
-// 导入 express
-const express = require('express')
-// 创建服务器实例
-const app = express()
-
-// 配置解析表单数据的中间件
-app.use(express.urlencoded({ extended: false }))
-
-// 一定要在路由之前，配置 cors 这个中间件，从而解决接口跨域的问题
-const cors = require('cors')
-app.use(cors())
-
-// 导入路由模块
-const router = require('./16.apiRouter')
-// 把路由模块，注册到 app 上
-app.use('/api', router)
-
-// 启动服务器
-app.listen(80, () => {
-  console.log('express server running at http://127.0.0.1')
-})
 ```
 
 
