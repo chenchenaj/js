@@ -52,11 +52,133 @@ router: {
 
 ### 动态路由
 
+>  在 Nuxt.js 里面定义带参数的动态路由，需要创建对应的**以下划线作为前缀**的 Vue 文件 或 目录.
+
+1. ####  目录结构：
+
+   ```
+   pages/
+   --| _slug/
+   -----| comments.vue
+   -----| index.vue
+   --| users/
+   -----| _id.vue
+   --| index.vue
+   ```
+
+2. #### Nuxt.js 生成对应的路由配置表为：
+
+   - 你会发现名称为 `users-id` 的路由路径带有 `:id?` 参数，表示该路由是可选的。**如果你想将它设置为必选的路由，需要在 `users/_id` 目录内创建一个 `index.vue` 文件**
+   - **警告：**`generate` 命令会忽略动态路由: [API Configuration generate](https://gitee.com/link?target=https%3A%2F%2Fwww.nuxtjs.cn%2Fapi%2Fconfiguration-generate%23routes)
+
+   ```
+   router: {
+     routes: [
+       {
+         name: 'index',
+         path: '/',
+         component: 'pages/index.vue'
+       },
+       {
+         name: 'users-id',
+         path: '/users/:id?',	// users-id 的路由路径带有 :id? 参数，表示该路由是可选的
+         component: 'pages/users/_id.vue'
+       },
+       {
+         name: 'slug',
+         path: '/:slug',
+         component: 'pages/_slug/index.vue'
+       },
+       {
+         name: 'slug-comments',
+         path: '/:slug/comments',
+         component: 'pages/_slug/comments.vue'
+       }
+     ]
+   }
+   ```
+
 ### 扩展路由
+
+>  在 nuxt.config.js 中对 router 属性进行配置
+>
+> 使用 extendRoutes(routes, resolve) => {}
+
+- ##### 第一个参数：routes
+
+  > 携带了所有路由信息，通过往数组 push 对象 对 路由进行扩展
+
+- ##### 第二个参数：resolve
+
+  > 使用该参数找到对应的文件位置
+
+```js
+  router: {
+    middleware: "auth",
+    extendRoutes(routes, resolve) {
+      // 扩展路由
+      routes.push(
+        {
+          name: "home",
+          path: "/index2",
+          // 使用 resolve 找到磁盘的位置
+          component: resolve(__dirname, "pages/index2.vue"),
+        },
+        {
+          name: "first",
+          path: "/index",
+          // 使用 resolve 找到磁盘的位置
+          component: resolve(__dirname, "pages/index.vue"),
+        }
+      );
+    },
+  }
+```
 
 page下没有当前请求路径的路由，请求这个路径的时候页面会报错，可以通过`nuxt.config.js`中的router配置扩展路由来将这个路径匹配到对应的组件
 
 ![image-20220218110614175](https://gitee.com/yx102/pic/raw/master/img/202202181106247.png)
+
+### 嵌套路由
+
+1. 先创建一个一级页面，同时创建一个与之同名的文件夹
+
+   ```bash
+   pages/
+   --| users/
+   -----| _id.vue
+   -----| index.vue
+   --| users.vue
+   ```
+
+2. 文件夹所存储的 vue 文件就是这个一级页面的嵌套子路由，自动生成路由如下：
+
+   ```js
+   router: {
+     routes: [
+       {
+         path: '/users',
+         component: 'pages/users.vue',
+         children: [
+           {
+             path: '',
+             component: 'pages/users/index.vue',	// 子路由默认显示
+             name: 'users'
+           },
+           {
+             path: ':id',
+             component: 'pages/users/_id.vue',		// 子路由下面的动态路由
+             name: 'users-id'
+           }
+         ]
+       }
+     ]
+   }
+   ```
+
+3. 需要在页面中显示子视图内容：`<nuxt-child/>`
+
+3. 内部支持动态多层嵌套路由，即可多层传参
 
 
 
@@ -94,7 +216,48 @@ page下没有当前请求路径的路由，请求这个路径的时候页面会�
 
 
 
-## 中间件
+## nuxtServerInit
+
+> 参考链接：https://www.nuxtjs.cn/guide/vuex-store
+
+> ###### 当我们<span style="color: red">想将服务端的一些数据传到客户端时</span>，这个方法是灰常好用的，该方法只执行一次
+>
+> 只在服务端执行
+
+- ##### 放置在action对象中，亦可以单独拿出做函数
+
+- ##### 函数表达式：nuxtServerInit(store, context) => { }
+
+  - 第一个参数：关于store管理树的数据对象
+
+    ```js
+    {                                                                                 
+      dispatch: [Function: boundDispatch],
+      commit: [Function: boundCommit],
+      getters: {},
+      state: {},
+      rootGetters: {},
+      rootState: {}
+    }
+    ```
+
+  - 第二个参数：nuxt全局上下文对象
+
+    > `nuxtServerInit` 方法接收的上下文对象和 `fetch` 的一样，**但不包括 `context.redirect()` 和 `context.error()`**
+
+- ##### tip：*异步*`nuxtServerInit`*操作必须返回 Promise 来通知*`nuxt`*服务器等待它们*
+
+  ```js
+  actions: {
+    async nuxtServerInit({ dispatch }) {
+      await dispatch('core/load')
+    }
+  }
+  ```
+
+
+
+## middleware
 
 ### 全局中间件
 
@@ -147,6 +310,150 @@ export default{
 
 
 > 中间件的执行顺序：全局中间件=》布局layout中间件=》页面中间件
+
+
+
+## validate
+
+在页面的js函数中进行校验，如果返回false页面就会提示`This page could not be found`，返回true页面才会正常显示
+
+```js
+<template>
+  <p>fjsdkfjdkj</p>
+</template>
+
+<script>
+export default {
+  name: 'IndexPage', 
+  middleware(){
+    console.log('当前页面的中间件')
+  },
+  validate(){
+    console.log('进行校验')
+    return true
+  }
+}
+</script>
+```
+
+
+
+## asyncData
+
+> ###### 在渲染组件之前异步获取数据，并且会跟页面本地data属性中的值进行合并
+>
+> 服务端和客户端都执行
+
+1. `asyncData`方法会在组件==（限于页面组件）==每次加载之前被调用
+
+2. 注意：由于`asyncData`方法是在组件 ==初始化== 前被调用的，所以在方法内是没有办法通过 `this` 来引用组件的实例对象。
+
+3. 报错提示可以使用上下文对象中的 error 方法
+
+   ```js
+     asyncData({ params, error }) {
+       return axios
+         .get(`https://my-api/posts/${params.id}`)
+         .then(res => {
+           return { title: res.data.title }
+         })
+         .catch(e => {
+           error({ statusCode: 404, message: 'Post not found' })
+         })
+     }
+   ```
+
+4. 第一个参数被设定为当前页面的==上下文对象==
+
+   - ##### 访问用户请求的`req`和`res`对象
+
+     ```js
+     async asyncData({ req, res }) {
+         // 请检查您是否在服务器端
+         // 使用 req 和 res
+         if (process.server) {
+           return { host: req.headers.host }
+         }
+       }
+     ```
+
+   - ##### 访问动态路由数据：params
+
+     ```js
+       async asyncData({ params }) {
+         const slug = params.slug // When calling /abc the slug will be "abc"
+         return { slug }
+       }
+     ```
+
+   - ##### 监听 query 参数改变
+
+     > 默认情况下，query 的改变不会调用`asyncData`方法。如果要监听这个行为，例如，在构建分页组件时，您可以设置应通过页面组件的`watchQuery`属性监听参数。了解更多有关[API watchQuery](https://www.nuxtjs.cn/api/pages-watchquery)的信息。
+
+5. #### 返回数据方式，一般配合 axios模块 做数据请求
+
+  - ##### 返回 Promise
+
+    ```js
+      asyncData({ params }) {
+        return axios.get(`https://my-api/posts/${params.id}`).then(res => {
+          return { title: res.data.title }
+        })
+      }
+    ```
+
+  - ##### 使用 async 或 await
+
+    ```js
+      async asyncData({ params }) {
+        const { data } = await axios.get(`https://my-api/posts/${params.id}`)
+        return { title: data.title }
+      }
+    ```
+
+  - ##### ==使用 回调函数（第二个参数）==
+
+    ```js
+      asyncData({ params }, callback) {
+        axios.get(`https://my-api/posts/${params.id}`).then(res => {
+          callback(null, { title: res.data.title })
+        })
+      }
+    ```
+
+  
+
+ ## fetch
+
+> 参考链接：https://www.nuxtjs.cn/api/pages-fetch
+
+> ###### fetch 方法用于在渲染页面前填充应用的状态树（store）数据，<span style="color: red"> 与 asyncData 方法类似，不同的是它不会设置组件的数据。</span>
+
+> 服务端和客户端都执行
+
+1. ##### fetch 方法的第一个参数是页面组件的[上下文对象](https://www.nuxtjs.cn/api/#上下文对象) context
+
+2. ##### 为了让获取过程可以异步（比如调用 store 中的actions函数），你需要**返回一个 Promise**，Nuxt.js 会等这个 promise 完成后再渲染组件
+
+  ```js
+  <script>
+    export default {
+      fetch({ store, params }) {
+        return axios.get('http://my-api/stars').then(res => {
+          store.commit('setStars', res.data)
+        })
+      }
+    }
+  </script>
+  ```
+
+3. ##### **警告**: 您无法在内部使用`this`获取**组件实例**，`fetch`是在**组件初始化之前**被调用
+
+4. ##### 监听 query 字符串的改变
+
+   > 默认情况下，不会在查询字符串更改时调用`fetch`方法。如果想更改此行为，例如，在编写分页组件时，您可以设置通过页面组件的`watchQuery`属性来监听参数的变化。了解更多有关 [API `watchQuery` page](https://www.nuxtjs.cn/api/pages-watchquery)的信息。
+   
+   
 
 ## 过渡动效
 
@@ -539,17 +846,72 @@ export default {
 
 
 
-## 数据持久化和token校验
+## 状态持久化与token校验
 
-安装`cookie-universal-nuxt`插件
+1.安装一个cookies包：cookie-universal-nuxt
 
-登录时，同步vuex && cookie，强制刷新后，nuxtServerInit钩子取出cookies，同步vuex，axios拦截器读取vuex的值
-
-```js
-
+```bash
+ npm i cookie-universal-nuxt -S
 ```
 
 
+
+2.状态持久化
+
+- #### 在nuxt.config.js中引入
+
+  ```js
+    modules: [
+      '@nuxtjs/axios',
+      'cookie-universal-nuxt'
+    ],
+  ```
+
+- #### 登录时，同步 Vuex && cookies
+
+  ```js
+  async login () {
+        // 1 发送请求
+        let { data: { token } } = await this.$axios({...})
+        // 2 同步 vuex 和 cookies
+        this.$cookies.set('user', token)
+        this.$store.commit('user/SET_COOKIE', token)
+        // 3 设置 nuxtServerInit 读取 token
+        // 4 设置 拦截器 在请求数据的时候 带上token
+        // 5 登录成功后执行跳转
+        let path = this.$route.query.path
+        if (path && /login/.test(path)) {
+          this.$router.replace('/')
+        } else {
+          this.$router.replace(path)
+        }
+      }
+  ```
+
+- #### 强制刷新后，nuxtServerInit钩子，取出cookies，同步Vuex
+
+  ```js
+    nuxtServerInit (store, { app: { $cookies } }) {
+      // 1 获取cookies
+      let token = $cookies.get('user')
+      // 2 有则传入 Vuex 
+      store.commit('user/SET_COOKIE', token || '')
+    }
+  }
+  ```
+
+- #### axios拦截器读取Vuex
+
+  ```js
+  export default ({ store: { state }, route, redirect, params, query, req, res }) => {
+    if (route.fullPath != '/' && !(/login|reg/.test(route.fullPath))) {
+      // 判断是否有token，无则跳转
+      if (!state.user.token) {
+        redirect("/login?path=" + route.fullPath);
+      }
+    }
+  };
+  ```
 
 
 
@@ -766,71 +1128,6 @@ async asyncData ({ $axios }) {
 
 
 
-
-
-
-## 校验
-
-在页面的js函数中进行校验，如果返回false页面就会提示`This page could not be found`，返回true页面才会正常显示
-
-```js
-<template>
-  <p>fjsdkfjdkj</p>
-</template>
-
-<script>
-export default {
-  name: 'IndexPage', 
-  middleware(){
-    console.log('当前页面的中间件')
-  },
-  validate(){
-    console.log('进行校验')
-    return true
-  }
-}
-</script>
-```
-
-
-
-## 异步处理函数
-
-`asyncData`和`fetch`
-
-```js
-
-<script>
-export default {
-  name: "IndexPage",
-  // middleware: 'auth',
-  data() {
-    return{
-      a: 1
-    }
-  },
-  middleware() {
-    console.log("当前页面的中间件");
-  },
-  validate() {
-    console.log("进行校验");
-    return true;
-  },
-  asyncData({ store }) {
-    console.log("异步业务逻辑，读取服务端数据");
-    return { // 数据会合并到data中
-      b: 2
-    };
-  },
-  fetch({ store }) {
-    console.log("异步业务数据，读服务器数据提交到vuex中");
-  },
-};
-</script>
-```
-
-
-
 ## 生命周期函数
 
 可以运行在SSR && CSR的钩子：beforeCreated，created
@@ -864,3 +1161,302 @@ export default {
 跟注册指令差不多
 
 ![image-20220225114527648](https://gitee.com/yx102/pic/raw/master/img/202202251145740.png)
+
+
+
+## meta信息注入
+
+在nuxt.config.js文件中配置会在组件的head函数中配置，渲染的时候会将内容动态插入到项目的指定位置中
+
+![image-20220228100128302](https://gitee.com/yx102/pic/raw/master/img/202202281001383.png)
+
+
+
+### 1.全局meta注入
+
+**<span style="color: red">为了避免子组件中的 meta 标签不能正确覆盖父组件中相同的标签而产生重复的现象，建议利用 `hid` 键为 meta 标签配一个唯一的标识编号</span>**
+
+```js
+  head: {
+    title: "sishen独家网站 ",
+    meta: [
+      {
+        charset: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+      {
+        hid: "description",
+        name: "description",
+        content: process.env.npm_package_description || "",
+      },
+    ],
+    link: [
+      {
+        rel: "icon",
+        type: "image/x-icon",
+        href: "/favicon.ico",
+      },
+    ],
+  },
+```
+
+
+
+### 2.页面meta[个性化注入](https://www.nuxtjs.cn/api/pages-head)
+
+> ==页面中使用 head 函数，函数内部返回一个对象==
+>
+> **在 `head` 方法里可通过 `this` 关键字来获取组件的数据**，你可以利用页面组件的数据来设置个性化的 `meta` 标签。
+
+```js
+head() {
+      return {
+        title: this.title,
+        meta: [
+          {
+            hid: 'description',
+            name: 'description',
+            content: 'My custom description'
+          }
+        ]
+      }
+```
+
+
+
+### 3.使用Vue混合函数使注入更方便
+
+```js
+// 全局
+Vue.mixin({
+  methods: {
+    $seo (title, content, payload = []) {
+      return {
+        title,
+        meta: [
+          {
+            hid: 'description',
+            name: 'keywords',
+            content
+          }
+        ].concat(payload)
+      }
+    }
+  }
+})
+ 
+```
+
+
+
+### 4.使用[Vue.use](https://cn.vuejs.org/v2/api/#Vue-use)
+
+- `assets\mixins\methods.js`
+
+  ```js
+  export default {
+    install (Vue) {
+      Vue.mixin({
+        methods: {
+          $mix () {
+            console.log('通过Vue.use注入')
+          }
+        },
+      })
+    }
+  }
+  ```
+
+- 引用
+
+  ```js
+  // 混入mixin
+  import methods from '~/assets/mixins/methods';
+  Vue.use(methods)
+  ```
+
+  
+
+
+
+## 项目使用scss
+
+#### 查看webpack版本是否对应该nuxt版本
+
+```js
+  "devDependencies": {
+    "sass": "^1.26.5",
+    "sass-loader": "^10.1.1",
+    "webpack": "^4.46.0"
+  }
+```
+
+#### 安装对应开发依赖
+
+```bash
+npm i sass@1.26.5 sass-loader@10.1.1 -D
+```
+
+#### config.nuxt.js中去引用
+
+```js
+  modules: [
+    "cookie-universal-nuxt",
+  ],
+
+```
+
+#### 全局引入1
+
+（该方法可以创建全局函数或变量注入到每个页面组件中）
+
+1. 安装模块
+
+   ```bash
+   npm i @nuxtjs/style-resources -D
+   ```
+
+2. 创建全局文件`assets\scss\global.scss`
+
+   ```scss
+   @mixin color {
+     color: #0099ff;
+     font-size: 24px;
+   }
+   $size: 36px;
+   ```
+
+3. `nuxt.config.js`中引入
+
+   ```js
+    styleResources: {
+       scss: [
+         "./assets/scss/global.scss",
+       ]
+     },
+   ```
+
+#### 全局引入2
+
+（该方法==不可以==创建全局函数或变量，只应用于每个布局layouts中，相当于==定义共同的样式==）
+
+> 该方法不需要安装任何模块
+
+1. 创建全局文件`assets\css\main.scss`
+
+   ```scss
+   body {
+   	background-color: #0099ff;
+   }
+   ```
+
+2. `nuxt.config.js`中引入
+
+   ```js
+     css: [
+       '@/assets/css/main.scss'
+     ],
+   ```
+
+
+
+## 自定义html模板
+
+在项目的根目录下创建app.html文件   在nuxt.config.js中配置的内容会根据当前的html内容展示（如果不配置会有一个默认的模板）
+
+```html
+<!DOCTYPE html>
+<html {{HTML_ATTRS}}>
+<head {{HEAD_ATTRS}}>
+  {{HEAD}}
+  <!-- 加入个性内容 -->
+</head>
+<body {{BODY_ATTRS}}>
+  {{APP}}
+</body>
+</html>
+```
+
+
+
+## 资源指向与引入
+
+nuxt项目中，一般存放资源有两个目录：
+
+- asssets：压缩且优化
+- static：无压缩，无优化，无损输出
+
+在static文件夹中的资源可以用绝对路径请求得到
+
+例如：static文件夹下有1.png文件
+
+```html
+<img src="/1.png">
+```
+
+在assets文件夹下的资源需要通过相对路径请求得到
+
+例如：assets文件下有a.png文件
+
+```html
+<img src="../assets/a.png">
+```
+
+
+
+## nuxt部署
+
+- nuxt(前端文件)
+  - `npm run build`	打包
+  - 需要将以下文件复制到服务器中
+    - .nuxt
+    - package.json
+    - package-lock.json
+    - nuxt.config.js
+    - static
+    - server 反向代理
+    - node_modules
+
+- api服务器(后端文件)
+  - 全部拷贝到服务器中
+
+- 阿里云服务器
+  - 需要开启安全组： 3000	9001
+  - 远程工具链接阿里云(finallShell)
+
+```shell
+pm2 start /usr/local/9001/bin/www --name=node9001
+cd /usr/local/3000
+pm2 --name=nuxt3000 start npm -- run start
+```
+
+
+
+## 缓存机制
+
+> *虽然 Vue 的 SSR 非常快，但由于创建组件实例和 Virtual DOM 节点的成本，它无法与纯粹基于字符串的模板的性能相匹配。在 SSR 性能至关重要的情况下，合理地利用缓存策略可以大大缩短响应时间并减少服务器负载。*
+
+- 使用 yarn 或 npm 将 `@nuxtjs/component-cache` 依赖项添加到项目中
+
+- 将 `@nuxtjs/component-cache` 添加到 `nuxt.config.js` 的`modules`部分
+
+  ```js
+  {
+    modules: [
+      // 简单的用法
+      '@nuxtjs/component-cache',
+  
+      // 配置选项
+      [
+        '@nuxtjs/component-cache',
+        {
+          max: 10000,
+          maxAge: 1000 * 60 * 60		// 一小时后过期
+        }
+      ]
+    ]
+  }
+  ```

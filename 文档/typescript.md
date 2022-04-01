@@ -1368,11 +1368,93 @@ const fragment: DocumentFragment = document.createDocumentFragment()
 
 
 
+# 面试题
+
+**type和interface的相同点**
+
+在我看来，它俩就是对 接口定义 的两种不同形式，目的都是一样的，都是用来定义 对象 或者 函数 的形状
+
+```typescript
+interface example {
+    name: string
+    age: number
+}
+type example = {
+    name: string
+    age: number
+}
+// 支持继承
+type exampleType1 = {
+    name: string
+}
+interface exampleInterface1 {
+    name: string
+}
+type exampleType2 = exampleType1 & {
+    age: number
+}
+type exampleType2 = exampleInterface1 & {
+    age: number
+}
+interface exampleInterface2 extends exampleType1 {
+    age: number
+}
+interface exampleInterface2 extends exampleInterface1 {
+    age: number
+}
+```
+**type和interface的不同点**
+
+type可以做到，但interface不能做到的事情
+
+**type可以定义 基本类型的别名**，如 type myString = string
+
+**type可以通过 typeof 操作符来定义**，如 type myType = typeof someObj
+
+**type可以申明 联合类型**，如 type unionType = myType1 | myType2
+
+**type可以申明 元组类型**，如 type yuanzu = [myType1, myType2]
+
+**interface可以 声明合并**，如果是**type的话，就会是 覆盖 的效果**，始终只有最后一个type生效
+
+```typescript
+interface test {
+    name: string
+}
+interface test {
+    age: number
+}
+/*
+    test实际为 {
+        name: string
+        age: number
+    }
+*/
+```
+
+​    
+
+    /*
+        test实际为 {
+            name: string
+            age: number
+        }
+    */
+
+
 # vue中使用typescript
+
+在vue中要支持ts的写法需要安装插件
+
+```shell
+npm i -S vue-property-decorator
+```
+
+
 
 - private title?: string; // 标识当前的参数是可选的
 - private num!: number; // 标识当前的参数一定有值
-- ?.是判断左边的值是否存在 例如：let name = data?.row?.name  => if(data && data.name) name = data.name.row ;、
+- ?.是判断左边的值是否存在 例如：let name = data?.row?.name  => if(data && data.name) name = data.name.row ;
 - ?? 和?: 和?.和!.的区别
 - ?:是指可选参数，可以理解为参数自动加上undefined
 - ?? 和 || 的意思有点相似，但是又有点区别,??相较||比较严谨, 当值等于0的时候||就把他给排除了，但是?? 不会
@@ -1390,7 +1472,9 @@ import { Vue, Component, Prop, Component, Emit, Watch, Model, Minxins} from 'vue
 
 
 
-## component
+## @component
+
+@Component装饰这个class，class中就可以给这个实例注入props,component等属性
 
 ```vue
 <script lang="ts">
@@ -1404,12 +1488,13 @@ import PersonCheckViewHistory from './PersonCheckViewHistory.vue'
     PersonCheckViewHistory
   }
 })
+export default class Home extends Vue {}
 </script>
 ```
 
 
 
-## prop
+## @prop
 
 ```vue
 <template>
@@ -1440,7 +1525,7 @@ export default index extends Vue{
 
 
 
-## watch
+## @watch
 
 ```vue
 import { Vue, Watch } from 'vue-property-decorator'
@@ -1501,7 +1586,7 @@ import { Vue } from 'vue-property-decorator'
 
 
 
-## emit
+## @emit
 
 ```vue
 <script>
@@ -1537,7 +1622,7 @@ export default {
 
 
 
-## model
+## @model
 
 model要在component中使用才生效
 
@@ -1691,6 +1776,14 @@ export default class LoginPopup extends Mixins(tipsMixin)  {
 
 ## vuex
 
+需要下载[vue-class](https://www.npmjs.com/package/vuex-class)插件
+
+```shell
+ npm install --save vuex-class
+```
+
+
+
 ### index.ts
 
 ```typescript
@@ -1760,6 +1853,27 @@ declare namespace Store {
     authorInfo: AnyObject,
   }
 }
+```
+
+
+
+### 使用state
+
+```vue
+<template>
+	<view class="label">{{authorInfo.name}}</view>
+</template>
+
+<script>
+import { Vue, Component } from 'vue-property-decorator'
+import { State } from 'vuex-class'
+import { loadAddActivity } from '@/api/home'
+
+@Component // @Component装饰这个class，class中就可以给这个实例注入props,component等属性
+export default class CheckInfo extends Vue { // CheckInfo是vue的文件名
+  @State authorInfo!: AnyArray
+}
+</script>
 ```
 
 

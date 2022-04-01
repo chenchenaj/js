@@ -210,3 +210,49 @@ export const checkHasId = (arr, id) => {
 }
 ```
 
+## 转换base64
+
+```js
+export const getBase64 = (file) => {
+  return new Promise(function (resolve, reject) {
+    let reader = new FileReader();
+    let imgResult = "";
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+      imgResult = reader.result;
+    };
+    reader.onerror = function (error) {
+      reject(error);
+    };
+    reader.onloadend = function () {
+      resolve(imgResult);
+    };
+  });
+}
+```
+
+
+
+## 文件流下载
+
+```js
+export const downloadFile = (item) => {
+  this.api.post(global_.downloadUrl, item, {
+    responseType: 'blob'
+  }).then((data) => {
+    var blob = new Blob([data], {
+      type: 'application/actet-stream;charset=utf-8'
+    });
+    var downloadElement = document.createElement('a');
+    var href = window.URL.createObjectURL(blob); //创建下载的链接
+    downloadElement.style.display = 'none';
+    downloadElement.href = href;
+    downloadElement.download = item.name; //下载后文件名
+    document.body.appendChild(downloadElement);
+    downloadElement.click(); //点击下载
+    document.body.removeChild(downloadElement); //下载完成移除元素
+    window.URL.revokeObjectURL(href); //释放掉blob对象
+  });
+}
+```
+
