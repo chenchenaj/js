@@ -74,6 +74,38 @@ initControl(element) {
 
 
 
+## 动画Animation
+
+```js
+const loop = () => {
+    // 执行对应的动画效果
+    renderer.render(this.scene, this.camera)
+    window.requestAnimationFrame(loop) // 不断调用loop函数
+}
+loop() // 首次执行loop函数
+```
+
+
+
+结合clock来使用
+
+```js
+const time = new THREE.Clock()
+
+const loop = () => {
+    const delta = time.getElapsedTime ()
+    cube.rotation.y = delta // 这里是直接使用等于而不是加等于
+    // 执行对应的动画效果
+    renderer.render(this.scene, this.camera)
+    window.requestAnimationFrame(loop) // 不断调用loop函数
+}
+loop()
+```
+
+
+
+
+
 ## 燈光Light
 
 环境光AmbientLight
@@ -128,6 +160,34 @@ console.log('intersects', intersects)
 ```
 
 
+
+## 材质Material
+
+使用透明度
+
+material.transparent = true
+
+material.opacity = 0.5
+
+显示骨架
+
+material.wireframe = true
+
+metalness
+
+roughness
+
+aoMap
+
+aoMapIntensity
+
+displacementMap
+
+displacementScale
+
+normalMap 
+
+envMap
 
 ## 纹理
 
@@ -201,11 +261,13 @@ initStats(ele){
 - 显示单选框设置visible
 - 显示颜色使用addColor添加
 - 显示复选框使用options添加列表可选项
+- 设置面板是否关闭closed
+- 设置面板的宽度width
 
 ```js
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 initGui(){
-  const gui = new GUI()
+  const gui = new GUI({closed: true, width: 400})
   const stars = this.scene.children
   const params = {
     showSun: true,
@@ -220,6 +282,10 @@ initGui(){
   })
   gui.addColor(params, "color").onChange(e => { //点击颜色面板，e为返回的10进制颜色
 		console.log('color', e)
+      // 方式一
+      stars[0].color = new THREE.Color(e)
+      // 方式二
+      stars[0].color.set(e) 
   });
   gui.add(params, "size", 0.1, 30).onChange(e => { //该滑块的值域是[0.1,30],e为返回的滑块值
 		console.log('size', e)
@@ -228,6 +294,17 @@ initGui(){
     console.log('state', e)
   })
 }
+```
+
+区分开来的写法
+
+```js
+gui
+    .add(mesh.position, 'y')
+    .min(-3)
+    .max(3)
+    .step(0.01)
+    .name('y轴')
 ```
 
 
@@ -333,6 +410,15 @@ initFont() {
     }
   );
 },
+```
+
+```javascript
+// .computeBoundingBox()方法计算.boundingBox的属性值
+geometry.computeBoundingBox();
+console.log('包围盒属性', geometry.boundingBox);
+// 包围球相关属性和计算方法和包围盒一样
+geometry.computeBoundingSphere();
+console.log('包围球属性', geometry.boundingSphere);
 ```
 
 
