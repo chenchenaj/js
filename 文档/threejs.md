@@ -62,8 +62,9 @@ const geometry = new THREE.BoxGeometry(5, 5, 5)
 let spriteMaterial = new THREE.PointsMaterial({
   color: 0xffffff,
   size: 0.23,
-  transparent: true,
-  map: generateSprite(),
+  sizeAttenuation: true, // 指定点的大小是否因相机深度而衰减（仅限透视摄像头）
+  transparent: true, // 透明
+  map: generateSprite(), // 纹理
 })
 
 let points = new THREE.Points(geometry, spriteMaterial)
@@ -90,10 +91,18 @@ let points = new THREE.Points(geometry, spriteMaterial)
 ### PointMaterial 点材质
 
 ```js
+const geometry = new THREE.BoxGeometry(5, 5, 5)
+let spriteMaterial = new THREE.PointsMaterial({
+  color: 0xffffff,
+  size: 0.23,
+  transparent: true,
+  map: generateSprite(),
+})
 
+let points = new THREE.Points(geometry, spriteMaterial)
 ```
 
-线 Line
+### Line线材质
 
 ```js
 const material = new THREE.LineBasicMaterial({

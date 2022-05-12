@@ -1,5 +1,61 @@
 # react
 
+## 安装
+
+全局安装
+
+```shell
+npm install -g create-react-app
+```
+
+创建项目
+
+```shell
+create-react-app 项目名称
+```
+
+index.html的解析
+
+```html
+<html lang="en">
+  <head>
+		<meta charset="utf-8" />
+		<!-- %PUBLIC_URL%代表public文件夹的路径 -->
+		<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+		<!-- 开启理想视口，用于做移动端网页的适配 -->
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- 用于配置浏览器页签+地址栏的颜色(仅支持安卓手机浏览器) -->
+    <meta name="theme-color" content="red" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+		/>
+		<!-- 用于指定网页添加到手机主屏幕后的图标 -->
+		<link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+		<!-- 应用加壳时的配置文件 -->
+		<link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>React App</title>
+  </head>
+  <body>
+		<!-- 若llq不支持js则展示标签中的内容 -->
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
+```
+
+
+
+局部安装
+
+```shell
+npx create-react-app '项目名称'
+```
+
+
+
+
+
 ## 开发react依赖的三个库
 
 react：包含react所必须的核心代码
@@ -296,6 +352,10 @@ console.log('真实DOM',TDOM);
 
 
 ## 组件
+
+16.8版本之前：函数式组件是无状态组件
+
+16.8版本之后：函数式组件可以通过react hooks来记录使用
 
 ### 函数式组件
 
@@ -1317,54 +1377,6 @@ search = ()=>{
 
 
 
-# react脚手架
-
-## 安装
-
-全局安装
-
-```shell
-npm install -g create-react-app
-```
-
-创建项目
-
-```shell
-create-react-app 项目名称
-```
-
-index.html的解析
-
-```html
-<html lang="en">
-  <head>
-		<meta charset="utf-8" />
-		<!-- %PUBLIC_URL%代表public文件夹的路径 -->
-		<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-		<!-- 开启理想视口，用于做移动端网页的适配 -->
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<!-- 用于配置浏览器页签+地址栏的颜色(仅支持安卓手机浏览器) -->
-    <meta name="theme-color" content="red" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-		/>
-		<!-- 用于指定网页添加到手机主屏幕后的图标 -->
-		<link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-		<!-- 应用加壳时的配置文件 -->
-		<link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>React App</title>
-  </head>
-  <body>
-		<!-- 若llq不支持js则展示标签中的内容 -->
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
-</html>
-```
-
-
-
 # react-ajax
 
 ## 配置代理
@@ -2204,6 +2216,14 @@ deleteTodo = (id)=>{
 
 
 
+- 表达式{}
+
+```jsx
+{a+b}
+```
+
+
+
 - style={{}}
 
 
@@ -2213,7 +2233,7 @@ deleteTodo = (id)=>{
 
 
 
-- class的正确写法className
+- class的正确写法className，否则认为class类
 
 
 ```
@@ -2222,6 +2242,7 @@ deleteTodo = (id)=>{
 
 
 
+- onClick**不需要自己加小括号执行**
 - onClick={this.get('d')} 方法中有括号是直接调用，需要返回的是一个函数而不是函数的返回值
 
 
@@ -2288,10 +2309,14 @@ class App extends Component {
   render(){
     return(
       <HashRouter>
+            /*
+            Switch匹配到第一个路由就不会继续匹配了,如果不加Route 里不加 exact，那么凡是Link里面 to 的路径包含了/（ /about, /topic 都包含了 / ，当点击about或者topic的Link的时候，path=’/'的路由都会匹配到，Switch匹配到了一个就停止向下匹配），
+那么就会被匹配到，于是Switch就不继续匹配下去
+            */
         <Switch>
-        <Route path="/login" component={Login}/>
-        <Route path="/admin" component={Admin}/>
-        <Redirect to="/login" />>
+            <Route path="/login" component={Login}/>
+            <Route path="/admin" component={Admin}/>
+            <Redirect to="/login" />
         </Switch>
       </HashRouter>
     )
@@ -2306,4 +2331,162 @@ Login.vue
 收集信息
 
 用到高级函数和高阶组件
+
+```jsx
+import React, { Component } from 'react'
+import { Form, Icon, Input, Button,message } from 'antd';
+import {Redirect} from 'react-router-dom'
+import logo from '../../assets/images/logo192.png'
+import './Login.less'
+import {reqLogin} from '../../api/index'
+import storageUtils from '../../utils/storageUtils'
+import memoryUtils from '../../utils/memoryUtils'
+
+class Login extends Component {
+    handleSubmit = e => {
+        // 阻止表单的默认行为，默认提交
+        e.preventDefault();
+        this.props.form.validateFields(async (err, {username, password}) => {
+            if (!err) {
+                // 发送ajax请求获取数据
+                //const result = reqLogin({username},{password}) // 如果不加await，此处返回的是一个pending状态的promise【Promise {<pending>}】
+                const result = await reqLogin(username,password) // 返回的是一个对象的值
+                // 登录成功
+                if(result.status===0){
+                    const user = result.data
+                     // 登录成功后将用户的信息存储到localstorage中【方式一】
+                    // localStorage.setItem('user_key',JSON.stringify(user))
+
+                    // 登录成功后将用户的信息存储到localstorage中【方式二】
+                    storageUtils.saveUser(user)
+                    // 将用户信息存储到内存中
+                    memoryUtils.user = user
+
+                    this.props.history.replace('/admin')
+                    message.success('登录成功')
+                    
+                }else if(result.status===1){
+                    message.error(result.msg)
+                }
+            }else{
+                alert('验证失败')
+            }
+          });
+      };
+
+    //   自定义的密码校验规则
+      validatorPwd=(rule, value, callback)=>{
+        //   如果value为空，但是要使用trim(),需要给一个初始化值，否则可能不报错就找不到错误
+          value = value.trim()
+        if(!value){
+            callback('密码不能为空！')
+        }else if(value && value.length < 4){
+            callback('密码必须大于等于4位')
+        }else if(value && value.length > 12){
+            callback('密码必须小于等于12位')
+        }else if(!/^[a-zA-Z0-9_]+$/.test(value)){
+            callback('必须是英文、数字或下划线组成')
+        }else{
+            // Note: 必须总是返回一个 callback，否则 validateFieldsAndScroll 无法响应
+            callback()
+        }
+      }
+    
+
+    render() { 
+        // 获取用户信息【方式一】
+        // const user = JSON.parse(localStorage.getItem('user_key') || '{}')
+
+        // 获取用户信息【方式二】
+        const user = memoryUtils.user
+        if(user._id){
+            return <Redirect to="/admin"/>
+        }
+
+        // 接收到的 getFieldDecorator ，这个值是一个form对象中的值
+        const { getFieldDecorator } = this.props.form;
+        return (
+            <div className="login">
+                <div className="login_header">
+                    <img src={logo} alt="" />
+                    <h1>后台管理系统</h1>
+                </div>
+                <div className="login_content">
+                    <h2>用户登录</h2>
+                    <div className="login_form">
+                    <Form onSubmit={this.handleSubmit} className="login-form">
+                                <Form.Item>
+                                {getFieldDecorator('username', { // 配置对象，属性名是一个特定的名称
+                                /*
+                                    用户名/密码的的合法性要求
+                                    1). 必须输入
+                                    2). 必须大于等于4位
+                                    3). 必须小于等于12位
+                                    4). 必须是英文、数字或下划线组成
+                                */
+                                    rules: [
+                                        { required: true, message: '请输入用户名' },
+                                        { min: 4, message: '必须大于等于4位'},
+                                        { max: 12, message: '必须小于等于12位'},
+                                        // [a-zA-Z0-9_]+ 必须是a-zA-Z0-9_开头，+代表后面的也需要是这些字符
+                                        { pattern: /^[a-zA-Z0-9_]+$/, message: '必须是英文、数字或下划线组成'},
+                                ],
+                                })(
+                                    <Input
+                                    prefix={<Icon type="user" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                    placeholder="Username"
+                                    />,
+                                )}
+                                </Form.Item>
+                                <Form.Item>
+                                {getFieldDecorator('password', {
+                                    initialValue: '', // 初始值
+                                    rules: [
+                                        { validator: this.validatorPwd }
+                                    ],
+                                })(
+                                    <Input
+                                    prefix={<Icon type="lock" style={{ color: 'rgba(0,0,0,.25)' }} />}
+                                    type="password"
+                                    placeholder="Password"
+                                    />,
+                                )}
+                                </Form.Item>
+                                <Form.Item>
+                                <Button type="primary" htmlType="submit" className="login-form-button">
+                                    Log in
+                                </Button>
+                                </Form.Item>
+                        </Form>
+                   </div>
+                </div>
+            </div>
+        )
+    }
+}
+
+/**
+ * 理解Form 组件：是包含 <Form> 的组件
+ * 利用Form.create()包装Form组件生成一个新的组件
+ * 新组件会向form组件传递一个强大的属性：属性名：form，属性值对象
+ */
+
+ /**
+  * 高阶函数
+  *     定义：接收的参数是函数或则返回值是函数
+  *     常见的：数组遍历相关的方法 / 定时器 / Promise / 高阶函数
+  *     作用：实现一个更加强大，动态的功能
+  */
+
+  /**
+   * 高阶组件：
+   *    本质是组件类，是一个构造函数，组件对象是一个实例
+   *    函数接收一个组件，返回一个新的组件
+   *    Form.create()返回的就是一个高阶组件
+   */
+
+const WrappedLoginForm = Form.create()(Login);
+
+export default WrappedLoginForm
+```
 
