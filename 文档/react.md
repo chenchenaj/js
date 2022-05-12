@@ -2242,11 +2242,11 @@ deleteTodo = (id)=>{
 
 
 
-- onClick**不需要自己加小括号执行**
+- react中的事件绑定与原生的事件绑定有什么不一样？react中的事件绑定没有绑定到DOM上，而是采用事件代理的模式
 - onClick={this.get('d')} 方法中有括号是直接调用，需要返回的是一个函数而不是函数的返回值
 
 
-```js
+```jsx
 // 含参数的调用方法
 <input onClick={this.get('a')} type="text" />
 
