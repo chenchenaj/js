@@ -26,12 +26,14 @@ vite诞生是为了提升web项目运行性能，以更快的速度将应用页�
 
 **必须安装Volar插件，用vscode编辑器**
 
-```js
-// 安装vite
-1、npm init vite@latest
+```shell
+# 安装vite
+npm init vite@latest
 
-// 安装vite同时创建vite项目
-2、npm init vite@latest my-vue-app --template vue
+# 使用vite创建vue项目
+npm init vite@latest my-vue-app --template vue
+# 使用vite创建vue-ts项目
+npm init @vitejs/app vite-vue3 --template vue-ts
 ```
 
 ```json
@@ -1345,3 +1347,579 @@ console.log(twiceTheCounter.value) // 2
 // 不能这样使用
 twiceTheCounter.value++ //错误用法
 ```
+
+
+
+
+
+### 1.1. 初始化git、安装依赖
+
+```shell
+git init (因为我们不是用的脚手架，默认不存在git仓库)
+npm install
+复制代码
+```
+
+### 1.2. 修改Vite配置文件
+
+```typescript
+import { defineConfig } from "vite"
+import vue from "@vitejs/plugin-vue"
+
+// 如果这里飘红则安装下依赖。
+// pnpm add @types/node -D
+// npm install @types/node -D
+// yarn add @types/node -D
+import { resolve } from "path"
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    // 配置别名
+    alias: {
+      "@": resolve(__dirname, "src")
+    },
+    extensions: [".js", ".json", ".ts", ".vue"] // 使用路径别名时想要省略的后缀名
+  },
+  server: {
+    proxy: {
+      // 选项写法
+      "/api": {
+        target: "http://localhost:9000", // 所要代理的目标地址
+        rewrite: (path) => path.replace(/^\/api/, ""), // 重写传过来的path路径，比如 `/api/index/1?id=10&name=zs`（注意:path路径最前面有斜杠（/），因此，正则匹配的时候不要忘了是斜杠（/）开头的；选项的 key 也是斜杠（/）开头的）
+        changeOrigin: true // true/false, 默认值:false - 将主机报头的来源更改为目标URL
+      }
+    }
+  }
+  // 此时会通过上面的代理规则，将源地址代理到目标地址，从而访问目标地址的接口
+  // 需要注意的是 /api开头的 /不能丢，正则匹配也是
+})
+
+复制代码
+```
+
+#### 1.2.1. 配置文件引用别名 alias
+
+上面配置了 `@` 指向 `src`的别名，现在修改`tsconfig.json` 中导入该配置文件，让配置生效 ，接下来让`Vscode`给出路径提示。
+
+```json
+  "compilerOptions": {
+    ...
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+复制代码
+```
+
+### 1.3. 规范目录结构
+
+```json
+└── src/
+    ├── assets/                    // 静态资源目录
+    ├── components/                // 公共组件目录
+    ├── router/                    // 路由配置目录
+    ├── store/                     // 状态管理目录
+    ├── style/                     // 通用 CSS 目录
+    ├── utils/                     // 工具函数目录
+    ├── views/                     // 页面组件目录
+    ├── App.vue
+    ├── main.ts
+    ├── env.d.ts
+├── .gitignore   
+├── index.html
+├── tsconfig.json                  // TypeScript 配置文件
+├── tsconfig.node.json
+├── vite.config.ts                 // Vite 配置文件
+├── README.md
+├── package-lock.json
+└── package.json
+
+复制代码
+```
+
+## 二、集成Vue Router
+
+### 2.1. 安装路由
+
+```shell
+  npm view vue-router versions        -- 查看vue-router版本
+  npm install vue-router@next         -- 安装
+复制代码
+```
+
+### 2.2. 创建src/router/index.ts
+
+​	在view目录下新建home-page.vue
+
+```typescript
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router"
+
+const routes: Array<RouteRecordRaw> = [
+  {
+    path: "/home",
+    name: "HomePage",
+    component: () => import(/* webpackChunkName: "Home" */ "@/views/home-page.vue")
+  },
+  { path: "/", redirect: { name: "HomePage" } }
+]
+
+const router = createRouter({
+  // history 模式,hash模式:createWebHashHistory()
+  history: createWebHashHistory(),
+  routes
+})
+
+export default router
+
+复制代码
+```
+
+### 2.3. 在main.ts中挂载
+
+```typescript
+import { createApp } from "vue";
+// 1.1 安装后 导入
+import router from "./router";
+import App from "@/App.vue";
+
+const app = createApp(App);
+// 1.2. use挂载
+app.use(router);
+app.mount("#app");
+复制代码
+```
+
+## 三、集成Pinna
+
+### 3.1. 安装pinia
+
+```shell
+yarn add pinia
+# or with npm
+npm install pinia
+复制代码
+```
+
+### 3.2. 在main.ts中挂载
+
+```typescript
+import { createApp } from "vue";
+import router from "./router";
+// 2.1. 安装后 导入
+import { createPinia } from "pinia";
+import App from "@/App.vue";
+
+
+const app = createApp(App);
+// 2.2. 创建pinia实例
+const pinia = createPinia();
+
+app.use(router);
+// 2.3. use挂载
+app.use(pinia);
+app.mount("#app");
+复制代码
+```
+
+### 3.3. 创建在src/store/index.ts文件
+
+```typescript
+import { defineStore } from "pinia";
+// 1.定义容器
+// 参数1： 容器的ID，必须唯一，将来pinia会把所有容器挂载到根容器
+// 参数2： 选项对象
+export const mainStore = defineStore("main", {
+  /**
+   * 类似于组件的data， 用来存储全局状态
+   * 1. 必须是函数，这样是为了在服务端渲染的时候避免交叉请求导致的数据状态污染
+   * 2. 必须是箭头函数，这样是为了更好的 TS 类型推导
+   * @returns  一个函数，调用得到容器实例
+   */
+  state: () => {
+    return {
+      msg: "第一个状态数据 Pinia",
+    };
+  },
+  /**
+   * 类似于组件的computed，用来封装计算属性，有缓存的功能
+   */
+  getters: {},
+  /**
+   * 类似于组件的methods，封装业务逻辑（同步，异步都可以），修改state
+   */
+  actions: {},
+});
+
+复制代码
+```
+
+## 四、 集成Element Plus
+
+### 4.1. 安装
+
+```shell
+# 选择一个你喜欢的包管理器
+# NPM
+$ npm install element-plus --save
+# Yarn
+$ yarn add element-plus
+# pnpm
+$ pnpm install element-plus
+复制代码
+```
+
+### 4.2. 自动按需导入
+
+您需要使用额外的插件来导入要使用的组件。
+
+首先你需要安装`unplugin-vue-components` 和 `unplugin-auto-import`这两款插件
+
+```shell
+npm install -D unplugin-vue-components unplugin-auto-import
+复制代码
+```
+
+### 4.3. 修改Vite配置文件
+
+```typescript
+// vite.config.ts
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+
+export default {
+  plugins: [
+    // ...
+    AutoImport({
+      resolvers: [ElementPlusResolver()],
+    }),
+    Components({
+      resolvers: [ElementPlusResolver()],
+    }),
+  ],
+}
+复制代码
+```
+
+这样我们不需要全局注册Element Plus的组件，也不需要引入样式，直接可以使用，插件会自动帮我们完成相应的操作。
+
+## 五、Axios集成
+
+### 5.1. 安装
+
+```shell
+npm install axios
+复制代码
+```
+
+### 5.2. 二次封装Axios
+
+....后续学习了再补充
+
+## 六、集成Stylus/Sass/Less
+
+本项目以less为例，相关的loader Vite 已经集成好了，无需额外配置
+
+`npm install less -D` 直接使用即可。
+
+```css
+<style scoped lang="less"></style>
+复制代码
+```
+
+## 七、代码规范
+
+### 7.1. 集成EditorConfig 配置
+
+EditorConfig 有助于为不同 IDE 编辑器上处理同一项目的多个开发人员维护一致的编码风格。
+
+在本项目根目录下增加 `.editorconfig` 文件：
+
+```typescript
+# Editor configuration, see http://editorconfig.org
+
+# 表示是最顶层的 EditorConfig 配置文件
+root = true
+
+[*] # 表示所有文件适用
+charset = utf-8 # 设置文件字符集为 utf-8
+indent_style = space # 缩进风格（tab | space）
+indent_size = 2 # 缩进大小
+end_of_line = lf # 控制换行类型(lf | cr | crlf)
+trim_trailing_whitespace = true # 去除行首的任意空白字符
+insert_final_newline = true # 始终在文件末尾插入一个新行
+
+[*.md] # 表示仅 md 文件适用以下规则
+max_line_length = off
+trim_trailing_whitespace = false
+
+复制代码
+```
+
+注意，VSCode 使用 EditorConfig 需要去插件市场下载插件 **EditorConfig for VS Code** 。
+
+### 7.2. 集成Prettier
+
+Prettier 是一款强大的代码格式化工具，支持 JavaScript、TypeScript、CSS、SCSS、Less、JSX、Angular、Vue、GraphQL、JSON、Markdown 等语言，基本上前端能用到的文件格式它都可以搞定，是当下最流行的代码格式化工具。
+
+#### 7.2.1. 安装
+
+```shell
+npm install prettier -D
+复制代码
+```
+
+#### 7.2.2. 配置Prettier文件
+
+Prettier 支持多种格式的配置文件，比如 .json、.yml、.yaml、.js等。
+
+在本项目根目录下创建 `.prettierrc` 文件。
+
+- useTabs：使用tab缩进还是空格缩进，选择false；
+- tabWidth：tab是空格的情况下，是几个空格，选择2个；
+- printWidth：当行字符的长度；
+- singleQuote：使用单引号还是双引号，选择true，使用单引号，false，使用双引号；
+- trailingComma：在多行输入的尾逗号是否添加，设置为 `none`；
+- semi：语句末尾是否要加分号，默认值true，选择false表示不加；
+
+```shell
+{
+  "useTabs": false,
+  "tabWidth": 2,
+  "printWidth": 100,
+  "singleQuote": false,
+  "trailingComma": "none",
+  "semi": true
+}
+复制代码
+```
+
+Prettier 安装且配置好之后，就能使用命令来格式化代码
+
+```shell
+# 格式化所有文件（. 表示所有文件）
+npx prettier --write .
+复制代码
+```
+
+#### 7.2.3. 创建.prettierignore忽略文件
+
+在本项目根目录下增加 `.prettierignore` 文件：
+
+```typescript
+/dist/*
+.local
+.output.js
+/node_modules/**
+
+**/*.svg
+**/*.sh
+
+/public/*
+复制代码
+```
+
+#### 7.2.4. 修改package.json
+
+```json
+{
+  "script": {
+    ...
+    "prettier": "prettier --write ." //实际上我们也可以通过 npx prettier --write .
+  }
+}
+复制代码
+```
+
+注意，VSCode 编辑器使用 Prettier 配置需要下载插件 **Prettier - Code formatter** 。
+
+### 7.3. 集成ESlint
+
+#### 7.3.1. 安装
+
+```shell
+npm install eslint -D
+复制代码
+```
+
+#### 7.3.2. 生成ESlint配置文件
+
+```shell
+npx eslint --init
+
+// 表示需要安装 @eslint/create-config 按回车即可
+yangjiang@MacBook-Pro vue-ts % npx eslint --init
+You can also run this command directly using 'npm init @eslint/config'.
+Need to install the following packages:
+  @eslint/create-config
+Ok to proceed? (y) 
+复制代码
+```
+
+#### 7.3.3. 具体配置信息
+
+```shell
+? How would you like to use ESLint? (Use arrow keys) //您想如何使用ESLint
+  To check syntax only // 只检查语法
+> To check syntax and find problems // 检查语法和发现问题 √
+  To check syntax, find problems, and enforce code style // 检查语法、发现问题并强制执行代码风格 
+
+? What type of modules does your project use? （你的项目使用哪种类型的模块?）
+❯ JavaScript modules (import/export)  // JavaScript √
+  CommonJS (require/exports) // CommonJS
+  None of these // 其他
+  
+? Which framework does your project use? （你的项目使用哪种框架?）
+  React
+❯ Vue.js			// 我用Vue
+  
+? Does your project use TypeScript? › No / Yes （是否使用TypeScript）
+  Yes
+  
+? Where does your code run?（你的代码在哪里运行?）
+✔ Browser
+✔ Node  // 我们这里选择 Browser 和 Node（按空格键进行选择，选完按回车键确定）
+  
+// 这里是选择To check syntax, find problems, and enforce code style
+//（检查语法、发现问题并强制执行代码风格）   才会多出的选项
+*? How would you like to define a style for your project? （你想怎样为你的项目定义风格？）
+❯ Use a popular style guide   // 使用一种流行的风格
+Answer questions about your style
+
+*? Which style guide do you want to follow?（你想遵循哪一种风格指南?)
+//（检查语法、发现问题并强制执行代码风格）   才会多出的选项
+❯ Airbnb: https://github.com/airbnb/javascript  // 暂时选这个 github start星最多
+  Standard: https://github.com/standard/standard
+  Google: https://github.com/google/eslint-config-google
+  XO: https://github.com/xojs/eslint-config-xo
+
+? What format do you want your config file to be in? （你希望你的配置文件是什么格式?）
+❯ JavaScript  //选择JavaScript
+  YAML
+  JSON
+
+eslint-plugin-vue@latest @typescript-eslint/eslint-plugin@latest eslint-config-airbnb-base@latest eslint@^7.32.0 || ^8.2.0 eslint-plugin-import@^2.25.2 @typescript-eslint/parser@latest
+? Would you like to install them now with npm? › No / Yes （你想现在就用 NPM 安装它们吗?）
+
+// 注意：如果自动安装依赖失败，那么复制后手动安装
+npm install eslint-plugin-vue@latest @typescript-eslint/eslint-plugin@latest eslint-config-airbnb-base@latest eslint@^7.32.0 || ^8.2.0 eslint-plugin-import@^2.25.2 @typescript-eslint/parser@latest -D
+复制代码
+```
+
+#### 7.3.4. 修改.eslintrc.js文件
+
+```javascript
+module.exports = {
+  env: {
+    browser: true,
+    es2021: true,
+    node: true
+  },
+  // .vue文件的ESLint自定义解析器。
+  parser: "vue-eslint-parser",
+  extends: [
+    "eslint:recommended", // eslint默认推荐的规范 
+    "plugin:vue/vue3-recommended", // vue3默认的推荐规范
+    "plugin:@typescript-eslint/recommended", // eslint/typescript 默认的推荐规范
+  ],
+  parserOptions: {
+    ecmaVersion: "latest",
+    parser: "@typescript-eslint/parser",
+    sourceType: "module",
+    // 支持jsx
+    ecmaFeatures: {
+      jsx: true
+    }
+  },
+  // eslint-plugin-vue @typescript-eslint/eslint-plugin 的缩写
+  plugins: ["vue", "@typescript-eslint"],
+  rules: {},
+  // 这里vue3的配置我们要特别说一下，因为vue3很多新的特性，例如defineProps会直接在eslint报错。所以，如果是使用vue3的小伙伴，就需要针对vue3进行一些配置。
+  // 首先，我们需要添加对defineProps、defineEmits、defineExpose、withDefaults的支持。
+  globals: {
+    defineProps: "readonly",
+    defineEmits: "readonly",
+    defineExpose: "readonly",
+    withDefaults: "readonly"
+  }
+}
+
+复制代码
+```
+
+根据项目实际情况，如果我们有额外的 ESLint 规则，也在此文件中追加。
+
+注意，VSCode 使用 ESLint 配置文件需要去插件市场下载插件 **ESLint** 。
+
+#### 7.3.5. 修改package.json
+
+```json
+{
+  "script": {
+    ...
+    "lint": "eslint src --fix --ext .ts,.tsx,.vue,.js,.jsx",
+  }
+}
+复制代码
+```
+
+#### 7.3.6. 新增ESlint忽略文件
+
+在本项目根目录下创建 `.eslintignore` 文件。
+
+```
+node_modules
+dist
+index.html
+*.d.ts
+复制代码
+```
+
+注意，VSCode 使用 ESLint 配置文件需要去插件市场下载插件 **ESLint**
+
+#### 7.3.7. 格式化代码
+
+执行一下下面的代码，看看配置有没有生效
+
+```
+# eslint 检查
+yarn lint
+# prettier 自动格式化
+yarn prettier
+复制代码
+```
+
+### 7.4. 解决eslint和prettier冲突
+
+通常会在项目中根据实际情况添加一些额外的 ESLint 和 Prettier 配置规则，难免会存在规则冲突情况。 解决两者冲突问题，需要用到 eslint-plugin-prettier 和 eslint-config-prettier。
+
+最后形成优先级：Prettier 配置规则 > ESLint 配置规则。
+
+- 安装插件（vue在创建项目时，如果选择prettier，那么这两个插件会自动安装，因为我们没用到脚手架，所以没有安装下面两个）
+
+  ```typescript
+  npm i eslint-plugin-prettier eslint-config-prettier -D
+  复制代码
+  ```
+
+- 在 .eslintrc.js 添加 prettier 插件
+
+  ```typescript
+  module.exports = {
+    ...
+    extends: [
+    	...
+      "plugin:prettier/recommended", // 插件约束规范 解决eslint和prettier的冲突问题
+    ],
+  }
+  复制代码
+  ```
+
+  - extends： 代表继承多个规范
+
+  - 在继承的情况下，里面包含相同的规则，最后一个会把前面里面的规则给覆盖掉。
+
+  这样，我们在执行 eslint --fix 命令时，ESLint 就会按照 Prettier 的配置规则来格式化代码，轻松解决二者冲突问题。

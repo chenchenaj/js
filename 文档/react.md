@@ -2180,7 +2180,23 @@ componentDidCatch(error, info) {
 
 # 易忘点
 
+- **setState本身是同步的方法，但是setState引起react后续更新状态是异步的**，如果在then中使用则是异步，因为axios返回本身就是个异步方法
+
+```js
+const {count} = this.state
+//更新状态
+this.setState({count:count+1},()=>{ // 在回调函数中输出是得到最新的值
+    console.log(this.state.count);
+})
+```
+
+
+
+- state在组件内部初始化，可以被组件自身修改，而外部不能访问也不能修改
+- props是外部传进来的配置参数，组件内部无法控制也无法修改
+
 - 状态在哪里，修改状态的方法就在哪里
+- 操作数组不能直接修改原来的值，要拷贝一份出来修改后通过setState修改原来的值
 
 
 
@@ -2490,3 +2506,8 @@ const WrappedLoginForm = Form.create()(Login);
 export default WrappedLoginForm
 ```
 
+
+
+健康督教
+
+监督食药 jian
