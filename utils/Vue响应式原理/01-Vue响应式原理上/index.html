@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let obj = {}
+        Object.defineProperty(obj, 'name', {
+            value: 'yx',
+            // 默认情况下通过defineProperty新增的属性值是不能被修改的，需要修改添加writable
+            writable: true,
+            // 默认情况下通过defineProperty的属性值是不能被删除的，需要修改添加configurable
+            configurable: true,
+            // 如果想迭代，那么就必须显示的告诉defineProperty(for...in能遍历)
+            enumerable: true
+        })
+        console.log(obj)
+    </script>
+</body>
+</html>

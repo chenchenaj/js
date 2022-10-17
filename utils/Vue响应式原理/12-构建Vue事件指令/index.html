@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      <input type="text" v-model="name" />
+      <input type="text" v-model="time.h" />
+      <p>{{ name }}</p>
+      <p>{{ age }}</p>
+      <button v-on:click="show">dianji</button>
+    </div>
+    <script src="./nue.js"></script>
+    <script>
+      let vue = new Nue({
+        el: "#app",
+        data: {
+          name: "yx",
+          age: 26,
+          time: {
+            h: 11,
+            m: 12
+          }
+        },
+        methods:{
+          show(){
+            console.log('show被执行了',this)
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

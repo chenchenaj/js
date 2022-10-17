@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    //    快速监听对象中所有属性的变化
+    let obj = {
+        name: 'yx',
+        age: 26
+    }
+
+    class Observer{
+        // 只要将需要监听的那个对象传递给Observer这个类，这个类就可以快速的给传入的对象所有属性都添加get/set方法
+        constructor(data){
+            this.observer(data)
+        }
+        observer(obj){
+            if(obj && typeof obj === 'object'){
+                for(let key in obj){
+                    this.defineReactive(obj, key, obj[key])
+                }
+            }
+        }
+
+        // obj: 需要操作的对象
+        // key： 需要新增get/set方法属性
+        // value：需要姓曾get/set方法属性的取值
+        defineReactive(obj, key, value){
+            this.observer(value)
+            Object.defineProperty(obj, key, {
+                // ！！！如果属性的取值又是一个对象，那么也需要给这个对象的所有属性添加get/set方法
+                get(){
+                    return value
+                },
+                set(newValue){
+                    if(value !== newValue){
+                        // !!!属性赋值了一个对象，该对象修改属性值
+                        value = newValue
+                        console.log('监听到数据的变化，需要去更新UI')
+                    }
+                }
+            })
+        }
+    }
+
+    new Observer(obj)
+    obj.name = 'oooo'
+    </script>
+</body>
+</html>
