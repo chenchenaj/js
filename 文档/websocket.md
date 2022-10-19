@@ -158,7 +158,7 @@ send.onclick = function(){
 
 
 
-## [项目案例](https://gitee.com/yx102/echarts)
+## [Web项目案例](https://gitee.com/yx102/echarts)
 
 使用websocket实时联动echarts的数据
 
@@ -717,5 +717,603 @@ export default{
     ...mapState(['theme'])
   }
 }
+```
+
+
+
+### 完整代码
+
+socket_service.js
+
+```js
+export default class SocketService {
+  /**
+   * 单例
+   */
+  static instance = null
+  static get Instance() {
+    if (!this.instance) {
+      this.instance = new SocketService()
+    }
+    return this.instance
+  }
+
+  // 和服务端连接的socket对象
+  ws = null
+
+  // 存储回调函数
+  callBackMapping = {}
+
+  // 标识是否连接成功
+  connected = false
+
+  // 记录重试的次数
+  sendRetryCount = 0
+
+  // 重新连接尝试的次数
+  connectRetryCount = 0
+
+  //  定义连接服务器的方法
+  connect() {
+    // 连接服务器
+    if (!window.WebSocket) {
+      return console.log('您的浏览器不支持WebSocket')
+    }
+    this.ws = new WebSocket('ws://localhost:9998')
+
+    // 连接成功的事件
+    this.ws.onopen = () => {
+      console.log('连接服务端成功了')
+      this.connected = true
+      // 重置重新连接的次数
+      this.connectRetryCount = 0
+    }
+    // 1.连接服务端失败
+    // 2.当连接成功之后, 服务器关闭的情况
+    this.ws.onclose = () => {
+      console.log('连接服务端失败')
+      this.connected = false
+      this.connectRetryCount++
+      setTimeout(() => {
+        this.connect()
+      }, 500 * this.connectRetryCount)
+    }
+    // 得到服务端发送过来的数据
+    this.ws.onmessage = msg => {
+      console.log('从服务端获取到了数据')
+      // 真正服务端发送过来的原始数据时在msg中的data字段
+      // console.log(msg.data)
+      const recvData = JSON.parse(msg.data)
+      const socketType = recvData.socketType
+      // 判断回调函数是否存在(处理业务逻辑)
+      if (this.callBackMapping[socketType]) {
+        const action = recvData.action
+        if (action === 'getData') {
+          const realData = JSON.parse(recvData.data)
+          this.callBackMapping[socketType].call(this, realData)
+        } else if (action === 'fullScreen') {
+          this.callBackMapping[socketType].call(this, recvData)
+        } else if (action === 'themeChange') {
+          this.callBackMapping[socketType].call(this, recvData)
+        }
+      }
+    }
+  }
+
+  // 回调函数的注册
+  registerCallBack (socketType, callBack) {
+    this.callBackMapping[socketType] = callBack
+  }
+
+  // 取消某一个回调函数
+  unRegisterCallBack (socketType) {
+    this.callBackMapping[socketType] = null
+  }
+
+  // 发送数据的方法
+  send (data) {
+    // 判断此时此刻有没有连接成功
+    if (this.connected) {
+      this.sendRetryCount = 0
+      this.ws.send(JSON.stringify(data))
+    } else {
+      this.sendRetryCount++
+      setTimeout(() => {
+        this.send(data)
+      }, this.sendRetryCount * 500)
+    }
+  }
+}
+```
+
+main.js
+
+```js
+import SocketService from '@/utils/socket_service'
+// 对服务端进行websocket的连接
+SocketService.Instance.connect()
+// 其他的组件  this.$socket
+Vue.prototype.$socket = SocketService.Instance
+```
+
+使用
+
+```vue
+<!-- 地区销售排行 -->
+<template>
+  <div class='com-container'>
+    <div class='com-chart' ref='rank_ref'></div>
+  </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+export default {
+  data () {
+    return {
+      chartInstance: null,
+      allData: null,
+      startValue: 0, // 区域缩放的起点值
+      endValue: 9, // 区域缩放的终点值
+      timerId: null // 定时器的标识
+    }
+  },
+  created () {
+    // 在组件创建完成之后 进行回调函数的注册
+    this.$socket.registerCallBack('rankData', this.getData)
+  },
+  mounted () {
+    this.initChart()
+    // this.getData()
+    this.$socket.send({
+      action: 'getData',
+      socketType: 'rankData',
+      chartName: 'rank',
+      value: ''
+    })
+    window.addEventListener('resize', this.screenAdapter)
+    this.screenAdapter()
+  },
+  destroyed () {
+    window.removeEventListener('resize', this.screenAdapter)
+    clearInterval(this.timerId)
+    this.$socket.unRegisterCallBack('rankData')
+  },
+  methods: {
+    initChart () {
+      this.chartInstance = this.$echarts.init(this.$refs.rank_ref, this.theme)
+      const initOption = {
+        title: {
+          text: '▎ 地区销售排行',
+          left: 20,
+          top: 20
+        },
+        grid: {
+          top: '40%',
+          left: '5%',
+          right: '5%',
+          bottom: '5%',
+          containLabel: true
+        },
+        tooltip: {
+          show: true
+        },
+        xAxis: {
+          type: 'category'
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            type: 'bar'
+          }
+        ]
+      }
+      this.chartInstance.setOption(initOption)
+      this.chartInstance.on('mouseover', () => {
+        clearInterval(this.timerId)
+      })
+      this.chartInstance.on('mouseout', () => {
+        this.startInterval()
+      })
+    },
+    getData (ret) {
+      // 获取服务器的数据, 对this.allData进行赋值之后, 调用updateChart方法更新图表
+      // const { data: ret } = await this.$http.get('rank')
+      this.allData = ret
+      // 对allData里面的每一个元素进行排序, 从大到小进行
+      this.allData.sort((a, b) => {
+        return b.value - a.value
+      })
+      console.log(this.allData)
+      this.updateChart()
+      this.startInterval()
+    },
+    updateChart () {
+      const colorArr = [
+        ['#0BA82C', '#4FF778'],
+        ['#2E72BF', '#23E5E5'],
+        ['#5052EE', '#AB6EE5']
+      ]
+      // 处理图表需要的数据
+      // 所有省份所形成的数组
+      const provinceArr = this.allData.map(item => {
+        return item.name
+      })
+      // 所有省份对应的销售金额
+      const valueArr = this.allData.map(item => {
+        return item.value
+      })
+      const dataOption = {
+        xAxis: {
+          data: provinceArr
+        },
+        dataZoom: {
+          show: false,
+          startValue: this.startValue,
+          endValue: this.endValue
+        },
+        series: [
+          {
+            data: valueArr,
+            itemStyle: {
+              color: arg => {
+                let targetColorArr = null
+                if (arg.value > 300) {
+                  targetColorArr = colorArr[0]
+                } else if (arg.value > 200) {
+                  targetColorArr = colorArr[1]
+                } else {
+                  targetColorArr = colorArr[2]
+                }
+                return new this.$echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  {
+                    offset: 0,
+                    color: targetColorArr[0]
+                  },
+                  {
+                    offset: 1,
+                    color: targetColorArr[1]
+                  }
+                ])
+              }
+            }
+          }
+        ]
+      }
+      this.chartInstance.setOption(dataOption)
+    },
+    screenAdapter () {
+      const titleFontSize = this.$refs.rank_ref.offsetWidth / 100 * 3.6
+      const adapterOption = {
+        title: {
+          textStyle: {
+            fontSize: titleFontSize
+          }
+        },
+        series: [
+          {
+            barWidth: titleFontSize,
+            itemStyle: {
+              barBorderRadius: [titleFontSize / 2, titleFontSize / 2, 0, 0]
+            }
+          }
+        ]
+      }
+      this.chartInstance.setOption(adapterOption)
+      this.chartInstance.resize()
+    },
+    startInterval () {
+      if (this.timerId) {
+        clearInterval(this.timerId)
+      }
+      this.timerId = setInterval(() => {
+        this.startValue++
+        this.endValue++
+        if (this.endValue > this.allData.length - 1) {
+          this.startValue = 0
+          this.endValue = 9
+        }
+        this.updateChart()
+      }, 2000)
+    }
+  },
+  computed: {
+    ...mapState(['theme'])
+  },
+  watch: {
+    theme () {
+      console.log('主题切换了')
+      this.chartInstance.dispose() // 销毁当前的图表
+      this.initChart() // 重新以最新的主题名称初始化图表对象
+      this.screenAdapter() // 完成屏幕的适配
+      this.updateChart() // 更新图表的展示
+    }
+  }
+}
+</script>
+```
+
+
+
+## [Uniapp项目案例](https://gitee.com/kiyama/mushan-im)
+
+store.js--封装的socket
+
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+Vue.use(Vuex)
+
+const store = new Vuex.Store({
+    state: {
+        socketTask: null,
+        websocketData: {}, // 存放从后端接收到的websocket数据
+		user:"",
+    },
+    mutations: {
+        setWebsocketData (state, data) {
+			 let message = JSON.parse(data.data);
+			 state.websocketData = message
+        },
+		setUser(state,user){
+			 state.user = user
+		},
+	
+    }, 
+    actions: {
+        websocketInit ({ state, dispatch }, url) {
+            state.socketTast = uni.connectSocket({
+                url, // url是websocket连接ip
+                success: () => {
+                    console.log('websocket连接成功！')
+                },
+                fail: e => {
+                    console.log('连接失败' + e)
+                }
+            })
+            state.socketTast.onOpen(() => dispatch('websocketOnOpen'))
+            state.socketTast.onMessage(res => dispatch('websocketOnMessage', res))
+            state.socketTast.onClose(e => dispatch('websocketOnClose'))
+            state.socketTast.onError(e => dispatch('websocketOnError'))
+        },
+        websocketOnOpen ({ commit }) {
+            console.log('WebSocket连接正常打开中...！')
+        },
+        // 收到数据
+        websocketOnMessage ({ commit }, res) {
+            if (res.data !== '连接成功') {
+				if(res){
+				    let data = JSON.parse(res.data);
+				    //处理业务逻辑
+                    commit('setWebsocketData',res)
+				} 
+            }
+        },
+        websocketOnClose ({ commit, dispatch }) {
+            console.log('WebSocket连接关闭')
+        },
+        websocketOnError ({ commit, dispatch }) {
+            console.log('WebSocket连接错误')
+        },
+        websocketClose ({ state }) {
+            if (!state.socketTast) return
+            state.socketTast.close({
+                success (res) {
+                    console.log('关闭成功', res)
+                },
+                fail (err) {
+                    console.log('关闭失败', err)
+                }
+            })
+        },
+        // 发送数据
+        websocketSend ({ state }, data) {
+            uni.sendSocketMessage({
+                data,
+                success: res => {
+                    console.log('发送成功', res)
+                },
+                fail: e => {
+                    console.log('发送失败', e)
+                }
+            })
+        }
+    }
+
+})
+
+export default store
+```
+
+main.js引入store使用
+
+index初始化socket
+
+```vue
+<script>
+	export default {
+		onLoad(option) {
+			this.initWebsocket(option);
+		},
+		methods: {
+			initWebsocket(option){
+				this.$store.commit('setUser',option.id);
+				this.$store.dispatch('websocketInit', 'ws://192.168.0.102:8080/mushan/'+e.id)
+			},
+		}
+	}
+</script>
+```
+
+打电话页面跳转
+
+```vue
+<script>
+	export default {
+		data() {
+			return {
+				source:'',
+			}
+		},
+		onLoad(e){
+			this.source = e.source
+		},
+		methods: {
+			meetTo(){
+				//推送消息接听
+				let user = this.$store.state.user;
+				let msg = {to:this.source,source:user,msg:null,type:3};
+				this.$store.dispatch('websocketSend',JSON.stringify(msg))
+				//跳转页面进行通话
+				
+				uni.navigateTo({
+					url: '/pages/videoStart/videoStart?user='+user+"&to="+this.source
+				});
+				
+			}
+		}
+	}
+</script>
+```
+
+接电话
+
+```vue
+<template>
+    <view>
+		<video id="myVideo" :src="src"
+		 @error="videoErrorCallback" 
+		 autoplay="true"
+		 object-fit="cover"
+		 :style="{width:wid,height:hei}" :danmu-list="danmuList" enable-danmu danmu-btn controls></video>
+        
+		<live-pusher id='livePusher' ref="livePusher" class="livePusher" :url="url"
+        mode="FHD" 
+		:muted="false" :enable-camera="true" :auto-focus="true" :beauty="1" whiteness="2"
+        aspect="9:16" @statechange="statechange" @netstatus="netstatus" @error = "error"></live-pusher>
+    </view>
+</template>
+
+<script>
+    export default {
+        data() {
+			return {
+				src:"",
+				url:"",
+				wid:0,
+				hei:0,
+                context: null
+			}
+        },
+		onLoad(e) {
+			//url推自己的流
+			//src 那对方的流
+			let user = e.user;
+			let to   = e.to;
+			this.url = "rtmp://101.42.135.49:1935/live/"+user;
+			this.src = "rtmp://101.42.135.49:1935/live/"+to;
+			let getWindowInfo = uni.getWindowInfo();
+			this.hei = getWindowInfo.screenHeight;
+			this.wid = getWindowInfo.screenWidth;
+		
+		},
+        onReady() {
+            // 注意：需要在onReady中 或 onLoad 延时
+            this.context = uni.createLivePusherContext("livePusher", this);
+			this.start();
+		},
+        methods: {
+            statechange(e) {
+                console.log("statechange:" + JSON.stringify(e));
+            },
+            netstatus(e) {
+                console.log("netstatus:" + JSON.stringify(e));
+            },
+            error(e) {
+                console.log("error:" + JSON.stringify(e));
+            },
+            start: function() {
+                this.context.start({
+                    success: (a) => {
+                        console.log("livePusher.start:" + JSON.stringify(a));
+                    }
+                });
+            },
+            close: function() {
+                this.context.close({
+                    success: (a) => {
+                        console.log("livePusher.close:" + JSON.stringify(a));
+                    }
+                });
+            },
+            snapshot: function() {
+                this.context.snapshot({
+                    success: (e) => {
+                        console.log(JSON.stringify(e));
+                    }
+                });
+            },
+            resume: function() {
+                this.context.resume({
+                    success: (a) => {
+                        console.log("livePusher.resume:" + JSON.stringify(a));
+                    }
+                });
+            },
+            pause: function() {
+                this.context.pause({
+                    success: (a) => {
+                        console.log("livePusher.pause:" + JSON.stringify(a));
+                    }
+                });
+            },
+            stop: function() {
+                this.context.stop({
+                    success: (a) => {
+                        console.log(JSON.stringify(a));
+                    }
+                });
+            },
+            switchCamera: function() {
+                this.context.switchCamera({
+                    success: (a) => {
+                        console.log("livePusher.switchCamera:" + JSON.stringify(a));
+                    }
+                });
+            },
+            startPreview: function() {
+                this.context.startPreview({
+                    success: (a) => {
+                        console.log("livePusher.startPreview:" + JSON.stringify(a));
+                    }
+                });
+            },
+            stopPreview: function() {
+                this.context.stopPreview({
+                    success: (a) => {
+                        console.log("livePusher.stopPreview:" + JSON.stringify(a));
+                    }
+                });
+            }
+        }
+    }
+</script>
+
+
+<style>
+	.vid{
+		width: 1000rpx;
+		height: 1000rpx;
+	}
+	.livePusher{
+		position: fixed;
+		top: 5px;
+		right: 10px;
+		width: 200rpx;
+		height: 360rpx;
+	}
+</style>
 ```
 
